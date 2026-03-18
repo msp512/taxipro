@@ -115,7 +115,12 @@ app.use("/api/services", serviceRoutes);
 // ================================
 // SPA FALLBACK (MUY IMPORTANTE)
 // ================================
-app.use((req, res) => {
+app.use((req, res, next) => {
+  // Solo servir frontend si NO es API
+  if (req.path.startsWith("/api")) {
+    return next();
+  }
+
   res.sendFile(
     path.join(__dirname, "../frontend/pwa/index.html")
   );
