@@ -121,11 +121,7 @@ app.get("/", (req, res) => {
   );
 });
 
-app.get("/:path(*)", (req, res) => {
-  if (req.path.startsWith("/api")) {
-    return res.status(404).json({ error: "API route not found" });
-  }
-
+app.get("/app", (req, res) => {
   res.sendFile(
     path.join(__dirname, "../frontend/pwa/index.html")
   );
