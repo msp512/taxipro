@@ -1,0 +1,98 @@
+[
+  {
+    "name": "MA-19 Aeropuerto dirección Palma",
+    "lat": 39.5476,
+    "lng": 2.7314,
+    "speed": 80
+  },
+  {
+    "name": "MA-19 Can Pastilla",
+    "lat": 39.5369,
+    "lng": 2.7392,
+    "speed": 80
+  },
+  {
+    "name": "MA-19 Coll d'en Rabassa",
+    "lat": 39.5597,
+    "lng": 2.7125,
+    "speed": 80
+  },
+  {
+    "name": "MA-19 salida Palma hacia aeropuerto",
+    "lat": 39.5689,
+    "lng": 2.6994,
+    "speed": 80
+  },
+  {
+    "name": "Vía Cintura Son Hugo",
+    "lat": 39.6052,
+    "lng": 2.6660,
+    "speed": 60
+  },
+  {
+    "name": "Vía Cintura dirección Andratx",
+    "lat": 39.5965,
+    "lng": 2.6420,
+    "speed": 60
+  },
+  {
+    "name": "Vía Cintura dirección Inca",
+    "lat": 39.6067,
+    "lng": 2.6801,
+    "speed": 60
+  },
+  {
+    "name": "Vía Cintura salida Son Rapinya",
+    "lat": 39.5899,
+    "lng": 2.6247,
+    "speed": 60
+  },
+  {
+    "name": "MA-13 Palma dirección Inca",
+    "lat": 39.6404,
+    "lng": 2.7061,
+    "speed": 90
+  },
+  {
+    "name": "MA-13 Inca dirección Palma",
+    "lat": 39.7024,
+    "lng": 2.9095,
+    "speed": 90
+  },
+  {
+    "name": "MA-1 Autovía Andratx dirección Palma",
+    "lat": 39.5583,
+    "lng": 2.5735,
+    "speed": 90
+  },
+  {
+    "name": "MA-1 Bendinat",
+    "lat": 39.5406,
+    "lng": 2.6037,
+    "speed": 90
+  },
+  {
+    "name": "MA-20 acceso centro Palma",
+    "lat": 39.5788,
+    "lng": 2.6534,
+    "speed": 60
+  },
+  {
+    "name": "MA-30 acceso Marratxí",
+    "lat": 39.6201,
+    "lng": 2.7162,
+    "speed": 80
+  },
+  {
+    "name": "MA-15 Palma dirección Manacor",
+    "lat": 39.6035,
+    "lng": 2.7310,
+    "speed": 90
+  },
+  {
+    "name": "MA-15 Manacor entrada ciudad",
+    "lat": 39.5702,
+    "lng": 3.2094,
+    "speed": 50
+  }
+]

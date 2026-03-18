@@ -1,0 +1,46 @@
+{
+  "cityName": "Palma de Mallorca",
+
+  "season_mode": "dynamic",
+
+  "season_dates": {
+    "high": { "start": "05-01", "end": "10-31" },
+    "low": { "start": "11-01", "end": "04-30" }
+  },
+
+  "season_profiles": {
+    "high": {
+      "factor_arrastre": 0.02,
+      "services_analyzed": 0,
+      "last_revision": null
+    },
+    "low": {
+      "factor_arrastre": 0.02,
+      "services_analyzed": 0,
+      "last_revision": null
+    }
+  },
+
+  "tariffs": {
+    "day": {
+      "bajadaBandera": 2.50,
+      "precioKm": 1.20,
+      "horaEspera": 19.40
+    },
+    "night": {
+      "bajadaBandera": 2.85,
+      "precioKm": 1.35,
+      "horaEspera": 21.40
+    }
+  },
+
+  "supplements": {
+    "aeropuerto": 4.65,
+    "emisora": 1.15,
+    "pax_5_6": 3.00,
+    "pax_7_8": 6.00,
+    "montana_1": 8.52,
+    "montana_2": 4.26,
+    "navidad": 4.75
+  }
+}

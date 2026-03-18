@@ -1,0 +1,773 @@
+/* ===============================
+   RESET
+=============================== */
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+/* ===============================
+   BODY
+=============================== */
+
+body {
+  background: #f4f6f9;
+  color: #1f2937;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* ===============================
+   HEADER
+=============================== */
+
+.app-header {
+  background: #0F2A44;
+  color: white;
+  padding: 16px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+
+.logo {
+  font-size: 1.1rem;
+}
+
+.status-indicator {
+  font-size: 1.2rem;
+  color: #4ade80;
+}
+
+/* ===============================
+   MAIN
+=============================== */
+
+.main-container {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+}
+
+/* ===============================
+   CARD
+=============================== */
+
+.card {
+  background: white;
+  width: 100%;
+  max-width: 420px;
+  border-radius: 18px;
+  padding: 24px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+}
+
+/* ===============================
+   INPUT GROUP
+=============================== */
+
+.input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+input {
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid #d1d5db;
+  font-size: 0.95rem;
+}
+
+input:focus {
+  outline: none;
+  border-color: #0F2A44;
+}
+
+/* ===============================
+   BUTTON
+=============================== */
+
+button {
+  background: #0F2A44;
+  color: white;
+  padding: 14px;
+  border: none;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+button:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+}
+
+button:hover:not(:disabled) {
+  background: #13365a;
+}
+
+/* ===============================
+   CALCULATE BUTTON
+=============================== */
+
+#calculateBtn {
+  width: 100%;
+  font-size: 1rem;
+  margin-top: 10px;
+}
+
+/* ===============================
+   QUICK DESTINATIONS
+=============================== */
+
+#quickDestinations {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+#quickDestinations button {
+  padding: 10px;
+  font-size: 0.85rem;
+  border-radius: 10px;
+}
+
+/* ===============================
+   RESULT
+=============================== */
+
+.result-container {
+  margin-top: 24px;
+  text-align: center;
+}
+
+/* ===============================
+   ESTIMATION CARD
+=============================== */
+
+.estimation-card {
+  margin-top: 20px;
+  padding: 20px;
+  border-radius: 16px;
+  background: linear-gradient(180deg,#ffffff,#f9fafb);
+  box-shadow: 0 15px 35px rgba(0,0,0,0.08);
+  text-align: center;
+}
+
+/* ===============================
+   ESTIMATION TITLE
+=============================== */
+
+.estimation-title {
+  font-size: 0.9rem;
+  color: #6b7280;
+  margin-bottom: 10px;
+}
+
+/* ===============================
+   PRICE (IMPORTANT)
+=============================== */
+
+.price {
+  font-size: 3.8rem;
+  font-weight: 700;
+  margin-bottom: 6px;
+  color: #0F2A44;
+  letter-spacing: -1px;
+}
+
+/* ===============================
+   RANGE
+=============================== */
+
+.interval {
+  font-size: 1rem;
+  color: #6b7280;
+}
+
+/* ===============================
+   ROUTE META
+=============================== */
+
+.route-meta {
+  margin-top: 10px;
+  font-size: 0.9rem;
+  color: #6b7280;
+}
+
+/* ===============================
+   CONFIDENCE
+=============================== */
+
+.confidence-indicator {
+  margin-top: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+/* ===============================
+   META DATA
+=============================== */
+
+.meta {
+  margin-top: 6px;
+  font-size: 0.8rem;
+  color: #9ca3af;
+}
+
+/* ===============================
+   LEGAL NOTICE
+=============================== */
+
+.legal-notice {
+  font-size: 12px;
+  color: #6b7280;
+  margin-top: 10px;
+  line-height: 1.4;
+}
+
+/* ===============================
+   METER INPUT
+=============================== */
+
+#meterInputSection {
+  margin-top: 20px;
+}
+
+#meterInputSection input {
+  margin-top: 8px;
+  margin-bottom: 10px;
+}
+
+/* ===============================
+   TAXI SETUP
+=============================== */
+
+#taxiSetup {
+  padding: 10px 20px;
+  background: #e5e7eb;
+  font-size: 0.9rem;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+/* ===============================
+   TECH PANEL
+=============================== */
+
+#techPanel {
+  position: fixed;
+  bottom: 10px;
+  right: 10px;
+  background: #111;
+  color: #0f0;
+  font-size: 12px;
+  padding: 10px;
+  border-radius: 8px;
+  font-family: monospace;
+  max-width: 300px;
+  z-index: 9999;
+}
+
+/* ===============================
+   RADAR ALERT
+=============================== */
+
+#radarAlert {
+  margin-top: 10px;
+  text-align: center;
+}
+
+/* ===============================
+   CLIENT MODE
+=============================== */
+
+.client-mode {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #0F2A44;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.client-card {
+  text-align: center;
+  color: white;
+  padding: 30px;
+  max-width: 320px;
+}
+
+.client-route {
+  font-size: 1.2rem;
+  margin-bottom: 20px;
+  opacity: 0.9;
+}
+
+.client-price {
+  font-size: 4rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.client-meta {
+  font-size: 1rem;
+  opacity: 0.9;
+  margin-bottom: 20px;
+}
+
+.client-legal {
+  font-size: 0.8rem;
+  opacity: 0.8;
+  margin-bottom: 20px;
+}
+
+.client-card button {
+  background: white;
+  color: #0F2A44;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 10px;
+  font-weight: 600;
+}
+
+/* ===============================
+   MOBILE OPTIMIZATION
+=============================== */
+
+@media (max-width: 480px) {
+
+  .card {
+    border-radius: 14px;
+    padding: 20px;
+  }
+
+  .price {
+    font-size: 2.8rem;
+  }
+
+}
+
+/* ===============================
+   PRICE ANIMATION
+=============================== */
+
+.price-animate {
+  animation: pricePop 0.4s ease;
+}
+
+@keyframes pricePop {
+
+  0% {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+
+  60% {
+    transform: scale(1.05);
+    opacity: 1;
+  }
+
+  100% {
+    transform: scale(1);
+  }
+
+}
+
+/* ===============================
+   HIDDEN
+=============================== */
+
+.hidden {
+  display:none;
+}
+/* ===============================
+SUPPLEMENTS PANEL
+=============================== */
+
+.supplements-panel {
+
+  margin-top: 20px;
+  padding: 16px;
+  border-radius: 14px;
+  background: #f9fafb;
+
+}
+
+.supplements-title {
+
+  font-size: 0.9rem;
+  color: #6b7280;
+  margin-bottom: 12px;
+
+}
+
+.supplements-grid {
+
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+
+}
+
+.supplement-btn {
+
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+
+  background: white;
+  font-size: 0.85rem;
+
+}
+
+/* estado activo */
+
+.supplement-btn.active {
+
+  background: #0F2A44;
+  color: white;
+  border-color: #0F2A44;
+
+}
+/* ===============================
+FREQUENT ROUTES
+=============================== */
+
+#frequentRoutes {
+
+  display: grid;
+  grid-template-columns: repeat(2,1fr);
+  gap: 10px;
+
+  margin-bottom: 16px;
+
+}
+
+.frequent-route-btn {
+
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+
+  background: white;
+
+  font-size: 0.85rem;
+
+}
+.traffic-status{
+font-size:13px;
+color:#2c8f2c;
+margin-top:8px;
+}
+/* SPLASH SCREEN */
+
+#splash{
+
+position:fixed;
+top:0;
+left:0;
+
+width:100%;
+height:100%;
+
+background:#0F2A44;
+
+display:flex;
+flex-direction:column;
+justify-content:center;
+align-items:center;
+
+z-index:9999;
+
+color:white;
+
+}
+
+#splash img{
+
+width:110px;
+margin-bottom:16px;
+
+animation:logoFade 0.8s ease-out;
+
+}
+
+.splash-title{
+
+font-size:24px;
+letter-spacing:2px;
+font-weight:700;
+
+}
+
+.scan-line{
+
+width:120px;
+height:3px;
+
+background:#4ade80;
+
+margin-top:20px;
+
+animation:scan 1.6s infinite;
+
+}
+
+@keyframes logoFade{
+
+from{opacity:0;transform:translateY(10px);}
+to{opacity:1;transform:translateY(0);}
+
+}
+
+@keyframes scan{
+
+0%{transform:scaleX(0);opacity:0.3;}
+50%{transform:scaleX(1);opacity:1;}
+100%{transform:scaleX(0);opacity:0.3;}
+
+}
+/* ===============================
+   TAXIPRO PRICE ANIMATION
+   =============================== */
+
+.price-animate {
+  animation: priceFade 0.4s ease;
+}
+
+@keyframes priceFade {
+
+  0% {
+    transform: scale(0.7);
+    opacity: 0;
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+
+}
+/* =========================
+   TARJETA RESULTADO
+========================= */
+
+.result-card {
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 18px;
+  margin-top: 16px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+  text-align: center;
+}
+
+/* =========================
+   PRECIO PRINCIPAL
+========================= */
+
+.estimated-price {
+  font-size: 44px;
+  font-weight: 700;
+  color: #0a7cff;
+  margin-bottom: 6px;
+}
+
+/* intervalo */
+
+.price-range {
+  font-size: 15px;
+  color: #666;
+}
+
+/* detalles ruta */
+
+.route-info {
+  font-size: 14px;
+  color: #888;
+  margin-top: 6px;
+}
+
+/* =========================
+   ANIMACIÓN PRECIO
+========================= */
+
+.price-animate {
+  animation: pricePop 0.45s ease;
+}
+
+@keyframes pricePop {
+  0% {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+
+  60% {
+    transform: scale(1.1);
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+/* =========================
+   BOTÓN CALCULAR
+========================= */
+
+.calculate-btn {
+  background: #0a7cff;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 14px;
+  font-size: 16px;
+  font-weight: 600;
+  width: 100%;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.calculate-btn:active {
+  transform: scale(0.97);
+  box-shadow: inset 0 2px 6px rgba(0,0,0,0.15);
+}
+/* =========================
+   LOADING BAR
+========================= */
+
+.loading-bar {
+  width: 100%;
+  height: 4px;
+  background: #e5e5e5;
+  border-radius: 2px;
+  overflow: hidden;
+  margin-top: 12px;
+  display: none;
+}
+
+.loading-progress {
+  height: 100%;
+  width: 0%;
+  background: #0a7cff;
+  animation: loadingMove 1.2s infinite;
+}
+
+@keyframes loadingMove {
+
+  0% {
+    width: 0%;
+  }
+
+  50% {
+    width: 80%;
+  }
+
+  100% {
+    width: 100%;
+  }
+
+}
+/* MAP */
+
+#map {
+
+height:180px;
+width:100%;
+
+border-radius:12px;
+
+margin-bottom:16px;
+
+}
+/* ===============================
+   HISTORIAL SERVICIOS
+=============================== */
+
+.history-panel{
+
+margin-top:20px;
+padding:16px;
+border-radius:14px;
+background:#f9fafb;
+
+}
+
+.history-title{
+
+font-size:0.9rem;
+color:#6b7280;
+margin-bottom:10px;
+
+}
+
+.history-item{
+
+padding:10px;
+border-bottom:1px solid #e5e7eb;
+font-size:0.85rem;
+
+}
+
+.history-item:last-child{
+border-bottom:none;
+}
+
+.history-deviation-positive{
+color:#b91c1c;
+font-weight:600;
+}
+
+.history-deviation-negative{
+color:#047857;
+font-weight:600;
+}
+/* ===============================
+   TAXIPRO PILOT STATS
+=============================== */
+
+.pilot-stats {
+
+position:fixed;
+bottom:10px;
+left:10px;
+
+background:#0F2A44;
+color:white;
+
+padding:12px;
+
+border-radius:10px;
+
+font-size:12px;
+
+box-shadow:0 6px 20px rgba(0,0,0,0.2);
+
+z-index:999;
+
+min-width:170px;
+
+}
+
+.pilot-title{
+
+font-weight:600;
+margin-bottom:6px;
+
+}
