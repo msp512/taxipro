@@ -115,10 +115,15 @@ app.use("/api/services", serviceRoutes);
 // ================================
 // SPA FALLBACK (MUY IMPORTANTE)
 // ================================
-app.use((req, res, next) => {
-  // Solo servir frontend si NO es API
+app.get("/", (req, res) => {
+  res.sendFile(
+    path.join(__dirname, "../frontend/pwa/index.html")
+  );
+});
+
+app.get("/:path(*)", (req, res) => {
   if (req.path.startsWith("/api")) {
-    return next();
+    return res.status(404).json({ error: "API route not found" });
   }
 
   res.sendFile(
