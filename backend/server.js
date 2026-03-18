@@ -28,7 +28,7 @@ const __dirname = path.dirname(__filename);
 app.set("trust proxy", 1);
 
 // ================================
-// SEGURIDAD
+// SEGURIDAD (helmet con CSP)
 // ================================
 app.use(
   helmet({
@@ -40,8 +40,16 @@ app.use(
           "https://maps.googleapis.com",
           "https://maps.gstatic.com"
         ],
-        imgSrc: ["'self'", "data:", "https://maps.gstatic.com"],
-        connectSrc: ["'self'", "https://maps.googleapis.com"],
+        imgSrc: [
+          "'self'",
+          "data:",
+          "https://maps.gstatic.com"
+        ],
+        connectSrc: [
+          "'self'",
+          "https://maps.googleapis.com",
+          "https://taxipro.onrender.com"
+        ],
         styleSrc: ["'self'", "'unsafe-inline'"]
       }
     }
@@ -49,74 +57,72 @@ app.use(
 );
 
 // ================================
-// CORS (mejorado)
+// CORS
 // ================================
-app.use(cors({
-  origin: (origin, callback) => {
-    const allowed = [
+app.use(
+  cors({
+    origin: [
       "https://taxipro.onrender.com",
       "http://localhost:3000"
-    ];
+    ]
+  })
+);
 
-    if (!origin || allowed.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error("CORS not allowed"));
-    }
-  }
-}));
 // ================================
 // PARSE JSON
 // ================================
 app.use(express.json());
 
 // ================================
-// RATE LIMIT (bien ubicado)
+// RATE LIMIT
 // ================================
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 200,
-  message: "Too many requests from this device"
+  message: "Too many requests"
 });
 
 app.use("/api", apiLimiter);
 
 // ================================
-// STATIC FRONTEND (seguro)
+// STATIC FRONTEND
 // ================================
-app.use(express.static(path.join(__dirname, "../frontend/pwa")));
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "../frontend/pwa/index.html"));
-});
+app.use(
+  express.static(
+    path.join(__dirname, "../frontend/pwa")
+  )
+);
 
 // ================================
 // TEST DB
 // ================================
 db.query("SELECT NOW()")
-  .then(res => logger.info("DB Connected: " + res.rows[0].now))
-  .catch(err => logger.error("DB Error: " + err));
+  .then((res) =>
+    logger.info("DB Connected: " + res.rows[0].now)
+  )
+  .catch((err) =>
+    logger.error("DB Error: " + err)
+  );
 
 // ================================
-// RUTAS API
+// API ROUTES
 // ================================
 app.use("/api/fare", fareRoutes);
 app.use("/api/city", cityRoutes);
-
-// 🔐 protegidas
 app.use("/api/tech", verifyJWT, techRoutes);
-
-// ⚠️ decide si proteger
 app.use("/api/services", serviceRoutes);
 
 // ================================
-// ROOT
+// SPA FALLBACK (MUY IMPORTANTE)
 // ================================
-app.get("/", (req, res) => {
-  res.send("TAXIPRO TECH SERVER ACTIVE");
+app.use((req, res) => {
+  res.sendFile(
+    path.join(__dirname, "../frontend/pwa/index.html")
+  );
 });
 
 // ================================
-// ERROR HANDLER (CRÍTICO)
+// ERROR HANDLER
 // ================================
 app.use((err, req, res, next) => {
   logger.error(err.stack);
@@ -131,5 +137,5 @@ app.use((err, req, res, next) => {
 const PORT = process.env.PORT || 5001;
 
 app.listen(PORT, () => {
-  logger.info(`Tech server running on port ${PORT}`);
+  logger.info(`Server running on port ${PORT}`);
 });
