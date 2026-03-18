@@ -30,7 +30,23 @@ app.set("trust proxy", 1);
 // ================================
 // SEGURIDAD
 // ================================
-app.use(helmet());
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: [
+          "'self'",
+          "https://maps.googleapis.com",
+          "https://maps.gstatic.com"
+        ],
+        imgSrc: ["'self'", "data:", "https://maps.gstatic.com"],
+        connectSrc: ["'self'", "https://maps.googleapis.com"],
+        styleSrc: ["'self'", "'unsafe-inline'"]
+      }
+    }
+  })
+);
 
 // ================================
 // CORS (mejorado)
@@ -38,7 +54,7 @@ app.use(helmet());
 app.use(cors({
   origin: (origin, callback) => {
     const allowed = [
-      "https://taxipro-app.com",
+      "https://taxipro.onrender.com",
       "http://localhost:3000"
     ];
 
@@ -49,7 +65,6 @@ app.use(cors({
     }
   }
 }));
-
 // ================================
 // PARSE JSON
 // ================================
@@ -70,6 +85,9 @@ app.use("/api", apiLimiter);
 // STATIC FRONTEND (seguro)
 // ================================
 app.use(express.static(path.join(__dirname, "../frontend/pwa")));
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "../frontend/pwa/index.html"));
+});
 
 // ================================
 // TEST DB
