@@ -3,7 +3,7 @@ import { calculateDragFactor } from "../core/dragFactorEngine.js";
 import { calculateConfidence } from "../core/confidenceEngine.js";
 import { calculateFare } from "../core/fareEngine.js";
 import { fareSchema } from "../validation/fareSchema.js";
-import { logger } from "../utils/logger.js";
+import logger from "../utils/logger.js";
 
 export function estimateFare(req, res) {
   try {
