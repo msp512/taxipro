@@ -12,7 +12,7 @@ import serviceRoutes from "./routes/serviceRoutes.js";
 
 import { verifyJWT } from "./middleware/auth.js";
 import db from "./db.js";
-import { logger } from "./utils/logger.js";
+import logger from "./utils/logger.js";
 
 const app = express();
 
