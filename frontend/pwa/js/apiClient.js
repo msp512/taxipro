@@ -1,7 +1,7 @@
 const API_BASE =
   window.location.hostname === "localhost"
     ? "http://localhost:5001/api"
-    : "/api";
+    : "https://taxipro.onrender.com/api";
 
 export async function calculateFareAPI(distance, duration, city = "Palma") {
 
