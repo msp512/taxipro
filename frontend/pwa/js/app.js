@@ -63,6 +63,7 @@ let lastRoute = null;
 let lastFare = null;
 let reminderTimer = null;
 let longPressTimer = null;
+let isSavingService = false;
 
 const QUICK_LOCATIONS = {
   playa: "Playa de Palma, Mallorca",
@@ -209,7 +210,7 @@ function reverseGeocode(lat, lng) {
           );
           resolve(shortValue || top.formatted_address);
         } else {
-          reject(new Error(status || "GEOCODER_ERROR"));
+          reject(new Error(`GEOCODER_${status || "ERROR"}`));
         }
       }
     );
@@ -237,26 +238,44 @@ async function setCurrentOriginFromGPS() {
 
   navigator.geolocation.getCurrentPosition(
     async (position) => {
+      const lat = position.coords.latitude;
+      const lng = position.coords.longitude;
+
+      console.log("GPS OK:", { lat, lng, accuracy: position.coords.accuracy });
+
       try {
-        const lat = position.coords.latitude;
-        const lng = position.coords.longitude;
         const address = await reverseGeocode(lat, lng);
         originInput.value = address;
       } catch (error) {
         console.error("Error geocodificando origen:", error);
-        alert("No se pudo convertir tu ubicación en una dirección.");
+
+        // Fallback: no perder la ubicación si falla Geocoder
+        originInput.value = `Ubicación actual (${lat.toFixed(5)}, ${lng.toFixed(5)})`;
+
+        alert("Se obtuvo tu ubicación, pero no se pudo convertir a dirección exacta.");
       } finally {
         setUseLocationButtonState(false);
       }
     },
     (error) => {
       console.error("Error GPS:", error);
-      alert("No se pudo obtener tu ubicación. Revisa los permisos del navegador.");
+
+      let message = "No se pudo obtener tu ubicación.";
+
+      if (error.code === 1) {
+        message = "Permiso de ubicación denegado. Revisa los permisos del navegador.";
+      } else if (error.code === 2) {
+        message = "Ubicación no disponible en este momento.";
+      } else if (error.code === 3) {
+        message = "Tiempo agotado al intentar obtener tu ubicación.";
+      }
+
+      alert(message);
       setUseLocationButtonState(false);
     },
     {
       enableHighAccuracy: true,
-      timeout: 10000,
+      timeout: 15000,
       maximumAge: 0
     }
   );
@@ -627,17 +646,22 @@ startTripBtn?.addEventListener("click", () => {
 });
 
 saveMeterBtn?.addEventListener("click", async () => {
+  if (isSavingService) return;
+  isSavingService = true;
+
   const meterValue = parseFloat(meterPriceInput?.value);
   const mode = pricingMode?.value || "taxipro";
 
   if (isNaN(meterValue) || meterValue <= 0) {
     alert("Introduce un precio válido del taxímetro");
     meterPriceInput?.focus();
+    isSavingService = false;
     return;
   }
 
   if (!lastRoute || !lastFare) {
     alert("No hay ningún servicio activo para registrar");
+    isSavingService = false;
     return;
   }
 
@@ -670,18 +694,20 @@ saveMeterBtn?.addEventListener("click", async () => {
     console.error("Error guardando en DB:", err);
     saveMeterBtn.textContent = "Guardado solo localmente";
     saveMeterBtn.disabled = false;
+  } finally {
+    setTimeout(() => {
+      if (startTripBtn) {
+        startTripBtn.disabled = false;
+        startTripBtn.textContent = "Iniciar trayecto";
+      }
+
+      if (saveMeterBtn) {
+        saveMeterBtn.textContent = "Registrar servicio";
+      }
+
+      isSavingService = false;
+    }, 2000);
   }
-
-  setTimeout(() => {
-    if (startTripBtn) {
-      startTripBtn.disabled = false;
-      startTripBtn.textContent = "Iniciar trayecto";
-    }
-
-    if (saveMeterBtn) {
-      saveMeterBtn.textContent = "Registrar servicio";
-    }
-  }, 2000);
 });
 
 showClientBtn?.addEventListener("click", () => {
