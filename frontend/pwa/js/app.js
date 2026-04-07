@@ -204,13 +204,12 @@ function reverseGeocode(lat, lng) {
       (results, status) => {
         if (status === "OK" && results?.length) {
           const top = results[0];
-          const shortValue = formatShortPlace(
-            top.address_components?.[0]?.long_name || top.formatted_address,
-            top.formatted_address
-          );
-          resolve(shortValue || top.formatted_address);
+          console.log("GEOCODER RESULT:", top);
+
+          const address = top.formatted_address || "";
+          resolve(address);
         } else {
-          reject(new Error(`GEOCODER_${status || "ERROR"}`));
+          reject(new Error(status || "GEOCODER_ERROR"));
         }
       }
     );
@@ -245,6 +244,7 @@ async function setCurrentOriginFromGPS() {
 
       try {
         const address = await reverseGeocode(lat, lng);
+        console.log("ADDRESS FINAL:", address);
         originInput.value = address;
       } catch (error) {
         console.error("Error geocodificando origen:", error);
