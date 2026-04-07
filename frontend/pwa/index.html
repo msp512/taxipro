@@ -1,275 +1,199 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0F2A44">
+  <meta name="description" content="TaxiPro – Estimación profesional del taxi">
+  <title>TaxiPro</title>
 
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>TaxiPro</title>
-
-<link rel="stylesheet" href="css/styles.css">
-<link rel="manifest" href="manifest.json">
-
-<link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
-
-<link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="assets/icons/favicon-16.png">
-
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16.png">
 </head>
-
 <body>
 
-<!-- SPLASH SCREEN -->
-
 <div id="splash">
-
-<img src="assets/logo-main.png">
-
-<div class="splash-title">
-TaxiPro
+  <img src="assets/logo-header.png" alt="TaxiPro">
+  <div class="splash-title">TaxiPro</div>
+  <div class="splash-subtitle">Estimación profesional del taxi</div>
+  <div class="scan-line"></div>
 </div>
 
-<div class="scan-line"></div>
-
+<div id="settingsModal" class="modal-overlay hidden">
+  <div class="modal-card">
+    <div class="modal-title">⚙ Configuración</div>
+    <div class="modal-field">
+      <label for="taxiIdInput">Identificador del taxi</label>
+      <input id="taxiIdInput" type="text" placeholder="Ej: TX001" maxlength="10">
+      <div class="modal-hint">
+        Este código identifica tu vehículo en la base de datos.<br>
+        Por defecto: <strong>TX001</strong>.
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button id="saveSettingsBtn" class="btn-primary">Guardar</button>
+      <button id="closeSettingsBtn" class="btn-secondary">Cancelar</button>
+    </div>
+  </div>
 </div>
 
+<div id="meterReminder" class="meter-reminder hidden">
+  <div class="reminder-content">
+    <span class="reminder-icon">⏱</span>
+    <span class="reminder-text">Trayecto en curso — recuerda registrar el taxímetro al llegar</span>
+  </div>
+  <button id="reminderActionBtn" class="reminder-btn">Registrar ahora</button>
+</div>
 
 <header class="app-header">
-
-<div class="logo" id="logo">
-<img src="assets/logo-horizontal.png" height="28">
-</div>
-
-<div class="status-indicator">
-●
-</div>
-
+  <div class="logo" id="logo" title="Mantén pulsado para ver estadísticas">
+    <img src="assets/logo-header.png" height="28" alt="TaxiPro">
+  </div>
+  <div class="header-right">
+    <div class="status-indicator" title="Sistema activo">●</div>
+    <button id="settingsBtn" class="settings-btn" title="Configuración">⚙</button>
+  </div>
 </header>
 
-
 <main class="main-container">
+  <div class="card">
+    <div id="map"></div>
 
-<div class="card">
+    <div class="input-group">
+      <label for="originInput">Origen</label>
+      <input id="originInput" type="text" placeholder="Escribe origen o usa ubicación actual" autocomplete="off">
+      <div class="origin-actions">
+        <button id="useLocationBtn" type="button" class="btn-secondary location-btn">
+          Usar mi ubicación
+        </button>
+      </div>
+    </div>
 
-<div id="map"></div>
-
-<div class="input-group">
-<label>Origen</label>
-
-<input
-id="originInput"
-type="text"
-placeholder="Ubicación actual"
-readonly
->
-
+    <div id="quickOrigins" class="quick-buttons quick-origins">
+  <button data-quick-origin="playa">🏖 Playa de Palma</button>
+  <button data-quick-origin="centro">🏛 Centro</button>
+  <button data-quick-origin="aeropuerto">✈ Aeropuerto</button>
+  <button data-quick-origin="puerto">🚢 Puerto</button>
 </div>
 
+    <div class="input-group">
+      <label for="destinationInput">Destino</label>
+      <input id="destinationInput" type="text" placeholder="Buscar destino…" autocomplete="off">
+    </div>
 
-<div class="input-group">
+    <div class="input-group">
+      <label for="pricingMode">Modo de tarifa</label>
+      <select id="pricingMode">
+        <option value="taxipro">TAXIPRO</option>
+        <option value="agency">Agencias</option>
+        <option value="stipulated">Estipulados</option>
+        <option value="transfer">Traslados</option>
+      </select>
+    </div>
 
-<label>Destino</label>
-
-<input
-id="destinationInput"
-type="text"
-placeholder="Buscar destino..."
->
-
+    <div id="quickDestinations">
+  <button data-destination="Farmacia Aeropuerto Palma, Terminal de Salidas, Palma">✈ Aeropuerto</button>
+  <button data-destination="Puerto de Palma, Estación Marítima, Palma, Mallorca">🚢 Puerto</button>
+  <button data-destination="Hospital Son Espases, Palma, Mallorca">🏥 Son Espases</button>
+  <button data-destination="Plaça de la Reina, Palma, Mallorca">🏛 Centro</button>
 </div>
 
+    <div id="supplementsPanel" class="supplements-panel">
+      <div class="supplements-title">Suplementos</div>
+      <div class="supplements-grid">
+        <button class="supplement-btn" data-supplement="airport">✈ Aeropuerto / Puerto</button>
+        <button class="supplement-btn" data-supplement="radio">📞 Emisora</button>
+        <button class="supplement-btn" data-supplement="christmas">🎄 Navidad</button>
+        <button class="supplement-btn" data-supplement="pax56">👥 5-6 pasajeros</button>
+        <button class="supplement-btn" data-supplement="pax78">🚐 7-8 pasajeros</button>
+        <button class="supplement-btn" data-supplement="mountain1">⛰ Montaña 1</button>
+        <button class="supplement-btn" data-supplement="mountain2">🏔 Montaña 2</button>
+      </div>
+    </div>
 
-<div id="quickDestinations">
+    <button id="calculateBtn">Calcular estimación</button>
 
-<button data-destination="Aeropuerto Palma">✈ Aeropuerto</button>
-<button data-destination="Puerto de Palma">🚢 Puerto</button>
-<button data-destination="Hospital Son Espases">🏥 Hospital</button>
-<button data-destination="Plaza de España Palma">🏛 Centro</button>
+    <div class="loading-bar" id="loadingBar">
+      <div class="loading-progress"></div>
+    </div>
 
-</div>
+    <button id="startTripBtn" style="margin-top:10px;" disabled>Iniciar trayecto</button>
 
+    <div id="resultSection" class="result-container hidden">
+      <div class="estimation-card">
+        <div id="estimationTitle" class="estimation-title">Estimación TaxiPro</div>
+        <div id="estimatedPrice" class="price">0.00 €</div>
+        <div id="priceRange" class="interval">0.00 – 0.00 €</div>
+        <div class="route-meta">
+          <span id="distanceValue">-- km</span>
+          &nbsp;•&nbsp;
+          <span id="durationValue">-- min</span>
+        </div>
+        <div class="traffic-status">🟢 Tráfico actual analizado</div>
+        <div class="confidence-indicator">🟢 Alta precisión</div>
+      </div>
 
-<button id="calculateBtn">
-Calcular estimación
-</button>
+      <p class="legal-notice">
+        Estimación calculada conforme a tarifa oficial.<br>
+        <strong>El importe final será el del taxímetro.</strong>
+      </p>
 
-<button id="startTripBtn">
-Iniciar trayecto
-</button>
+      <button id="showClientMode" style="margin-top:12px;width:100%;">Mostrar al cliente</button>
 
+      <div id="meterInputSection">
+        <label for="meterPriceInput">Precio final del taxímetro</label>
+        <input id="meterPriceInput" type="number" step="0.01" min="0" placeholder="Ej: 21.40">
+        <button id="saveMeterBtn" disabled>Registrar servicio</button>
+      </div>
 
-<div class="loading-bar" id="loadingBar">
-<div class="loading-progress"></div>
-</div>
-
-
-<div id="supplementsPanel" class="supplements-panel">
-
-<div class="supplements-title">
-Suplementos
-</div>
-
-<div class="supplements-grid">
-
-<button class="supplement-btn" data-supplement="airport">✈ Aeropuerto / Puerto</button>
-<button class="supplement-btn" data-supplement="radio">📞 Emisora</button>
-<button class="supplement-btn" data-supplement="christmas">🎄 Navidad</button>
-<button class="supplement-btn" data-supplement="pax56">👥 5-6 pasajeros</button>
-<button class="supplement-btn" data-supplement="pax78">🚐 7-8 pasajeros</button>
-<button class="supplement-btn" data-supplement="mountain1">⛰ Montaña 1</button>
-<button class="supplement-btn" data-supplement="mountain2">🏔 Montaña 2</button>
-
-</div>
-
-</div>
-
-
-<div id="resultSection" class="result-container hidden">
-
-<div class="estimation-card">
-
-<div class="estimation-title">
-Estimación TaxiPro
-</div>
-
-<div id="estimatedPrice" class="price">
-0.00 €
-</div>
-
-<div id="priceRange" class="interval">
-0.00 – 0.00 €
-</div>
-
-<div class="route-meta">
-
-<span id="distanceValue">-- km</span>
-•
-<span id="durationValue">-- min</span>
-
-</div>
-
-<div class="traffic-status">
-🟢 Tráfico actual analizado
-</div>
-
-<div class="confidence-indicator">
-🟢 Alta precisión
-</div>
-
-</div>
-
-
-<p class="legal-notice">
-
-Estimación según tarifa oficial del taxi.  
-Estimated according to official taxi fare.  
-Schätzung nach offizieller Taxitarifordnung.  
-El precio final lo determina el taxímetro.
-
-</p>
-
-
-<div id="historyPanel" class="history-panel hidden">
-
-<div class="history-title">
-Historial reciente
-</div>
-
-<div id="historyList"></div>
-
-</div>
-
-
-<div id="meterInputSection">
-
-<label>Precio final taxímetro</label>
-
-<input
-id="meterPriceInput"
-type="number"
-placeholder="Ej: 21.40"
->
-
-<button id="saveMeterBtn">
-Registrar servicio
-</button>
-
-<button id="showClientMode">
-Mostrar al cliente
-</button>
-
-</div>
-
-</div>
-
-</div>
-
+      <div id="historyPanel" class="history-panel hidden">
+        <div class="history-title">Historial reciente</div>
+        <div id="historyList"></div>
+      </div>
+    </div>
+  </div>
 </main>
 
-
 <div id="clientMode" class="client-mode hidden">
-
-<div class="client-card">
-
-<div class="client-route" id="clientRoute">
-Trayecto estimado
+  <div class="client-card">
+    <div class="client-badge" id="clientBadge">Estimación oficial</div>
+    <div class="client-route" id="clientRoute">Trayecto estimado</div>
+    <div class="client-price" id="clientPrice">– €</div>
+    <div class="client-price-label" id="clientPriceLabel">precio estimado</div>
+    <div class="client-divider"></div>
+    <div class="client-meta">
+      <div class="client-meta-item">
+        <span class="client-meta-icon">📍</span>
+        <span id="clientDistance">-- km</span>
+      </div>
+      <div class="client-meta-item">
+        <span class="client-meta-icon">⏱</span>
+        <span id="clientDuration">-- min</span>
+      </div>
+    </div>
+    <div class="client-legal">
+      Estimación calculada conforme a la tarifa oficial del taxi.<br>
+      El precio final lo determina el taxímetro.
+    </div>
+    <button id="closeClientMode">Cerrar</button>
+  </div>
 </div>
 
-<div class="client-price" id="clientPrice">
-26 – 29 €
+<div id="pilotStats" class="pilot-stats hidden">
+  <div class="pilot-title">TaxiPro · <span id="pilotTaxiId">TX001</span></div>
+  <div id="pilotServices">Servicios: 0</div>
+  <div id="pilotDeviation">Desviación media: --</div>
+  <div id="pilotBest">Mejor: --</div>
+  <div id="pilotWorst">Peor: --</div>
+  <div id="pilotCalibration">Calibración: 0 / 100</div>
+  <div class="pilot-hint">Mantén pulsado el logo para ocultar</div>
 </div>
-
-<div class="client-meta">
-
-<span id="clientDistance">10.4 km</span>
-•
-<span id="clientDuration">15 min</span>
-
-</div>
-
-<div class="client-legal">
-Estimación según tarifa oficial del taxi.
-El precio final lo determina el taxímetro.
-</div>
-
-<button id="closeClientMode">
-Cerrar
-</button>
-
-</div>
-
-</div>
-
-
-<div id="techPanel">
-TaxiPro Debug
-</div>
-
-
-<div id="pilotStats" class="pilot-stats">
-
-<div class="pilot-title">
-TaxiPro Pilot
-</div>
-
-<div id="pilotServices">Servicios: 0</div>
-<div id="pilotDeviation">Desviación media: --</div>
-<div id="pilotBest">Mejor estimación: --</div>
-<div id="pilotWorst">Peor estimación: --</div>
-<div id="pilotCalibration">Calibración: 0 / 100</div>
-
-</div>
-
 
 <script type="module" src="js/app.js"></script>
-
-
-<script
-src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCXrihptWVoKHSktqV9lJFwLdcwowiT8aE&libraries=places&callback=initMap"
-async
-defer>
+<script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCXrihptWVoKHSktqV9lJFwLdcwowiT8aE&libraries=places" async defer>
 </script>
-
 </body>
 </html>

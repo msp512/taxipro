@@ -28,7 +28,7 @@ body {
 .app-header {
   background: #0F2A44;
   color: white;
-  padding: 16px 20px;
+  padding: 14px 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -38,11 +38,199 @@ body {
 
 .logo {
   font-size: 1.1rem;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
 }
 
 .status-indicator {
   font-size: 1.2rem;
   color: #4ade80;
+}
+
+/* ===============================
+   BOTÓN AJUSTES (engranaje)
+=============================== */
+
+.settings-btn {
+  background: transparent;
+  color: rgba(255,255,255,0.7);
+  border: none;
+  font-size: 1.2rem;
+  padding: 4px 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: color 0.2s, background 0.2s;
+  line-height: 1;
+}
+
+.settings-btn:hover {
+  background: rgba(255,255,255,0.1);
+  color: white;
+}
+
+/* ===============================
+   MODAL OVERLAY
+=============================== */
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.55);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+  animation: fadeIn 0.2s ease;
+}
+
+.modal-card {
+  background: white;
+  border-radius: 18px;
+  padding: 28px 24px;
+  width: 90%;
+  max-width: 360px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+  animation: slideUp 0.25s ease;
+}
+
+.modal-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #0F2A44;
+  margin-bottom: 20px;
+}
+
+.modal-field label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 8px;
+}
+
+.modal-field input {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1.5px solid #d1d5db;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.modal-field input:focus {
+  outline: none;
+  border-color: #0F2A44;
+}
+
+.modal-hint {
+  font-size: 0.78rem;
+  color: #9ca3af;
+  margin-top: 8px;
+  line-height: 1.4;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 22px;
+}
+
+.btn-primary {
+  flex: 1;
+  background: #0F2A44;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-secondary {
+  flex: 1;
+  background: #f3f4f6;
+  color: #374151;
+  border: none;
+  border-radius: 10px;
+  padding: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-primary:hover  { background: #13365a; }
+.btn-secondary:hover { background: #e5e7eb; }
+
+/* ===============================
+   BANNER RECORDATORIO TAXÍMETRO
+=============================== */
+
+.meter-reminder {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 9000;
+  background: #1a3a5c;
+  color: white;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  transform: translateY(-100%);
+  transition: transform 0.35s ease;
+}
+
+.meter-reminder.reminder-visible {
+  transform: translateY(0);
+}
+
+.reminder-content {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+}
+
+.reminder-icon {
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+.reminder-text {
+  font-size: 0.82rem;
+  line-height: 1.3;
+  opacity: 0.95;
+}
+
+.reminder-btn {
+  background: #f59e0b;
+  color: #1a1a1a;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.reminder-btn:hover {
+  background: #fbbf24;
 }
 
 /* ===============================
@@ -64,9 +252,11 @@ body {
   background: white;
   width: 100%;
   max-width: 420px;
-  border-radius: 18px;
+  border-radius: 22px;
   padding: 24px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+  box-shadow:
+    0 18px 50px rgba(15, 42, 68, 0.10),
+    0 4px 14px rgba(15, 42, 68, 0.06);
 }
 
 /* ===============================
@@ -93,37 +283,37 @@ input:focus {
 }
 
 /* ===============================
-   BUTTON
+   BUTTONS GLOBALES
 =============================== */
 
 button {
-  background: #0F2A44;
+  background: linear-gradient(180deg, #12314f 0%, #0F2A44 100%);
   color: white;
   padding: 14px;
   border: none;
   border-radius: 12px;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
-  transition: 0.2s;
-}
-
-button:disabled {
-  background: #9ca3af;
-  cursor: not-allowed;
+  transition: transform 0.15s ease, box-shadow 0.2s ease, background 0.2s ease;
+  box-shadow: 0 8px 18px rgba(15,42,68,0.16);
 }
 
 button:hover:not(:disabled) {
-  background: #13365a;
+  background: linear-gradient(180deg, #163a5d 0%, #12314f 100%);
+  transform: translateY(-1px);
 }
 
-/* ===============================
-   CALCULATE BUTTON
-=============================== */
+button:disabled {
+  background: #94a3b8;
+  cursor: not-allowed;
+  box-shadow: none;
+}
 
-#calculateBtn {
+#calculateBtn,
+#startTripBtn,
+#showClientMode,
+#saveMeterBtn {
   width: 100%;
-  font-size: 1rem;
-  margin-top: 10px;
 }
 
 /* ===============================
@@ -158,85 +348,58 @@ button:hover:not(:disabled) {
 
 .estimation-card {
   margin-top: 20px;
-  padding: 20px;
-  border-radius: 16px;
-  background: linear-gradient(180deg,#ffffff,#f9fafb);
-  box-shadow: 0 15px 35px rgba(0,0,0,0.08);
+  padding: 22px 20px;
+  border-radius: 20px;
+  background:
+    linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+  border: 1px solid rgba(15,42,68,0.06);
+  box-shadow: 0 18px 40px rgba(15,42,68,0.08);
   text-align: center;
 }
 
-/* ===============================
-   ESTIMATION TITLE
-=============================== */
-
 .estimation-title {
-  font-size: 0.9rem;
-  color: #6b7280;
+  font-size: 0.82rem;
+  color: #64748b;
   margin-bottom: 10px;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
 }
 
-/* ===============================
-   PRICE (IMPORTANT)
-=============================== */
-
-.price {
-  font-size: 3.8rem;
-  font-weight: 700;
+.price,
+#estimatedPrice {
+  font-size: 58px;
+  font-weight: 800;
   margin-bottom: 6px;
   color: #0F2A44;
-  letter-spacing: -1px;
+  letter-spacing: -1.8px;
+  line-height: 1;
 }
-
-/* ===============================
-   RANGE
-=============================== */
 
 .interval {
   font-size: 1rem;
-  color: #6b7280;
+  color: #64748b;
+  font-weight: 500;
 }
-
-/* ===============================
-   ROUTE META
-=============================== */
 
 .route-meta {
-  margin-top: 10px;
-  font-size: 0.9rem;
-  color: #6b7280;
+  margin-top: 12px;
+  font-size: 0.92rem;
+  color: #64748b;
 }
 
-/* ===============================
-   CONFIDENCE
-=============================== */
-
+.traffic-status,
 .confidence-indicator {
   margin-top: 8px;
-  font-size: 0.85rem;
+  font-size: 0.84rem;
   font-weight: 600;
 }
 
-/* ===============================
-   META DATA
-=============================== */
-
-.meta {
-  margin-top: 6px;
-  font-size: 0.8rem;
-  color: #9ca3af;
-}
-
-/* ===============================
-   LEGAL NOTICE
-=============================== */
-
 .legal-notice {
   font-size: 12px;
-  color: #6b7280;
-  margin-top: 10px;
-  line-height: 1.4;
+  color: #64748b;
+  margin-top: 12px;
+  line-height: 1.45;
 }
-
 /* ===============================
    METER INPUT
 =============================== */
@@ -245,53 +408,26 @@ button:hover:not(:disabled) {
   margin-top: 20px;
 }
 
+#meterInputSection label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 8px;
+  text-align: left;
+}
+
 #meterInputSection input {
-  margin-top: 8px;
   margin-bottom: 10px;
+  width: 100%;
+}
+
+#saveMeterBtn {
+  width: 100%;
 }
 
 /* ===============================
-   TAXI SETUP
-=============================== */
-
-#taxiSetup {
-  padding: 10px 20px;
-  background: #e5e7eb;
-  font-size: 0.9rem;
-  display: flex;
-  gap: 10px;
-  align-items: center;
-}
-
-/* ===============================
-   TECH PANEL
-=============================== */
-
-#techPanel {
-  position: fixed;
-  bottom: 10px;
-  right: 10px;
-  background: #111;
-  color: #0f0;
-  font-size: 12px;
-  padding: 10px;
-  border-radius: 8px;
-  font-family: monospace;
-  max-width: 300px;
-  z-index: 9999;
-}
-
-/* ===============================
-   RADAR ALERT
-=============================== */
-
-#radarAlert {
-  margin-top: 10px;
-  text-align: center;
-}
-
-/* ===============================
-   CLIENT MODE
+   MODO CLIENTE — MEJORADO
 =============================== */
 
 .client-mode {
@@ -300,7 +436,7 @@ button:hover:not(:disabled) {
   left: 0;
   width: 100%;
   height: 100%;
-  background: #0F2A44;
+  background: linear-gradient(160deg, #0F2A44 0%, #0a1e33 100%);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -310,347 +446,264 @@ button:hover:not(:disabled) {
 .client-card {
   text-align: center;
   color: white;
-  padding: 30px;
-  max-width: 320px;
+  padding: 40px 30px;
+  max-width: 340px;
+  width: 100%;
+}
+
+.client-badge {
+  display: inline-block;
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.2);
+  color: rgba(255,255,255,0.9);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  border-radius: 20px;
+  padding: 4px 14px;
+  margin-bottom: 18px;
 }
 
 .client-route {
-  font-size: 1.2rem;
-  margin-bottom: 20px;
-  opacity: 0.9;
+  font-size: 1.05rem;
+  opacity: 0.8;
+  margin-bottom: 16px;
+  letter-spacing: 0.3px;
 }
 
+/* ← PRECIO MUCHO MÁS GRANDE Y PROTAGONISTA */
 .client-price {
-  font-size: 4rem;
-  font-weight: 700;
-  margin-bottom: 10px;
+  font-size: 6rem;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -2px;
+  margin-bottom: 4px;
+  text-shadow: 0 4px 20px rgba(0,0,0,0.3);
+}
+
+.client-price-label {
+  font-size: 0.78rem;
+  opacity: 0.55;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+
+.client-divider {
+  width: 40px;
+  height: 2px;
+  background: rgba(255,255,255,0.2);
+  margin: 0 auto 20px;
+  border-radius: 1px;
 }
 
 .client-meta {
+  display: flex;
+  justify-content: center;
+  gap: 28px;
+  margin-bottom: 22px;
+}
+
+.client-meta-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   font-size: 1rem;
   opacity: 0.9;
-  margin-bottom: 20px;
+}
+
+.client-meta-icon {
+  font-size: 0.9rem;
+  opacity: 0.7;
 }
 
 .client-legal {
-  font-size: 0.8rem;
-  opacity: 0.8;
-  margin-bottom: 20px;
+  font-size: 0.75rem;
+  opacity: 0.55;
+  line-height: 1.5;
+  margin-bottom: 28px;
 }
 
 .client-card button {
   background: white;
   color: #0F2A44;
   border: none;
-  padding: 12px 20px;
-  border-radius: 10px;
-  font-weight: 600;
+  padding: 13px 28px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+.client-card button:hover {
+  transform: scale(1.02);
+  background: #f0f4f8;
 }
 
 /* ===============================
-   MOBILE OPTIMIZATION
-=============================== */
-
-@media (max-width: 480px) {
-
-  .card {
-    border-radius: 14px;
-    padding: 20px;
-  }
-
-  .price {
-    font-size: 2.8rem;
-  }
-
-}
-
-/* ===============================
-   PRICE ANIMATION
-=============================== */
-
-.price-animate {
-  animation: pricePop 0.4s ease;
-}
-
-@keyframes pricePop {
-
-  0% {
-    transform: scale(0.8);
-    opacity: 0;
-  }
-
-  60% {
-    transform: scale(1.05);
-    opacity: 1;
-  }
-
-  100% {
-    transform: scale(1);
-  }
-
-}
-
-/* ===============================
-   HIDDEN
-=============================== */
-
-.hidden {
-  display:none;
-}
-/* ===============================
-SUPPLEMENTS PANEL
+   SUPPLEMENTS PANEL
 =============================== */
 
 .supplements-panel {
-
   margin-top: 20px;
   padding: 16px;
   border-radius: 14px;
   background: #f9fafb;
-
 }
 
 .supplements-title {
-
   font-size: 0.9rem;
   color: #6b7280;
   margin-bottom: 12px;
-
 }
 
 .supplements-grid {
-
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 10px;
-
 }
 
 .supplement-btn {
-
   padding: 10px;
   border-radius: 10px;
   border: 1px solid #e5e7eb;
-
   background: white;
+  color: #1f2937;
   font-size: 0.85rem;
-
 }
 
-/* estado activo */
-
 .supplement-btn.active {
-
   background: #0F2A44;
   color: white;
   border-color: #0F2A44;
-
 }
+
 /* ===============================
-FREQUENT ROUTES
+   HISTORIAL
 =============================== */
 
-#frequentRoutes {
-
-  display: grid;
-  grid-template-columns: repeat(2,1fr);
-  gap: 10px;
-
-  margin-bottom: 16px;
-
-}
-
-.frequent-route-btn {
-
-  padding: 10px;
-  border-radius: 10px;
-  border: 1px solid #e5e7eb;
-
-  background: white;
-
-  font-size: 0.85rem;
-
-}
-.traffic-status{
-font-size:13px;
-color:#2c8f2c;
-margin-top:8px;
-}
-/* SPLASH SCREEN */
-
-#splash{
-
-position:fixed;
-top:0;
-left:0;
-
-width:100%;
-height:100%;
-
-background:#0F2A44;
-
-display:flex;
-flex-direction:column;
-justify-content:center;
-align-items:center;
-
-z-index:9999;
-
-color:white;
-
-}
-
-#splash img{
-
-width:110px;
-margin-bottom:16px;
-
-animation:logoFade 0.8s ease-out;
-
-}
-
-.splash-title{
-
-font-size:24px;
-letter-spacing:2px;
-font-weight:700;
-
-}
-
-.scan-line{
-
-width:120px;
-height:3px;
-
-background:#4ade80;
-
-margin-top:20px;
-
-animation:scan 1.6s infinite;
-
-}
-
-@keyframes logoFade{
-
-from{opacity:0;transform:translateY(10px);}
-to{opacity:1;transform:translateY(0);}
-
-}
-
-@keyframes scan{
-
-0%{transform:scaleX(0);opacity:0.3;}
-50%{transform:scaleX(1);opacity:1;}
-100%{transform:scaleX(0);opacity:0.3;}
-
-}
-/* ===============================
-   TAXIPRO PRICE ANIMATION
-   =============================== */
-
-.price-animate {
-  animation: priceFade 0.4s ease;
-}
-
-@keyframes priceFade {
-
-  0% {
-    transform: scale(0.7);
-    opacity: 0;
-  }
-
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-
-}
-/* =========================
-   TARJETA RESULTADO
-========================= */
-
-.result-card {
-  background: #ffffff;
+.history-panel {
+  margin-top: 20px;
+  padding: 16px;
   border-radius: 14px;
-  padding: 18px;
-  margin-top: 16px;
-  box-shadow: 0 6px 18px rgba(0,0,0,0.08);
-  text-align: center;
+  background: #f9fafb;
 }
 
-/* =========================
-   PRECIO PRINCIPAL
-========================= */
+.history-title {
+  font-size: 0.9rem;
+  color: #6b7280;
+  margin-bottom: 10px;
+}
 
-.estimated-price {
-  font-size: 44px;
-  font-weight: 700;
-  color: #0a7cff;
+.history-item {
+  padding: 10px;
+  border-bottom: 1px solid #e5e7eb;
+  font-size: 0.85rem;
+}
+
+.history-item:last-child { border-bottom: none; }
+
+.history-deviation-positive { color: #b91c1c; font-weight: 600; }
+.history-deviation-negative { color: #047857; font-weight: 600; }
+
+/* ===============================
+   PANEL ESTADÍSTICAS PILOTO
+   (oculto por defecto)
+=============================== */
+
+.pilot-stats {
+  position: fixed;
+  bottom: 10px;
+  left: 10px;
+  background: #0F2A44;
+  color: white;
+  padding: 12px;
+  border-radius: 10px;
+  font-size: 12px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+  z-index: 999;
+  min-width: 170px;
+}
+
+.pilot-title {
+  font-weight: 600;
   margin-bottom: 6px;
 }
 
-/* intervalo */
-
-.price-range {
-  font-size: 15px;
-  color: #666;
+.pilot-hint {
+  margin-top: 8px;
+  font-size: 10px;
+  opacity: 0.45;
+  font-style: italic;
 }
 
-/* detalles ruta */
+/* ===============================
+   TRAFFIC STATUS
+=============================== */
 
-.route-info {
-  font-size: 14px;
-  color: #888;
-  margin-top: 6px;
+.traffic-status {
+  font-size: 13px;
+  color: #2c8f2c;
+  margin-top: 8px;
 }
 
-/* =========================
-   ANIMACIÓN PRECIO
-========================= */
+/* ===============================
+   SPLASH SCREEN
+=============================== */
 
-.price-animate {
-  animation: pricePop 0.45s ease;
-}
-
-@keyframes pricePop {
-  0% {
-    transform: scale(0.8);
-    opacity: 0;
-  }
-
-  60% {
-    transform: scale(1.1);
-  }
-
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-}
-/* =========================
-   BOTÓN CALCULAR
-========================= */
-
-.calculate-btn {
-  background: #0a7cff;
+#splash {
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(circle at 50% 35%, rgba(59,130,246,0.18), transparent 35%),
+    linear-gradient(180deg, #08131f 0%, #0F2A44 55%, #091727 100%);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
   color: white;
-  border: none;
-  border-radius: 10px;
-  padding: 14px;
-  font-size: 16px;
-  font-weight: 600;
-  width: 100%;
-  cursor: pointer;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
-.calculate-btn:active {
-  transform: scale(0.97);
-  box-shadow: inset 0 2px 6px rgba(0,0,0,0.15);
+#splash img {
+  width: 124px;
+  margin-bottom: 18px;
+  filter: drop-shadow(0 8px 30px rgba(0,0,0,0.35));
+  animation: splashLogoIn 0.85s ease-out;
 }
-/* =========================
+
+.splash-title {
+  font-size: 28px;
+  letter-spacing: 2.5px;
+  font-weight: 800;
+}
+
+.splash-subtitle {
+  font-size: 13px;
+  opacity: 0.62;
+  margin-top: 8px;
+  letter-spacing: 0.7px;
+}
+
+.scan-line {
+  width: 140px;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, #60a5fa, transparent);
+  margin-top: 22px;
+  border-radius: 999px;
+  animation: scan 1.8s infinite;
+}
+
+@keyframes splashLogoIn {
+  from { opacity: 0; transform: translateY(10px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ===============================
    LOADING BAR
-========================= */
+=============================== */
 
 .loading-bar {
   width: 100%;
@@ -665,109 +718,248 @@ to{opacity:1;transform:translateY(0);}
 .loading-progress {
   height: 100%;
   width: 0%;
-  background: #0a7cff;
+  background: #0F2A44;
   animation: loadingMove 1.2s infinite;
 }
 
-@keyframes loadingMove {
-
-  0% {
-    width: 0%;
-  }
-
-  50% {
-    width: 80%;
-  }
-
-  100% {
-    width: 100%;
-  }
-
-}
-/* MAP */
+/* ===============================
+   MAP
+=============================== */
 
 #map {
-
-height:180px;
-width:100%;
-
-border-radius:12px;
-
-margin-bottom:16px;
-
+  height: 180px;
+  width: 100%;
+  border-radius: 12px;
+  margin-bottom: 16px;
 }
+
 /* ===============================
-   HISTORIAL SERVICIOS
+   HIDDEN UTILITY
 =============================== */
 
-.history-panel{
-
-margin-top:20px;
-padding:16px;
-border-radius:14px;
-background:#f9fafb;
-
+.hidden {
+  display: none !important;
 }
 
-.history-title{
-
-font-size:0.9rem;
-color:#6b7280;
-margin-bottom:10px;
-
-}
-
-.history-item{
-
-padding:10px;
-border-bottom:1px solid #e5e7eb;
-font-size:0.85rem;
-
-}
-
-.history-item:last-child{
-border-bottom:none;
-}
-
-.history-deviation-positive{
-color:#b91c1c;
-font-weight:600;
-}
-
-.history-deviation-negative{
-color:#047857;
-font-weight:600;
-}
 /* ===============================
-   TAXIPRO PILOT STATS
+   ANIMACIONES
 =============================== */
 
-.pilot-stats {
-
-position:fixed;
-bottom:10px;
-left:10px;
-
-background:#0F2A44;
-color:white;
-
-padding:12px;
-
-border-radius:10px;
-
-font-size:12px;
-
-box-shadow:0 6px 20px rgba(0,0,0,0.2);
-
-z-index:999;
-
-min-width:170px;
-
+.price-animate {
+  animation: pricePop 0.4s ease;
 }
 
-.pilot-title{
+@keyframes pricePop {
+  0%   { transform: scale(0.8); opacity: 0; }
+  60%  { transform: scale(1.05); opacity: 1; }
+  100% { transform: scale(1); }
+}
 
-font-weight:600;
-margin-bottom:6px;
+@keyframes logoFade {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
 
+@keyframes scan {
+  0%   { transform: scaleX(0); opacity: 0.3; }
+  50%  { transform: scaleX(1); opacity: 1; }
+  100% { transform: scaleX(0); opacity: 0.3; }
+}
+
+@keyframes loadingMove {
+  0%   { width: 0%; }
+  50%  { width: 80%; }
+  100% { width: 100%; }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to   { transform: translateY(0); opacity: 1; }
+}
+
+/* ===============================
+   RESPONSIVE
+=============================== */
+
+@media (max-width: 480px) {
+  .card   { border-radius: 14px; padding: 20px; }
+  .price  { font-size: 2.8rem; }
+  .client-price { font-size: 4.5rem; }
+}
+/* ===============================
+   SELECT MODO TARIFA
+=============================== */
+
+select {
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid #d1d5db;
+  font-size: 0.95rem;
+  background: white;
+  color: #1f2937;
+}
+
+select:focus {
+  outline: none;
+  border-color: #0F2A44;
+}
+
+.origin-actions {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.location-btn {
+  padding: 10px 14px;
+  font-size: 0.85rem;
+}
+
+#estimatedPrice {
+  font-size: 52px;
+  font-weight: 700;
+  letter-spacing: -1px;
+}
+#startTripBtn {
+  width: 100%;
+  margin-top: 10px;
+  font-size: 16px;
+  padding: 14px;
+  border-radius: 10px;
+  background: #0F2A44;
+  color: white;
+}
+.client-mode {
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(circle at top, rgba(59,130,246,0.16), transparent 30%),
+    linear-gradient(160deg, #08131f 0%, #0F2A44 45%, #07111d 100%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.client-card {
+  text-align: center;
+  color: white;
+  padding: 44px 30px;
+  max-width: 360px;
+  width: calc(100% - 32px);
+}
+
+.client-badge {
+  display: inline-block;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.14);
+  color: rgba(255,255,255,0.92);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
+  border-radius: 999px;
+  padding: 6px 14px;
+  margin-bottom: 18px;
+  backdrop-filter: blur(8px);
+}
+
+.client-route {
+  font-size: 1.05rem;
+  opacity: 0.82;
+  margin-bottom: 18px;
+  letter-spacing: 0.3px;
+}
+
+.client-price {
+  font-size: 6.2rem;
+  font-weight: 800;
+  line-height: 0.95;
+  letter-spacing: -2.4px;
+  margin-bottom: 6px;
+  text-shadow: 0 8px 30px rgba(0,0,0,0.32);
+}
+
+.client-price-label {
+  font-size: 0.74rem;
+  opacity: 0.52;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  margin-bottom: 22px;
+}
+
+.client-divider {
+  width: 44px;
+  height: 2px;
+  background: rgba(255,255,255,0.18);
+  margin: 0 auto 22px;
+  border-radius: 999px;
+}
+
+.client-meta {
+  display: flex;
+  justify-content: center;
+  gap: 28px;
+  margin-bottom: 24px;
+}
+
+.client-meta-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 1rem;
+  opacity: 0.92;
+}
+
+.client-meta-icon {
+  font-size: 0.9rem;
+  opacity: 0.7;
+}
+
+.client-legal {
+  font-size: 0.75rem;
+  opacity: 0.58;
+  line-height: 1.5;
+  margin-bottom: 28px;
+  max-width: 280px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.client-card button {
+  background: white;
+  color: #0F2A44;
+  border: none;
+  padding: 13px 30px;
+  border-radius: 14px;
+  font-weight: 800;
+  font-size: 0.92rem;
+  cursor: pointer;
+  transition: transform 0.15s ease, background 0.2s ease;
+  box-shadow: 0 12px 28px rgba(0,0,0,0.18);
+}
+
+.client-card button:hover {
+  transform: translateY(-1px);
+  background: #f8fafc;
+}
+.quick-origins {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin: 8px 0 18px;
+}
+
+.quick-origins button {
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 8px;
+  font-size: 0.85rem;
+  border-radius: 10px;
+  text-align: center;
+  white-space: nowrap;
 }

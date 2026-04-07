@@ -15,8 +15,7 @@ export function estimateFare(req, res) {
       });
     }
 
-    const { distance, duration, city } = parsed.data;
-
+   const { distance, duration, city, supplements = [] } = parsed.data;
     const start = Date.now();
 
     // ===============================
@@ -46,6 +45,21 @@ export function estimateFare(req, res) {
       priceMinute: 0.40
     };
 
+
+  const supplementValues = {
+  airport: 4.65,
+  radio: 1.25,
+  christmas: 4.20,
+  pax56: 3.10,
+  pax78: 5.20,
+  mountain1: 3.50,
+  mountain2: 5.50
+};
+
+const supplementsTotal = supplements.reduce((sum, key) => {
+  return sum + (supplementValues[key] || 0);
+}, 0);
+
     // ===============================
     // CÁLCULO TARIFA
     // ===============================
@@ -56,7 +70,7 @@ export function estimateFare(req, res) {
       durationMinutes: duration,
       priceMinute: tariff.priceMinute,
       dragFactor,
-      supplements: 0
+      supplements: supplementsTotal
     });
 
     const price = fareResult.total;
@@ -84,20 +98,22 @@ const confidence = calculateConfidence(distance, duration, speed);
     // RESPUESTA
     // ===============================
     res.json({
-      price,
-      interval: {
-        min: minPrice,
-        max: maxPrice
-      },
-      confidence,
-
-      // 🔧 DEBUG (eliminable en producción)
-      meta: {
-        speed,
-        dragFactor,
-        city
-      }
-    });
+  price,
+  interval: {
+    min: minPrice,
+    max: maxPrice
+  },
+  confidence,
+  supplements: {
+    selected: supplements,
+    total: supplementsTotal
+  },
+  meta: {
+    speed,
+    dragFactor,
+    city
+  }
+});
 
   } catch (error) {
     logger.error(error, "Fare calculation error");

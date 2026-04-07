@@ -7,12 +7,16 @@ const router = express.Router();
 // VALIDACIÓN BÁSICA
 // ================================
 const validateEstimateRequest = (req, res, next) => {
-  const { origin, destination } = req.body;
+  const { distance, duration, city } = req.body;
 
-  if (!origin || !destination) {
+  if (
+    distance === undefined ||
+    duration === undefined ||
+    !city
+  ) {
     return res.status(400).json({
-      error: "origin and destination are required"
-    });
+  error: "CAMBIO OK BACKEND"
+});
   }
 
   next();

@@ -14,7 +14,11 @@ import { verifyJWT } from "./middleware/auth.js";
 import db from "./db.js";
 import logger from "./utils/logger.js";
 
+import dotenv from "dotenv";
+dotenv.config();
+
 const app = express();
+app.disable("x-powered-by");
 
 // ================================
 // PATH FIX (__dirname en ES modules)
@@ -28,6 +32,21 @@ const __dirname = path.dirname(__filename);
 app.set("trust proxy", 1);
 
 // ================================
+// ORÍGENES PERMITIDOS
+// ================================
+const allowedOrigins = [
+  "http://localhost:3000",
+  "http://localhost:5001",
+  "http://127.0.0.1:5001",
+  "http://localhost:5500",
+  "http://127.0.0.1:5500",
+  "http://127.0.0.1:5501",
+  "https://taxipro-app.com",
+  "https://www.taxipro-app.com",
+  "https://taxipro.onrender.com"
+];
+
+// ================================
 // SEGURIDAD (helmet con CSP)
 // ================================
 app.use(
@@ -35,22 +54,62 @@ app.use(
     contentSecurityPolicy: {
       directives: {
         defaultSrc: ["'self'"],
+
         scriptSrc: [
           "'self'",
-          "https://maps.googleapis.com",
-          "https://maps.gstatic.com"
+          "'unsafe-inline'",
+          "'unsafe-eval'",
+          "https://*.googleapis.com",
+          "https://*.gstatic.com",
+          "https://*.google.com",
+          "blob:"
         ],
+
         imgSrc: [
           "'self'",
           "data:",
-          "https://maps.gstatic.com"
+          "https://*.googleapis.com",
+          "https://*.gstatic.com",
+          "https://*.google.com",
+          "https://*.googleusercontent.com"
         ],
+
         connectSrc: [
           "'self'",
-          "https://maps.googleapis.com",
-          "https://taxipro.onrender.com"
+          "https://*.googleapis.com",
+          "https://*.gstatic.com",
+          "https://*.google.com",
+          "https://taxipro.onrender.com",
+          "https://taxipro-app.com",
+          "https://www.taxipro-app.com",
+          "http://localhost:5001",
+          "http://127.0.0.1:5001",
+          "http://localhost:5500",
+          "http://127.0.0.1:5500",
+          "data:",
+          "blob:"
         ],
-        styleSrc: ["'self'", "'unsafe-inline'"]
+
+        styleSrc: [
+          "'self'",
+          "'unsafe-inline'",
+          "https://fonts.googleapis.com"
+        ],
+
+        fontSrc: [
+          "'self'",
+          "https://fonts.gstatic.com",
+          "data:"
+        ],
+
+        frameSrc: [
+          "https://*.google.com"
+        ],
+
+        workerSrc: [
+          "'self'",
+          "blob:"
+        ]
       }
     }
   })
@@ -59,27 +118,41 @@ app.use(
 // ================================
 // CORS
 // ================================
-app.use(
-  cors({
-    origin: [
-      "https://taxipro.onrender.com",
-      "http://localhost:3000"
-    ]
-  })
-);
+const corsOptions = {
+  origin: (origin, callback) => {
+    if (!origin) {
+      return callback(null, true);
+    }
+
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+
+    logger.warn(`CORS bloqueado para origen: ${origin}`);
+    return callback(new Error("Not allowed by CORS"));
+  },
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: false
+};
+
+app.use(cors(corsOptions));
+app.options(/.*/, cors(corsOptions));
 
 // ================================
 // PARSE JSON
 // ================================
-app.use(express.json());
+app.use(express.json({ limit: "20kb" }));
 
 // ================================
 // RATE LIMIT
 // ================================
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 200,
-  message: "Too many requests"
+  max: 120,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: "Too many requests" }
 });
 
 app.use("/api", apiLimiter);
@@ -88,21 +161,15 @@ app.use("/api", apiLimiter);
 // STATIC FRONTEND
 // ================================
 app.use(
-  express.static(
-    path.join(__dirname, "../frontend/pwa")
-  )
+  express.static(path.join(__dirname, "../frontend/pwa"))
 );
 
 // ================================
 // TEST DB
 // ================================
 db.query("SELECT NOW()")
-  .then((res) =>
-    logger.info("DB Connected: " + res.rows[0].now)
-  )
-  .catch((err) =>
-    logger.error("DB Error: " + err)
-  );
+  .then((res) => logger.info("DB Connected: " + res.rows[0].now))
+  .catch((err) => logger.error("DB Error: " + err.message));
 
 // ================================
 // API ROUTES
@@ -113,25 +180,21 @@ app.use("/api/tech", verifyJWT, techRoutes);
 app.use("/api/services", serviceRoutes);
 
 // ================================
-// SPA FALLBACK (MUY IMPORTANTE)
+// SPA FALLBACK
 // ================================
 app.get("/", (req, res) => {
-  res.sendFile(
-    path.join(__dirname, "../frontend/pwa/index.html")
-  );
+  res.sendFile(path.join(__dirname, "../frontend/pwa/index.html"));
 });
 
 app.get("/app", (req, res) => {
-  res.sendFile(
-    path.join(__dirname, "../frontend/pwa/index.html")
-  );
+  res.sendFile(path.join(__dirname, "../frontend/pwa/index.html"));
 });
 
 // ================================
 // ERROR HANDLER
 // ================================
 app.use((err, req, res, next) => {
-  logger.error(err.stack);
+  logger.error(err.stack || err.message);
   res.status(500).json({
     error: "Internal Server Error"
   });

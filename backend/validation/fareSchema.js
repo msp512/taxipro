@@ -20,6 +20,9 @@ export const fareSchema = z.object({
     .string()
     .min(2, "city too short")
     .max(50, "city too long")
-    .optional()
+    .optional(),
+
+  // 🔧 AÑADE ESTO
+  supplements: z.array(z.string()).optional()
 
 });
