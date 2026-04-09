@@ -119,7 +119,7 @@ app.use(
 // CORS
 // ================================
 const corsOptions = {
-  origin: (origin, callback) => {
+  origin(origin, callback) {
     if (!origin) {
       return callback(null, true);
     }
@@ -129,10 +129,11 @@ const corsOptions = {
     }
 
     logger.warn(`CORS bloqueado para origen: ${origin}`);
-    return callback(new Error("Not allowed by CORS"));
+    return callback(new Error(`CORS bloqueado para origen: ${origin}`));
   },
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
+  optionsSuccessStatus: 204,
   credentials: false
 };
 
@@ -160,9 +161,7 @@ app.use("/api", apiLimiter);
 // ================================
 // STATIC FRONTEND
 // ================================
-app.use(
-  express.static(path.join(__dirname, "../frontend/pwa"))
-);
+app.use(express.static(path.join(__dirname, "../frontend/pwa")));
 
 // ================================
 // TEST DB
@@ -196,7 +195,7 @@ app.get("/app", (req, res) => {
 app.use((err, req, res, next) => {
   logger.error(err.stack || err.message);
   res.status(500).json({
-    error: "Internal Server Error"
+    error: err.message || "Internal Server Error"
   });
 });
 
