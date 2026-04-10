@@ -1,9 +1,9 @@
 import express from "express";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
-import cors from "cors";
 import path from "path";
 import { fileURLToPath } from "url";
+import compression from "compression";
 
 import fareRoutes from "./routes/fareRoutes.js";
 import techRoutes from "./routes/techRoutes.js";
@@ -21,7 +21,7 @@ const app = express();
 app.disable("x-powered-by");
 
 // ================================
-// PATH FIX (__dirname en ES modules)
+// PATH FIX
 // ================================
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -32,7 +32,26 @@ const __dirname = path.dirname(__filename);
 app.set("trust proxy", 1);
 
 // ================================
-// CORS (VERSIÓN LIMPIA Y FUNCIONAL)
+// COMPRESIÓN
+// ================================
+app.use(compression());
+
+// ================================
+// TIMEOUT GLOBAL
+// ================================
+app.use((req, res, next) => {
+  res.setTimeout(10000, () => {
+    logger.error("Timeout request", {
+      path: req.originalUrl,
+      method: req.method
+    });
+    res.status(504).json({ error: "Timeout" });
+  });
+  next();
+});
+
+// ================================
+// CORS DEFINITIVO PRODUCCIÓN
 // ================================
 const allowedOrigins = [
   "https://taxipro-app.com",
@@ -41,29 +60,35 @@ const allowedOrigins = [
   "http://127.0.0.1:5500"
 ];
 
-const corsOptions = {
-  origin(origin, callback) {
-    if (!origin) return callback(null, true);
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
 
-    if (allowedOrigins.includes(origin)) {
-      return callback(null, true);
-    }
+  if (!origin) return next();
 
-    logger.warn(`CORS bloqueado para origen: ${origin}`);
-    return callback(new Error(`CORS bloqueado para origen: ${origin}`));
-  },
-  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"],
-  credentials: false,
-  optionsSuccessStatus: 204
-};
+  if (allowedOrigins.includes(origin)) {
+    res.header("Access-Control-Allow-Origin", origin);
+  } else {
+    logger.warn("CORS bloqueado", {
+      origin,
+      method: req.method,
+      path: req.originalUrl
+    });
+  }
 
-// 🔥 IMPORTANTE: CORS antes de TODO
-app.use(cors(corsOptions));
-app.options(/.*/, cors(corsOptions));
+  res.header("Vary", "Origin");
+  res.header("Access-Control-Allow-Methods", "GET,POST,PUT,PATCH,DELETE,OPTIONS");
+  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  res.header("Access-Control-Max-Age", "600");
+
+  if (req.method === "OPTIONS") {
+    return res.sendStatus(204);
+  }
+
+  next();
+});
 
 // ================================
-// SEGURIDAD (helmet)
+// SEGURIDAD (HELMET)
 // ================================
 app.use(
   helmet({
@@ -94,6 +119,8 @@ app.use(
           "https://www.taxipro-app.com",
           "https://*.googleapis.com",
           "https://*.gstatic.com",
+          "https://*.google.com",
+          "https://*.googleusercontent.com",
           "data:",
           "blob:"
         ],
@@ -120,22 +147,19 @@ app.use(
 );
 
 // ================================
-// PARSE JSON
+// JSON PARSER
 // ================================
 app.use(express.json({ limit: "20kb" }));
 
 // ================================
 // RATE LIMIT
 // ================================
-const apiLimiter = rateLimit({
+app.use("/api", rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 120,
   standardHeaders: true,
-  legacyHeaders: false,
-  message: { error: "Too many requests" }
-});
-
-app.use("/api", apiLimiter);
+  legacyHeaders: false
+}));
 
 // ================================
 // STATIC FRONTEND
@@ -146,8 +170,8 @@ app.use(express.static(path.join(__dirname, "../frontend/pwa")));
 // TEST DB
 // ================================
 db.query("SELECT NOW()")
-  .then((res) => logger.info("DB Connected: " + res.rows[0].now))
-  .catch((err) => logger.error("DB Error: " + err.message));
+  .then(res => logger.info("DB Connected: " + res.rows[0].now))
+  .catch(err => logger.error("DB Error: " + err.message));
 
 // ================================
 // API ROUTES
@@ -173,8 +197,9 @@ app.get("/app", (req, res) => {
 // ================================
 app.use((err, req, res, next) => {
   logger.error(err.stack || err.message);
-  res.status(500).json({
-    error: err.message || "Internal Server Error"
+
+  res.status(err.status || 500).json({
+    error: "Internal Server Error"
   });
 });
 
