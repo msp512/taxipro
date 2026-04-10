@@ -32,97 +32,18 @@ const __dirname = path.dirname(__filename);
 app.set("trust proxy", 1);
 
 // ================================
-// ORÍGENES PERMITIDOS
+// CORS (VERSIÓN LIMPIA Y FUNCIONAL)
 // ================================
 const allowedOrigins = [
-  "http://localhost:3000",
-  "http://localhost:5001",
-  "http://127.0.0.1:5001",
-  "http://localhost:5500",
-  "http://127.0.0.1:5500",
-  "http://127.0.0.1:5501",
   "https://taxipro-app.com",
   "https://www.taxipro-app.com",
-  "https://taxipro.onrender.com"
+  "http://localhost:5500",
+  "http://127.0.0.1:5500"
 ];
 
-// ================================
-// SEGURIDAD (helmet con CSP)
-// ================================
-app.use(
-  helmet({
-    contentSecurityPolicy: {
-      directives: {
-        defaultSrc: ["'self'"],
-
-        scriptSrc: [
-          "'self'",
-          "'unsafe-inline'",
-          "'unsafe-eval'",
-          "https://*.googleapis.com",
-          "https://*.gstatic.com",
-          "https://*.google.com",
-          "blob:"
-        ],
-
-        imgSrc: [
-          "'self'",
-          "data:",
-          "https://*.googleapis.com",
-          "https://*.gstatic.com",
-          "https://*.google.com",
-          "https://*.googleusercontent.com"
-        ],
-
-        connectSrc: [
-          "'self'",
-          "https://*.googleapis.com",
-          "https://*.gstatic.com",
-          "https://*.google.com",
-          "https://taxipro.onrender.com",
-          "https://taxipro-app.com",
-          "https://www.taxipro-app.com",
-          "http://localhost:5001",
-          "http://127.0.0.1:5001",
-          "http://localhost:5500",
-          "http://127.0.0.1:5500",
-          "data:",
-          "blob:"
-        ],
-
-        styleSrc: [
-          "'self'",
-          "'unsafe-inline'",
-          "https://fonts.googleapis.com"
-        ],
-
-        fontSrc: [
-          "'self'",
-          "https://fonts.gstatic.com",
-          "data:"
-        ],
-
-        frameSrc: [
-          "https://*.google.com"
-        ],
-
-        workerSrc: [
-          "'self'",
-          "blob:"
-        ]
-      }
-    }
-  })
-);
-
-// ================================
-// CORS
-// ================================
 const corsOptions = {
   origin(origin, callback) {
-    if (!origin) {
-      return callback(null, true);
-    }
+    if (!origin) return callback(null, true);
 
     if (allowedOrigins.includes(origin)) {
       return callback(null, true);
@@ -133,12 +54,70 @@ const corsOptions = {
   },
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
-  optionsSuccessStatus: 204,
-  credentials: false
+  credentials: false,
+  optionsSuccessStatus: 204
 };
 
+// 🔥 IMPORTANTE: CORS antes de TODO
 app.use(cors(corsOptions));
-app.options(/.*/, cors(corsOptions));
+app.options("*", cors(corsOptions));
+
+// ================================
+// SEGURIDAD (helmet)
+// ================================
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: [
+          "'self'",
+          "'unsafe-inline'",
+          "'unsafe-eval'",
+          "https://*.googleapis.com",
+          "https://*.gstatic.com",
+          "https://*.google.com",
+          "blob:"
+        ],
+        imgSrc: [
+          "'self'",
+          "data:",
+          "https://*.googleapis.com",
+          "https://*.gstatic.com",
+          "https://*.google.com",
+          "https://*.googleusercontent.com"
+        ],
+        connectSrc: [
+          "'self'",
+          "https://taxipro.onrender.com",
+          "https://taxipro-app.com",
+          "https://www.taxipro-app.com",
+          "https://*.googleapis.com",
+          "https://*.gstatic.com",
+          "data:",
+          "blob:"
+        ],
+        styleSrc: [
+          "'self'",
+          "'unsafe-inline'",
+          "https://fonts.googleapis.com"
+        ],
+        fontSrc: [
+          "'self'",
+          "https://fonts.gstatic.com",
+          "data:"
+        ],
+        frameSrc: [
+          "https://*.google.com"
+        ],
+        workerSrc: [
+          "'self'",
+          "blob:"
+        ]
+      }
+    }
+  })
+);
 
 // ================================
 // PARSE JSON
