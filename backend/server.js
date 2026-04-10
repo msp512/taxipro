@@ -60,7 +60,7 @@ const corsOptions = {
 
 // 🔥 IMPORTANTE: CORS antes de TODO
 app.use(cors(corsOptions));
-app.options("*", cors(corsOptions));
+app.options(/.*/, cors(corsOptions));
 
 // ================================
 // SEGURIDAD (helmet)
