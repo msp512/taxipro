@@ -135,11 +135,18 @@ async function ensureDeviceActivation() {
     return;
   }
 
+  const activationKey = window.prompt("Introduce la clave de activación TAXIPRO");
+
+  if (!activationKey) {
+    throw new Error("Acceso bloqueado");
+  }
+
   const activation = await activatePilotDeviceAPI({
     taxi_code: taxiCode,
     device_id: deviceId,
     device_name: deviceName,
-    role: "operator"
+    role: "operator",
+    activation_key: activationKey
   });
 
   markDeviceActivated(activation?.activation?.role || "operator");

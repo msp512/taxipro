@@ -27,13 +27,30 @@ export async function activatePilotDevice(req, res) {
     const deviceId = normalizeValue(req.body?.device_id);
     const deviceName = normalizeValue(req.body?.device_name);
     const requestedRole = getAllowedRole(req.body?.role);
+    const activationKey = normalizeValue(req.body?.activation_key);
 
     if (!taxiCode) {
-      return res.status(400).json({ error: "taxi_code required" });
+      return res.status(400).json({
+        error: "taxi_code required"
+      });
     }
 
     if (!deviceId) {
-      return res.status(400).json({ error: "device_id required" });
+      return res.status(400).json({
+        error: "device_id required"
+      });
+    }
+
+    if (!activationKey) {
+      return res.status(403).json({
+        error: "activation key required"
+      });
+    }
+
+    if (activationKey !== process.env.PILOT_ACTIVATION_KEY) {
+      return res.status(403).json({
+        error: "invalid activation key"
+      });
     }
 
     const taxiResult = await db.query(
@@ -49,11 +66,15 @@ export async function activatePilotDevice(req, res) {
     const taxi = taxiResult.rows[0];
 
     if (!taxi) {
-      return res.status(403).json({ error: "taxi not authorized for pilot" });
+      return res.status(403).json({
+        error: "taxi not authorized for pilot"
+      });
     }
 
     if (!isActiveStatus(taxi.status)) {
-      return res.status(403).json({ error: "taxi not active" });
+      return res.status(403).json({
+        error: "taxi not active"
+      });
     }
 
     const existingDevice = await db.query(

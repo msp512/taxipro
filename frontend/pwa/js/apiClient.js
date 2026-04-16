@@ -31,7 +31,8 @@ export async function activatePilotDeviceAPI({
   taxi_code,
   device_id,
   device_name,
-  role = "operator"
+  role = "operator",
+  activation_key = ""
 }) {
   const response = await fetch(`${API_BASE}/pilot/activate`, {
     method: "POST",
@@ -42,7 +43,8 @@ export async function activatePilotDeviceAPI({
       taxi_code: String(taxi_code || "").trim().toUpperCase(),
       device_id: String(device_id || "").trim(),
       device_name: String(device_name || "").trim(),
-      role: String(role || "operator").trim().toLowerCase()
+      role: String(role || "operator").trim().toLowerCase(),
+      activation_key: String(activation_key || "").trim()
     })
   });
 
