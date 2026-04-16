@@ -20,8 +20,13 @@ export function showPriceResult(data) {
     estimationTitle.innerText = isFixed ? modeLabel : "Estimación TaxiPro";
   }
 
-  estimated.innerText = data.price.toFixed(2) + " €";
-  range.innerText = `${data.interval.min.toFixed(2)} – ${data.interval.max.toFixed(2)} €`;
+  if (estimated) {
+    estimated.innerText = data.price.toFixed(2) + " €";
+  }
+
+  if (range) {
+    range.innerText = `${data.interval.min.toFixed(2)} – ${data.interval.max.toFixed(2)} €`;
+  }
 
   if (distance) {
     if (data.distanceKm != null && data.distanceKm > 0) {
@@ -42,20 +47,23 @@ export function showPriceResult(data) {
   if (confidence) {
     if (isFixed) {
       confidence.innerText = modeLabel;
-    } else if (data.confidence != null) {
-      confidence.innerText = "Precisión estimada: " + data.confidence + "%";
     } else {
-      confidence.innerText = "Precisión estimada --";
+      confidence.innerText = "Tarifa oficial aplicada sobre ruta estimada";
     }
   }
 
   if (trafficStatus) {
     trafficStatus.innerText = isFixed
-  ? "Precio concertado"
-  : "Tráfico actual analizado";
+      ? "Precio concertado"
+      : "Estimación calculada con distancia, tiempo y tráfico actual";
   }
 
-  result?.classList.remove("hidden");
+  if (result) {
+  result.classList.remove("hidden");
+  result.classList.remove("show-result");
+  void result.offsetWidth;
+  result.classList.add("show-result");
+}
 
   if (estimated) {
     estimated.classList.remove("price-animate");
@@ -96,26 +104,35 @@ export function renderHistory(services) {
   completed.slice(0, 10).forEach((service) => {
     const estimated = Number(service.estimated_price);
     const real = Number(service.meter_price);
-    const deviation = Number.isFinite(Number(service.deviation))
+
+    const deviationPercent = Number.isFinite(Number(service.deviation))
       ? Number(service.deviation) * 100
       : ((real - estimated) / estimated) * 100;
+
+    const deviationEuro = real - estimated;
+    const absDeviation = Math.abs(deviationPercent);
 
     const item = document.createElement("div");
     item.className = "history-item";
 
-    const deviationClass = deviation > 0
-      ? "history-deviation-positive"
-      : "history-deviation-negative";
+    let deviationClass = "history-deviation-neutral";
+    if (deviationPercent > 2) deviationClass = "history-deviation-positive";
+    if (deviationPercent < -2) deviationClass = "history-deviation-negative";
 
-    const destLabel = service.destination
-      ? `<div style="font-size:0.8rem;color:#9ca3af;margin-bottom:4px">${service.destination}</div>`
-      : "";
+    const destination = service.destination || "Destino no disponible";
 
-    item.innerHTML =
-      destLabel +
-      `<div>Estimado: ${estimated.toFixed(2)} €</div>` +
-      `<div>Real: ${real.toFixed(2)} €</div>` +
-      `<div class="${deviationClass}">Desviación: ${deviation.toFixed(1)} %</div>`;
+    item.innerHTML = `
+      <div style="font-size:0.82rem;color:#9ca3af;margin-bottom:6px">${destination}</div>
+      <div>Estimado: ${estimated.toFixed(2)} €</div>
+      <div>Real: ${real.toFixed(2)} €</div>
+      <div>Desviación: ${deviationEuro >= 0 ? "+" : ""}${deviationEuro.toFixed(2)} €</div>
+      <div class="${deviationClass}">
+        Desviación: ${deviationPercent >= 0 ? "+" : ""}${deviationPercent.toFixed(1)} %
+      </div>
+      <div style="font-size:0.78rem;color:#94a3b8;margin-top:4px">
+        Ajuste: ${absDeviation.toFixed(1)} %
+      </div>
+    `;
 
     list.appendChild(item);
   });
@@ -131,10 +148,10 @@ export function updatePilotStats(servicesFromDb = []) {
   if (!services || !deviation || !best || !worst || !calibration) return;
 
   if (!servicesFromDb || !servicesFromDb.length) {
-    services.innerText = "Servicios: 0";
+    services.innerText = "Servicios validados: 0";
     deviation.innerText = "Desviación media: --";
-    best.innerText = "Mejor: --";
-    worst.innerText = "Peor: --";
+    best.innerText = "Mejor ajuste: --";
+    worst.innerText = "Peor ajuste: --";
     calibration.innerText = "Calibración: 0 / 100";
     return;
   }
@@ -156,19 +173,27 @@ export function updatePilotStats(servicesFromDb = []) {
   });
 
   if (!deviations.length) {
-    services.innerText = "Servicios: 0";
+    services.innerText = "Servicios validados: 0";
     deviation.innerText = "Desviación media: --";
-    best.innerText = "Mejor: --";
-    worst.innerText = "Peor: --";
+    best.innerText = "Mejor ajuste: --";
+    worst.innerText = "Peor ajuste: --";
     calibration.innerText = "Calibración: 0 / 100";
     return;
   }
 
   const avg = deviations.reduce((a, b) => a + b, 0) / deviations.length;
 
-  services.innerText = "Servicios: " + deviations.length;
+  const bestValue = deviations.reduce((prev, curr) =>
+    Math.abs(curr) < Math.abs(prev) ? curr : prev
+  );
+
+  const worstValue = deviations.reduce((prev, curr) =>
+    Math.abs(curr) > Math.abs(prev) ? curr : prev
+  );
+
+  services.innerText = "Servicios validados: " + deviations.length;
   deviation.innerText = "Desviación media: " + avg.toFixed(1) + " %";
-  best.innerText = "Mejor: " + Math.min(...deviations).toFixed(1) + " %";
-  worst.innerText = "Peor: " + Math.max(...deviations).toFixed(1) + " %";
+  best.innerText = "Mejor ajuste: " + (bestValue >= 0 ? "+" : "") + bestValue.toFixed(1) + " %";
+  worst.innerText = "Peor ajuste: " + (worstValue >= 0 ? "+" : "") + worstValue.toFixed(1) + " %";
   calibration.innerText = "Calibración: " + deviations.length + " / 100";
 }

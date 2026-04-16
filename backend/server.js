@@ -9,6 +9,7 @@ import fareRoutes from "./routes/fareRoutes.js";
 import techRoutes from "./routes/techRoutes.js";
 import cityRoutes from "./routes/cityRoutes.js";
 import serviceRoutes from "./routes/serviceRoutes.js";
+import pilotRoutes from "./routes/pilotRoutes.js";
 
 import { verifyJWT } from "./middleware/auth.js";
 import db from "./db.js";
@@ -77,7 +78,10 @@ app.use((req, res, next) => {
 
   res.header("Vary", "Origin");
   res.header("Access-Control-Allow-Methods", "GET,POST,PUT,PATCH,DELETE,OPTIONS");
-  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Content-Type, Authorization, x-taxi-code, x-device-id"
+  );
   res.header("Access-Control-Max-Age", "600");
 
   if (req.method === "OPTIONS") {
@@ -176,6 +180,7 @@ db.query("SELECT NOW()")
 // ================================
 // API ROUTES
 // ================================
+app.use("/api/pilot", pilotRoutes);
 app.use("/api/fare", fareRoutes);
 app.use("/api/city", cityRoutes);
 app.use("/api/tech", verifyJWT, techRoutes);

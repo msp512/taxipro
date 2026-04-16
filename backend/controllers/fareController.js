@@ -1,118 +1,218 @@
 import { calculateAverageSpeed } from "../core/trafficAnalyzer.js";
 import { calculateConfidence } from "../core/confidenceEngine.js";
+import { calculateCorrectionFactor } from "../core/learningEngine.js";
+import { getRecentServices } from "../services/learningService.js";
+import { classifyService } from "../core/serviceClassifier.js";
 import { fareSchema } from "../validation/fareSchema.js";
 import logger from "../utils/logger.js";
 
-export function estimateFare(req, res) {
+const CROSS_SPEED = 18;
+
+const TARIFF = {
+  baseFare: 2.5,
+  priceKm: 1.2,
+  priceMinute: 19.4 / 60
+};
+
+const SUPPLEMENT_VALUES = {
+  airport: 4.65,
+  radio: 1.15,
+  christmas: 4.75,
+  pax56: 3.0,
+  pax78: 6.0,
+  mountain1: 8.52,
+  mountain2: 4.26
+};
+
+function isValidServiceData({ deviation, distance, duration, speed }) {
+  if (typeof deviation !== "number") return false;
+  if (typeof distance !== "number") return false;
+  if (typeof duration !== "number") return false;
+  if (typeof speed !== "number") return false;
+
+  if (Math.abs(deviation) > 0.35) return false;
+  if (distance < 0.5 || duration < 3) return false;
+  if (speed < 5 || speed > 120) return false;
+
+  return true;
+}
+
+function calculateSupplementsTotal(supplements = []) {
+  return supplements.reduce((sum, key) => {
+    return sum + (SUPPLEMENT_VALUES[key] || 0);
+  }, 0);
+}
+
+function calculateBaseEstimatedPrice({ distance, duration, speed }) {
+  const distancePart = distance * TARIFF.priceKm;
+
+  let timePart = 0;
+
+  if (speed < CROSS_SPEED) {
+    const timeWeight = Math.min(1, (CROSS_SPEED - speed) / CROSS_SPEED);
+    const effectiveTime = duration * timeWeight;
+    timePart = effectiveTime * TARIFF.priceMinute;
+  }
+
+  return TARIFF.baseFare + distancePart + timePart;
+}
+
+function calculateMarginBySpeed(speed) {
+  if (speed < 15) return 0.1;
+  if (speed < 25) return 0.07;
+  if (speed > 40) return 0.03;
+  return 0.05;
+}
+
+function normalizeZodError(error) {
+  return error.issues.map((issue) => ({
+    field: issue.path.join("."),
+    message: issue.message
+  }));
+}
+
+export async function estimateFare(req, res) {
+  const start = Date.now();
+
   try {
     const parsed = fareSchema.safeParse(req.body);
 
     if (!parsed.success) {
+      const durationMs = Date.now() - start;
+
+      logger.warn(
+        {
+          body: req.body,
+          validationErrors: normalizeZodError(parsed.error),
+          durationMs
+        },
+        "Fare validation failed"
+      );
+
       return res.status(400).json({
-        error: parsed.error.errors
+        error: "invalid fare request",
+        details: normalizeZodError(parsed.error)
       });
     }
 
-    const { distance, duration, city, supplements = [] } = parsed.data;
-    const start = Date.now();
+    const {
+      distance,
+      duration,
+      city,
+      supplements = []
+    } = parsed.data;
 
-    // ==============================
-    // 1. VELOCIDAD MEDIA
-    // ==============================
-    const speed = calculateAverageSpeed(
-      distance * 1000,
-      duration * 60
+    logger.info(
+      {
+        distance,
+        duration,
+        city,
+        supplements
+      },
+      "Fare request received"
     );
 
-    if (!speed) {
+    const type = classifyService({
+      distance,
+      duration,
+      supplements
+    });
+
+    const speed = calculateAverageSpeed(distance * 1000, duration * 60);
+
+    if (typeof speed !== "number" || Number.isNaN(speed) || speed <= 0) {
+      logger.warn(
+        {
+          distance,
+          duration,
+          speed
+        },
+        "Invalid speed calculation"
+      );
+
       return res.status(400).json({
         error: "invalid speed calculation"
       });
     }
 
-    // ==============================
-    // 2. TARIFAS REALES
-    // ==============================
-    const tariff = {
-      baseFare: 2.50,
-      priceKm: 1.20,
-      priceMinute: 19.40 / 60
-    };
+    const supplementsTotal = calculateSupplementsTotal(supplements);
 
-    // ==============================
-    // 3. SUPLEMENTOS
-    // ==============================
-    const supplementValues = {
-      airport: 4.65,
-      radio: 1.15,
-      christmas: 4.75,
-      pax56: 3.00,
-      pax78: 6.00,
-      mountain1: 8.52,
-      mountain2: 4.26
-    };
+    let price = calculateBaseEstimatedPrice({
+      distance,
+      duration,
+      speed
+    });
 
-    const supplementsTotal = supplements.reduce((sum, key) => {
-      return sum + (supplementValues[key] || 0);
-    }, 0);
+    let correctionFactor = 1;
+    let learningStatus = "not_used";
 
-    // ==============================
-    // 4. CÁLCULO TIPO TAXÍMETRO REAL
-    // ==============================
-    let price = tariff.baseFare;
+    try {
+      const services = await getRecentServices(req.app.locals.db, type);
+      const safeServices = Array.isArray(services) ? services : [];
 
-    if (speed >= 18) {
-      // carretera → SOLO distancia
-      price += distance * tariff.priceKm;
+      const validServices = safeServices.filter((service) =>
+        isValidServiceData({
+          deviation: service.deviation,
+          distance: service.distance_km,
+          duration: service.duration_min,
+          speed: service.speed
+        })
+      );
 
-    } else {
-      // urbano → mezcla controlada
-      let factor = 0;
+      const calculatedFactor = calculateCorrectionFactor(validServices);
 
-      if (speed < 15) factor = 0.25;
-      else factor = 0.12;
+      if (typeof calculatedFactor === "number" && Number.isFinite(calculatedFactor)) {
+        correctionFactor = calculatedFactor;
+        learningStatus = "applied";
+      } else {
+        correctionFactor = 1;
+        learningStatus = "fallback";
+      }
+    } catch (learningError) {
+      learningStatus = "fallback";
 
-      const effectiveTime = duration * factor;
-
-      price += distance * tariff.priceKm;
-      price += effectiveTime * tariff.priceMinute;
+      logger.warn(
+        {
+          error: learningError.message,
+          type
+        },
+        "Learning system not available"
+      );
     }
 
-    // ==============================
-    // 5. SUPLEMENTOS
-    // ==============================
+    price *= correctionFactor;
     price += supplementsTotal;
-
-    // ==============================
-    // 6. REDONDEO
-    // ==============================
     price = Number(price.toFixed(2));
 
-    const durationMs = Date.now() - start;
-
-    logger.info({ durationMs }, "Fare calculation time");
-
-    // ==============================
-    // 7. CONFIANZA
-    // ==============================
     const confidence = calculateConfidence(distance, duration, speed);
-
-    // ==============================
-    // 8. MARGEN
-    // ==============================
-    let margin = 0.06;
-
-    if (speed < 15) margin = 0.12;
-    else if (speed < 25) margin = 0.08;
-    else if (speed > 40) margin = 0.03;
+    const margin = calculateMarginBySpeed(speed);
 
     const minPrice = Number((price * (1 - margin)).toFixed(2));
     const maxPrice = Number((price * (1 + margin)).toFixed(2));
 
-    // ==============================
-    // 9. RESPUESTA
-    // ==============================
-    res.json({
+    const durationMs = Date.now() - start;
+
+    logger.info(
+      {
+        durationMs,
+        distance,
+        duration,
+        speed,
+        city,
+        type,
+        supplements,
+        supplementsTotal,
+        correctionFactor,
+        confidence,
+        price,
+        minPrice,
+        maxPrice,
+        learningStatus
+      },
+      "Fare calculation completed"
+    );
+
+    return res.json({
       price,
       interval: {
         min: minPrice,
@@ -125,15 +225,29 @@ export function estimateFare(req, res) {
       },
       meta: {
         speed,
-        city
+        city: city || null,
+        type,
+        correctionFactor,
+        learningStatus,
+        model: "taximeter_v3_intelligent"
       }
     });
-
   } catch (error) {
-    logger.error(error, "Fare calculation error");
+    const durationMs = Date.now() - start;
 
-    res.status(500).json({
-      error: "fare calculation failed"
-    });
+    logger.error(
+      {
+        error: error.message,
+        stack: error.stack,
+        body: req.body,
+        durationMs
+      },
+      "Fare calculation error"
+    );
+
+    return res.status(500).json({
+  error: "service registration failed",
+  detail: error.message
+});
   }
 }
