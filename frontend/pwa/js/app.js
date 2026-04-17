@@ -1179,7 +1179,7 @@ let deferredPrompt = null;
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
     navigator.serviceWorker
-      .register("/sw.js")
+      .register("/service-worker.js")
       .then((reg) => console.log("TaxiPro SW activo", reg))
       .catch((err) => console.error("SW error", err));
   });
