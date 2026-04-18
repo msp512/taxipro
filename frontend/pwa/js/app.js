@@ -230,21 +230,19 @@ function hideSplashWhenReady() {
   if (splashRemoved) return;
   splashRemoved = true;
 
-  const elapsed = Date.now() - splashStart;
-  const remaining = Math.max(0, SPLASH_MIN_MS - elapsed);
+  const splash = document.getElementById("splash");
+
+  document.body.classList.add("app-ready");
+
+  if (!splash) return;
+
+  splash.style.opacity = "0";
+  splash.style.visibility = "hidden";
+  splash.style.pointerEvents = "none";
 
   setTimeout(() => {
-    document.body.classList.add("app-ready");
-
-    const splash = document.getElementById("splash");
-    if (!splash) return;
-
-    splash.classList.add("hide");
-
-    setTimeout(() => {
-      splash.remove();
-    }, 260);
-  }, remaining);
+    splash.remove();
+  }, 150);
 }
 
 /* ===============================
