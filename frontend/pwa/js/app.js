@@ -1132,6 +1132,7 @@ function waitForGoogleMaps() {
 
 async function initializeApp() {
   try {
+    console.log("INIT 1");
     getDeviceId();
     getDeviceName();
 
@@ -1146,15 +1147,23 @@ async function initializeApp() {
     if (startTripBtn) startTripBtn.disabled = true;
     if (saveMeterBtn) saveMeterBtn.disabled = true;
 
-    await ensureDeviceActivation();
+    hideSplashWhenReady();
+    console.log("INIT 2 - splash ocultable");
 
+    console.log("INIT 3 - antes activacion");
+    await ensureDeviceActivation();
+    console.log("INIT 4 - despues activacion");
+
+    console.log("INIT 5 - antes Google Maps");
     await waitForGoogleMaps();
+    console.log("INIT 6 - despues Google Maps");
+
     initMap();
     initAutocomplete();
-
-    hideSplashWhenReady();
+    console.log("INIT 7 - mapa iniciado");
 
     await refreshServicesFromBackend();
+    console.log("INIT 8 - historial cargado");
   } catch (error) {
     console.error("Error inicializando la app:", error);
     hideSplashWhenReady();
@@ -1176,11 +1185,4 @@ let deferredPrompt = null;
    SERVICE WORKER REGISTRO
 ============================== */
 
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker
-      .register("/service-worker.js")
-      .then((reg) => console.log("TaxiPro SW activo", reg))
-      .catch((err) => console.error("SW error", err));
-  });
-}
+// Desactivado temporalmente para depuración
