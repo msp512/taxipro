@@ -210,3 +210,46 @@ export async function deactivatePilotDevice(req, res) {
     });
   }
 }
+export async function activateExistingPilotDevice(req, res) {
+  try {
+    const taxiCode = req.authPilot?.taxiCode;
+    const deviceId = normalizeValue(req.body?.device_id);
+
+    if (!deviceId) {
+      return res.status(400).json({
+        error: "device_id required"
+      });
+    }
+
+    const result = await db.query(
+      `
+      update authorized_devices
+      set status = 'active',
+          updated_at = now(),
+          last_used_at = now()
+      where taxi_code = $1
+        and device_id = $2
+      returning device_id, status, role
+      `,
+      [taxiCode, deviceId]
+    );
+
+    if (!result.rows.length) {
+      return res.status(404).json({
+        error: "device not found"
+      });
+    }
+
+    return res.json({
+      ok: true,
+      device: result.rows[0]
+    });
+  } catch (error) {
+    console.error("Activate existing device error:", error);
+
+    return res.status(500).json({
+      error: "failed to activate device",
+      detail: error.message
+    });
+  }
+}

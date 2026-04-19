@@ -2,7 +2,8 @@ import express from "express";
 import {
   activatePilotDevice,
   getPilotDevices,
-  deactivatePilotDevice
+  deactivatePilotDevice,
+  activateExistingPilotDevice
 } from "../controllers/pilotController.js";
 
 import {
@@ -12,11 +13,10 @@ import {
 
 const router = express.Router();
 
-// Activación (pública con clave)
 router.post("/activate", activatePilotDevice);
 
-// 🔒 Requieren dispositivo autorizado
 router.get("/devices", requireAuthorizedDevice, requireAdminRole, getPilotDevices);
 router.post("/device/deactivate", requireAuthorizedDevice, requireAdminRole, deactivatePilotDevice);
+router.post("/device/activate", requireAuthorizedDevice, requireAdminRole, activateExistingPilotDevice);
 
 export default router;
