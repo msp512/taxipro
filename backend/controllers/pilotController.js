@@ -135,3 +135,78 @@ export async function activatePilotDevice(req, res) {
     });
   }
 }
+export async function getPilotDevices(req, res) {
+  try {
+    const taxiCode = req.authPilot?.taxiCode;
+
+    const result = await db.query(
+      `
+      select
+        device_id,
+        device_name,
+        role,
+        status,
+        last_used_at,
+        first_activated_at
+      from authorized_devices
+      where taxi_code = $1
+      order by last_used_at desc nulls last
+      `,
+      [taxiCode]
+    );
+
+    return res.json({
+      ok: true,
+      devices: result.rows
+    });
+  } catch (error) {
+    console.error("Get devices error:", error);
+
+    return res.status(500).json({
+      error: "failed to fetch devices",
+      detail: error.message
+    });
+  }
+}
+export async function deactivatePilotDevice(req, res) {
+  try {
+    const taxiCode = req.authPilot?.taxiCode;
+    const deviceId = normalizeValue(req.body?.device_id);
+
+    if (!deviceId) {
+      return res.status(400).json({
+        error: "device_id required"
+      });
+    }
+
+    const result = await db.query(
+      `
+      update authorized_devices
+      set status = 'inactive',
+          updated_at = now()
+      where taxi_code = $1
+        and device_id = $2
+      returning device_id, status
+      `,
+      [taxiCode, deviceId]
+    );
+
+    if (!result.rows.length) {
+      return res.status(404).json({
+        error: "device not found"
+      });
+    }
+
+    return res.json({
+      ok: true,
+      device: result.rows[0]
+    });
+  } catch (error) {
+    console.error("Deactivate device error:", error);
+
+    return res.status(500).json({
+      error: "failed to deactivate device",
+      detail: error.message
+    });
+  }
+}
