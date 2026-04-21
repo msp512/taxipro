@@ -26,31 +26,23 @@ export async function activatePilotDevice(req, res) {
     const taxiCode = normalizeTaxiCode(req.body?.taxi_code || req.body?.taxi_id);
     const deviceId = normalizeValue(req.body?.device_id);
     const deviceName = normalizeValue(req.body?.device_name);
-    const requestedRole = getAllowedRole(req.body?.role);
+    const requestedRole = "operator";
     const activationKey = normalizeValue(req.body?.activation_key);
 
     if (!taxiCode) {
-      return res.status(400).json({
-        error: "taxi_code required"
-      });
+      return res.status(400).json({ error: "taxi_code required" });
     }
 
     if (!deviceId) {
-      return res.status(400).json({
-        error: "device_id required"
-      });
+      return res.status(400).json({ error: "device_id required" });
     }
 
     if (!activationKey) {
-      return res.status(403).json({
-        error: "activation key required"
-      });
+      return res.status(403).json({ error: "activation key required" });
     }
 
     if (activationKey !== process.env.PILOT_ACTIVATION_KEY) {
-      return res.status(403).json({
-        error: "invalid activation key"
-      });
+      return res.status(403).json({ error: "invalid activation key" });
     }
 
     const taxiResult = await db.query(
@@ -66,15 +58,11 @@ export async function activatePilotDevice(req, res) {
     const taxi = taxiResult.rows[0];
 
     if (!taxi) {
-      return res.status(403).json({
-        error: "taxi not authorized for pilot"
-      });
+      return res.status(403).json({ error: "taxi not authorized for pilot" });
     }
 
     if (!isActiveStatus(taxi.status)) {
-      return res.status(403).json({
-        error: "taxi not active"
-      });
+      return res.status(403).json({ error: "taxi not active" });
     }
 
     const existingDevice = await db.query(
@@ -135,6 +123,7 @@ export async function activatePilotDevice(req, res) {
     });
   }
 }
+
 export async function getPilotDevices(req, res) {
   try {
     const taxiCode = req.authPilot?.taxiCode;
@@ -168,15 +157,14 @@ export async function getPilotDevices(req, res) {
     });
   }
 }
+
 export async function deactivatePilotDevice(req, res) {
   try {
     const taxiCode = req.authPilot?.taxiCode;
     const deviceId = normalizeValue(req.body?.device_id);
 
     if (!deviceId) {
-      return res.status(400).json({
-        error: "device_id required"
-      });
+      return res.status(400).json({ error: "device_id required" });
     }
 
     const result = await db.query(
@@ -192,9 +180,7 @@ export async function deactivatePilotDevice(req, res) {
     );
 
     if (!result.rows.length) {
-      return res.status(404).json({
-        error: "device not found"
-      });
+      return res.status(404).json({ error: "device not found" });
     }
 
     return res.json({
@@ -210,15 +196,14 @@ export async function deactivatePilotDevice(req, res) {
     });
   }
 }
+
 export async function activateExistingPilotDevice(req, res) {
   try {
     const taxiCode = req.authPilot?.taxiCode;
     const deviceId = normalizeValue(req.body?.device_id);
 
     if (!deviceId) {
-      return res.status(400).json({
-        error: "device_id required"
-      });
+      return res.status(400).json({ error: "device_id required" });
     }
 
     const result = await db.query(
@@ -235,9 +220,7 @@ export async function activateExistingPilotDevice(req, res) {
     );
 
     if (!result.rows.length) {
-      return res.status(404).json({
-        error: "device not found"
-      });
+      return res.status(404).json({ error: "device not found" });
     }
 
     return res.json({
@@ -249,6 +232,135 @@ export async function activateExistingPilotDevice(req, res) {
 
     return res.status(500).json({
       error: "failed to activate device",
+      detail: error.message
+    });
+  }
+}
+
+export async function getCurrentPilotDevice(req, res) {
+  try {
+    const taxiCode = req.authPilot?.taxiCode;
+    const deviceId = req.authPilot?.deviceId;
+
+    const result = await db.query(
+      `
+      select
+        taxi_code,
+        device_id,
+        device_name,
+        role,
+        status,
+        last_used_at,
+        first_activated_at
+      from authorized_devices
+      where taxi_code = $1
+        and device_id = $2
+      limit 1
+      `,
+      [taxiCode, deviceId]
+    );
+
+    const device = result.rows[0];
+
+    if (!device) {
+      return res.status(404).json({ error: "device not found" });
+    }
+
+    return res.json({
+      ok: true,
+      device
+    });
+  } catch (error) {
+    console.error("Get current device error:", error);
+
+    return res.status(500).json({
+      error: "failed to fetch current device",
+      detail: error.message
+    });
+  }
+}
+
+export async function updatePilotDeviceRole(req, res) {
+  try {
+    const taxiCode = req.authPilot?.taxiCode;
+    const currentDeviceId = req.authPilot?.deviceId;
+    const deviceId = normalizeValue(req.body?.device_id);
+    const role = getAllowedRole(req.body?.role);
+
+    if (!deviceId) {
+      return res.status(400).json({ error: "device_id required" });
+    }
+
+    const result = await db.query(
+      `
+      update authorized_devices
+      set role = $3,
+          updated_at = now()
+      where taxi_code = $1
+        and device_id = $2
+      returning device_id, device_name, role, status
+      `,
+      [taxiCode, deviceId, role]
+    );
+
+    if (!result.rows.length) {
+      return res.status(404).json({ error: "device not found" });
+    }
+
+    return res.json({
+      ok: true,
+      device: result.rows[0],
+      current_device_changed: currentDeviceId === deviceId
+    });
+  } catch (error) {
+    console.error("Update device role error:", error);
+
+    return res.status(500).json({
+      error: "failed to update device role",
+      detail: error.message
+    });
+  }
+}
+
+export async function renamePilotDevice(req, res) {
+  try {
+    const taxiCode = req.authPilot?.taxiCode;
+    const deviceId = normalizeValue(req.body?.device_id);
+    const deviceName = normalizeValue(req.body?.device_name);
+
+    if (!deviceId) {
+      return res.status(400).json({ error: "device_id required" });
+    }
+
+    if (!deviceName) {
+      return res.status(400).json({ error: "device_name required" });
+    }
+
+    const result = await db.query(
+      `
+      update authorized_devices
+      set device_name = $3,
+          updated_at = now()
+      where taxi_code = $1
+        and device_id = $2
+      returning device_id, device_name, role, status
+      `,
+      [taxiCode, deviceId, deviceName]
+    );
+
+    if (!result.rows.length) {
+      return res.status(404).json({ error: "device not found" });
+    }
+
+    return res.json({
+      ok: true,
+      device: result.rows[0]
+    });
+  } catch (error) {
+    console.error("Rename device error:", error);
+
+    return res.status(500).json({
+      error: "failed to rename device",
       detail: error.message
     });
   }

@@ -19,28 +19,6 @@
   <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-
-<div id="splash">
-  <img src="assets/logo-header.png" alt="TaxiPro">
-  <div class="splash-title">TaxiPro</div>
-  <div class="splash-subtitle">Estimación profesional del taxi</div>
-  <div class="scan-line"></div>
-</div>
-  const TAXIPRO_ACCESS_CODE = "TXPILOTO2026";
-  const enteredCode = window.prompt("Acceso TaxiPro:");
-
-  if (enteredCode !== TAXIPRO_ACCESS_CODE) {
-    document.body.innerHTML = `
-      <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:#0F2A44;color:#fff;font-family:Arial,sans-serif;padding:24px;text-align:center;">
-        <div>
-          <h1 style="margin-bottom:12px;">Acceso restringido</h1>
-          <p style="opacity:.9;">TaxiPro en modo piloto privado</p>
-        </div>
-      </div>
-    `;
-  }
-</script>
-
   <div id="splash">
     <div class="splash-inner">
       <img src="assets/logo-header.png" alt="TaxiPro" class="splash-logo">
@@ -266,14 +244,26 @@
 </div>
 
   <div id="pilotStats" class="pilot-stats hidden">
-    <div class="pilot-title">TaxiPro · <span id="pilotTaxiId">TX001</span></div>
-    <div id="pilotServices">Servicios validados: 0</div>
-    <div id="pilotDeviation">Desviación media: --</div>
-    <div id="pilotBest">Mejor ajuste: --</div>
-    <div id="pilotWorst">Peor ajuste: --</div>
-    <div id="pilotCalibration">Calibración: 0 / 100</div>
-    <div class="pilot-hint">Acceso piloto restringido</div>
+  <div class="pilot-title">TaxiPro · <span id="pilotTaxiId">TX001</span></div>
+
+  <div id="pilotServices">Servicios validados: 0</div>
+  <div id="pilotDeviation">Desviación media: --</div>
+  <div id="pilotBest">Mejor ajuste: --</div>
+  <div id="pilotWorst">Peor ajuste: --</div>
+  <div id="pilotCalibration">Calibración: 0 / 100</div>
+
+  <div class="pilot-hint">Acceso piloto restringido</div>
+
+  <!-- 🔥 ADMIN DEVICES -->
+  <div id="adminDevicesSection" class="admin-devices hidden">
+    <div class="admin-devices-header">
+      <span>DISPOSITIVOS AUTORIZADOS</span>
+      <button id="refreshDevicesBtn" type="button">Actualizar</button>
+    </div>
+
+    <div id="adminDevicesList"></div>
   </div>
+</div>
 
   <script type="module" src="js/app.js"></script>
   <script
