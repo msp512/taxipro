@@ -155,3 +155,102 @@ export async function assignTaxiToDevice(req, res) {
     });
   }
 }
+export async function getPilotDevices(req, res) {
+  try {
+    const result = await pool.query(`
+      SELECT 
+        device_id,
+        display_name,
+        role,
+        status,
+        taxi_code,
+        created_at,
+        updated_at
+      FROM authorized_devices
+      ORDER BY created_at DESC
+    `);
+
+    res.json({
+      ok: true,
+      devices: result.rows
+    });
+  } catch (error) {
+    console.error("Error en getPilotDevices:", error);
+    res.status(500).json({
+      ok: false,
+      error: "Error obteniendo dispositivos"
+    });
+  }
+}
+
+export async function updateDeviceRole(req, res) {
+  try {
+    const { device_id, role } = req.body;
+
+    const allowedRoles = ["pending", "operator", "manager", "superadmin"];
+
+    if (!device_id || !allowedRoles.includes(role)) {
+      return res.status(400).json({
+        ok: false,
+        error: "Datos de rol no válidos"
+      });
+    }
+
+    const result = await pool.query(
+      `
+      UPDATE authorized_devices
+      SET role = $1, updated_at = NOW()
+      WHERE device_id = $2
+      RETURNING *
+      `,
+      [role, device_id]
+    );
+
+    res.json({
+      ok: true,
+      device: result.rows[0]
+    });
+  } catch (error) {
+    console.error("Error en updateDeviceRole:", error);
+    res.status(500).json({
+      ok: false,
+      error: "Error actualizando rol"
+    });
+  }
+}
+
+export async function updateDeviceStatus(req, res) {
+  try {
+    const { device_id, status } = req.body;
+
+    const allowedStatus = ["active", "inactive", "blocked"];
+
+    if (!device_id || !allowedStatus.includes(status)) {
+      return res.status(400).json({
+        ok: false,
+        error: "Datos de estado no válidos"
+      });
+    }
+
+    const result = await pool.query(
+      `
+      UPDATE authorized_devices
+      SET status = $1, updated_at = NOW()
+      WHERE device_id = $2
+      RETURNING *
+      `,
+      [status, device_id]
+    );
+
+    res.json({
+      ok: true,
+      device: result.rows[0]
+    });
+  } catch (error) {
+    console.error("Error en updateDeviceStatus:", error);
+    res.status(500).json({
+      ok: false,
+      error: "Error actualizando estado"
+    });
+  }
+}
