@@ -1,34 +1,31 @@
 import express from "express";
 
 import {
-  activatePilotDevice,
-  getPilotDevices,
-  deactivatePilotDevice,
-  activateExistingPilotDevice,
-  getCurrentPilotDevice,
-  updatePilotDeviceRole,
-  renamePilotDevice
-} from "../controllers/pilotController.js";
+  attachDevice,
+  requireManagerRole
+} from "../middleware/requireAuthorizedDevice.js";
 
 import {
-  requireAuthorizedDevice,
-  requireAdminRole
-} from "../middleware/requireAuthorizedDevice.js";
+  getPilotMe,
+  activateWithInvite,
+  getPilotDevices,
+  updateDeviceRole,
+  updateDeviceStatus,
+  assignTaxiToDevice
+} from "../controllers/pilotAccessController.js";
 
 const router = express.Router();
 
-router.post("/activate", activatePilotDevice);
+router.get("/me", attachDevice, getPilotMe);
 
-router.get("/me", requireAuthorizedDevice, getCurrentPilotDevice);
+router.post("/activate-invite", activateWithInvite);
 
-router.get("/devices", requireAuthorizedDevice, requireAdminRole, getPilotDevices);
+router.get("/devices", attachDevice, requireManagerRole, getPilotDevices);
 
-router.post("/device/activate", requireAuthorizedDevice, requireAdminRole, activateExistingPilotDevice);
+router.post("/device/role", attachDevice, requireManagerRole, updateDeviceRole);
 
-router.post("/device/deactivate", requireAuthorizedDevice, requireAdminRole, deactivatePilotDevice);
+router.post("/device/status", attachDevice, requireManagerRole, updateDeviceStatus);
 
-router.post("/device/role", requireAuthorizedDevice, requireAdminRole, updatePilotDeviceRole);
-
-router.post("/device/rename", requireAuthorizedDevice, requireAdminRole, renamePilotDevice);
+router.post("/device/assign-taxi", attachDevice, requireManagerRole, assignTaxiToDevice);
 
 export default router;
