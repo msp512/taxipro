@@ -5,4 +5,4 @@ const supabase = createClient(
   process.env.SUPABASE_SECRET_KEY
 );
 
-export default supabase;
+export default null;
