@@ -1263,3 +1263,1882 @@ button:disabled {
 .device-action-btn.danger {
   border-color: rgba(239,68,68,0.35);
 }
+/* =========================================================
+   TAXIPRO — BLOQUE 4.5 BASE SEGURA
+   Añadir al FINAL de styles.css
+========================================================= */
+
+/* 1) TARJETAS / BLOQUES */
+.section-card,
+.card,
+.panel,
+.result-card,
+.quick-card,
+.tariff-card,
+.supplements-card,
+.register-card,
+.pilot-card,
+.admin-card {
+  background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.03));
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 18px;
+  padding: 16px;
+  margin-bottom: 16px;
+  box-shadow: 0 10px 28px rgba(0,0,0,0.16);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* 2) TÍTULOS DE SECCIÓN */
+.section-title,
+.card-title,
+.panel-title,
+.quick-title,
+.result-title,
+.tariff-title,
+.supplements-title,
+.register-title {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: rgba(214,179,106,0.92);
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(214,179,106,0.16);
+}
+
+/* 3) ACCESOS RÁPIDOS */
+.quick-grid,
+.quick-actions,
+.quick-buttons,
+.frequent-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.quick-button,
+.quick-btn,
+.frequent-btn,
+.shortcut-btn {
+  min-height: 52px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.05);
+  color: #f4f7fb;
+  text-transform: uppercase;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-align: center;
+  transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+}
+
+.quick-button:hover,
+.quick-btn:hover,
+.frequent-btn:hover,
+.shortcut-btn:hover {
+  transform: translateY(-1px);
+  border-color: rgba(214,179,106,0.28);
+  background: rgba(214,179,106,0.10);
+}
+
+.quick-button i,
+.quick-button svg,
+.quick-btn i,
+.quick-btn svg,
+.frequent-btn i,
+.frequent-btn svg,
+.shortcut-btn i,
+.shortcut-btn svg {
+  display: none !important;
+}
+
+/* 4) JERARQUÍA DE BOTONES */
+.button-primary,
+.btn-primary,
+.primary-btn {
+  background: linear-gradient(135deg, #d6b36a, #f0d796);
+  color: #07111d;
+  font-weight: 800;
+  border: 1px solid rgba(214,179,106,0.34);
+  box-shadow: 0 10px 22px rgba(0,0,0,0.18);
+}
+
+.button-secondary,
+.btn-secondary,
+.secondary-btn {
+  background: rgba(255,255,255,0.06);
+  color: #f4f7fb;
+  border: 1px solid rgba(255,255,255,0.10);
+}
+
+.button-danger,
+.btn-danger,
+.danger-btn {
+  background: rgba(255,80,80,0.18);
+  color: #ff9b9b;
+  border: 1px solid rgba(255,110,110,0.16);
+}
+
+/* 5) RESULTADO MÁS PROTAGONISTA */
+.result-card,
+#resultSection,
+.result-section {
+  background: linear-gradient(135deg, rgba(214,179,106,0.14), rgba(214,179,106,0.04));
+  border: 1px solid rgba(214,179,106,0.26);
+  border-radius: 20px;
+  padding: 18px;
+  box-shadow: 0 16px 36px rgba(0,0,0,0.20);
+}
+
+/* 6) PRECIO PRINCIPAL */
+.result-main-price,
+.result-price,
+#estimatedPrice {
+  font-size: clamp(2rem, 6vw, 3rem);
+  font-weight: 900;
+  line-height: 1;
+  color: #ffffff;
+  margin: 8px 0 10px;
+}
+
+/* 7) DATOS SECUNDARIOS */
+.result-secondary,
+#priceRange,
+.metric-label,
+.stat-label,
+.disclaimer,
+.legal-note {
+  font-size: 0.84rem;
+  color: rgba(255,255,255,0.68);
+}
+
+.metric-value,
+.stat-value,
+#distanceValue,
+#durationValue {
+  font-size: 1rem;
+  font-weight: 800;
+  color: #f4f7fb;
+}
+
+/* 8) MÁS SEPARACIÓN ENTRE ZONAS */
+section + section,
+.card + .card,
+.panel + .panel,
+.section-card + .section-card {
+  margin-top: 16px;
+}
+
+/* =========================================================
+   TAXIPRO — BLOQUE 4.5 PRO
+   Refuerzo visual premium + limpieza iconos + botones 3D
+   Añadir al FINAL de styles.css
+========================================================= */
+
+/* -------------------------------
+   1. NIVELES VISUALES GENERALES
+-------------------------------- */
+:root {
+  --tx-bg-deep: #07111d;
+  --tx-panel-1: rgba(255, 255, 255, 0.045);
+  --tx-panel-2: rgba(255, 255, 255, 0.065);
+  --tx-panel-3: rgba(214, 179, 106, 0.09);
+  --tx-line-soft: rgba(255, 255, 255, 0.09);
+  --tx-line-gold: rgba(214, 179, 106, 0.26);
+  --tx-line-gold-strong: rgba(214, 179, 106, 0.42);
+  --tx-text-main: #f4f7fb;
+  --tx-text-soft: rgba(244, 247, 251, 0.72);
+  --tx-text-muted: rgba(244, 247, 251, 0.54);
+  --tx-gold: #d6b36a;
+  --tx-gold-top: #ead096;
+  --tx-gold-base: #b88f46;
+  --tx-danger: #ff8b8b;
+  --tx-danger-bg: rgba(255, 90, 90, 0.16);
+  --tx-radius-xl: 24px;
+  --tx-radius-lg: 18px;
+  --tx-radius-md: 14px;
+  --tx-shadow-soft: 0 12px 28px rgba(0, 0, 0, 0.16);
+  --tx-shadow-panel: 0 18px 40px rgba(0, 0, 0, 0.22);
+}
+
+/* -------------------------------
+   2. CONTENEDORES / TARJETAS
+-------------------------------- */
+.section-card,
+.card,
+.panel,
+.surface,
+.map-card,
+.route-card,
+.input-card,
+.quick-card,
+.tariff-card,
+.supplements-card,
+.result-card,
+.register-card,
+.admin-card,
+.pilot-card,
+#resultSection {
+  background: linear-gradient(180deg, var(--tx-panel-2), var(--tx-panel-1));
+  border: 1px solid var(--tx-line-soft);
+  border-radius: var(--tx-radius-xl);
+  box-shadow: var(--tx-shadow-soft);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* Más separación entre bloques */
+section,
+.card,
+.panel,
+.section-card,
+.result-card,
+.register-card,
+.admin-card,
+.pilot-card {
+  margin-top: 14px;
+  margin-bottom: 14px;
+}
+
+/* Padding general seguro */
+.section-card,
+.card,
+.panel,
+.quick-card,
+.tariff-card,
+.supplements-card,
+.result-card,
+.register-card,
+.admin-card,
+.pilot-card {
+  padding: 16px;
+}
+
+/* -------------------------------
+   3. TÍTULOS DE SECCIÓN
+-------------------------------- */
+.section-title,
+.card-title,
+.panel-title,
+.block-title,
+.quick-title,
+.tariff-title,
+.supplements-title,
+.result-title,
+.register-title {
+  margin: 0 0 12px 0;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(214, 179, 106, 0.16);
+  color: var(--tx-gold);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+/* Textos secundarios */
+.section-subtitle,
+.helper-text,
+.soft-text,
+.muted,
+.legal-note,
+.disclaimer {
+  color: var(--tx-text-soft);
+}
+
+/* -------------------------------
+   4. CAMPOS Y LABELS
+-------------------------------- */
+label,
+.field-label {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--tx-gold);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+input,
+select,
+textarea,
+.form-control {
+  min-height: 52px;
+  border-radius: var(--tx-radius-md);
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(7, 17, 29, 0.72);
+  color: var(--tx-text-main);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
+}
+
+input:focus,
+select:focus,
+textarea:focus,
+.form-control:focus {
+  outline: none;
+  border-color: rgba(214, 179, 106, 0.42);
+  box-shadow: 0 0 0 3px rgba(214, 179, 106, 0.10);
+}
+
+/* -------------------------------
+   5. ACCESOS RÁPIDOS
+-------------------------------- */
+.quick-grid,
+.quick-actions,
+.quick-buttons,
+.frequent-grid,
+.shortcuts-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+/* Botones rápidos: limpios, sobrios, sin iconos */
+.quick-button,
+.quick-btn,
+.quick-action,
+.frequent-btn,
+.shortcut-btn,
+button[data-origin],
+button[data-destination],
+button[data-quick] {
+  min-height: 54px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: linear-gradient(180deg, rgba(255,255,255,0.055), rgba(255,255,255,0.03));
+  color: var(--tx-text-main);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-align: center;
+  justify-content: center;
+  transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+}
+
+.quick-button:hover,
+.quick-btn:hover,
+.quick-action:hover,
+.frequent-btn:hover,
+.shortcut-btn:hover,
+button[data-origin]:hover,
+button[data-destination]:hover,
+button[data-quick]:hover {
+  transform: translateY(-1px);
+  border-color: rgba(214, 179, 106, 0.28);
+  background: linear-gradient(180deg, rgba(214,179,106,0.11), rgba(255,255,255,0.04));
+}
+
+.quick-button:active,
+.quick-btn:active,
+.quick-action:active,
+.frequent-btn:active,
+.shortcut-btn:active,
+button[data-origin]:active,
+button[data-destination]:active,
+button[data-quick]:active {
+  transform: scale(0.985);
+}
+
+/* Ocultar iconos visualmente */
+.quick-button i,
+.quick-button svg,
+.quick-btn i,
+.quick-btn svg,
+.quick-action i,
+.quick-action svg,
+.frequent-btn i,
+.frequent-btn svg,
+.shortcut-btn i,
+.shortcut-btn svg,
+button[data-origin] i,
+button[data-origin] svg,
+button[data-destination] i,
+button[data-destination] svg,
+button[data-quick] i,
+button[data-quick] svg {
+  display: none !important;
+}
+
+/* Si algunos iconos vienen por spans auxiliares */
+.quick-button .icon,
+.quick-btn .icon,
+.quick-action .icon,
+.frequent-btn .icon,
+.shortcut-btn .icon {
+  display: none !important;
+}
+
+/* -------------------------------
+   6. TARIFA / SUPLEMENTOS
+-------------------------------- */
+.tariff-chip,
+.supplement-chip,
+.option-chip,
+.pill {
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.04);
+  border-radius: 14px;
+}
+
+.tariff-chip.active,
+.supplement-chip.active,
+.option-chip.active,
+.pill.active {
+  border-color: rgba(214, 179, 106, 0.32);
+  background: rgba(214, 179, 106, 0.12);
+}
+
+/* -------------------------------
+   7. BOTONES GENERALES
+-------------------------------- */
+button,
+.btn,
+.primary-btn,
+.secondary-btn,
+.danger-btn,
+.button-primary,
+.button-secondary,
+.button-danger {
+  border-radius: 16px;
+  font-weight: 700;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+/* -------------------------------
+   8. BOTONES PRINCIPALES 3D
+   Solo acciones importantes
+-------------------------------- */
+.button-primary,
+.btn-primary,
+.primary-btn,
+#calculateBtn,
+#startTripBtn,
+#registerServiceBtn {
+  min-height: 58px;
+  padding: 14px 18px;
+  color: #07111d;
+  font-size: 0.92rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border: 1px solid rgba(0,0,0,0.22);
+  background: linear-gradient(180deg, var(--tx-gold-top), var(--tx-gold));
+  box-shadow:
+    0 6px 0 var(--tx-gold-base),
+    0 12px 24px rgba(0,0,0,0.24);
+}
+
+/* Ligero relieve superior */
+.button-primary::before,
+.btn-primary::before,
+.primary-btn::before,
+#calculateBtn::before,
+#startTripBtn::before,
+#registerServiceBtn::before {
+  content: "";
+  position: absolute;
+  inset: 1px 1px auto 1px;
+  height: 45%;
+  border-radius: 15px 15px 10px 10px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.24), rgba(255,255,255,0.03));
+  pointer-events: none;
+}
+
+/* Necesario para el pseudo-elemento */
+.button-primary,
+.btn-primary,
+.primary-btn,
+#calculateBtn,
+#startTripBtn,
+#registerServiceBtn {
+  position: relative;
+  overflow: hidden;
+}
+
+.button-primary:hover,
+.btn-primary:hover,
+.primary-btn:hover,
+#calculateBtn:hover,
+#startTripBtn:hover,
+#registerServiceBtn:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    0 7px 0 var(--tx-gold-base),
+    0 14px 26px rgba(0,0,0,0.26);
+}
+
+.button-primary:active,
+.btn-primary:active,
+.primary-btn:active,
+#calculateBtn:active,
+#startTripBtn:active,
+#registerServiceBtn:active {
+  transform: translateY(3px);
+  box-shadow:
+    0 2px 0 var(--tx-gold-base),
+    0 6px 14px rgba(0,0,0,0.22);
+}
+
+/* Secundarios sin 3D fuerte */
+.button-secondary,
+.btn-secondary,
+.secondary-btn {
+  background: rgba(255,255,255,0.06);
+  color: var(--tx-text-main);
+  border: 1px solid rgba(255,255,255,0.10);
+}
+
+.button-danger,
+.btn-danger,
+.danger-btn {
+  background: var(--tx-danger-bg);
+  color: var(--tx-danger);
+  border: 1px solid rgba(255,120,120,0.18);
+}
+
+/* -------------------------------
+   9. RESULTADO — BLOQUE PROTAGONISTA
+-------------------------------- */
+.result-card,
+.result-section,
+#resultSection {
+  position: relative;
+  background: linear-gradient(180deg, rgba(214,179,106,0.14), rgba(255,255,255,0.05));
+  border: 1px solid rgba(214,179,106,0.30);
+  border-radius: 26px;
+  padding: 20px;
+  box-shadow: var(--tx-shadow-panel);
+  overflow: hidden;
+}
+
+.result-card::before,
+.result-section::before,
+#resultSection::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 4px;
+  background: linear-gradient(180deg, rgba(214,179,106,0.92), rgba(214,179,106,0.18));
+}
+
+#estimationTitle,
+.result-main-title,
+.result-title {
+  margin-bottom: 10px;
+  color: var(--tx-gold);
+  font-size: 0.80rem;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+#estimatedPrice,
+.result-main-price,
+.result-price {
+  font-size: clamp(2.2rem, 7vw, 3.3rem);
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: #ffffff;
+  margin: 8px 0 10px;
+}
+
+#priceRange,
+.result-secondary,
+.result-range {
+  color: var(--tx-text-soft);
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+/* métricas */
+.result-metrics,
+.metrics-grid,
+.result-stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.metric-box,
+.result-metric,
+.stat-box {
+  padding: 12px 14px;
+  background: rgba(7, 17, 29, 0.40);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px;
+}
+
+.metric-label,
+.stat-label {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 0.69rem;
+  font-weight: 800;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: var(--tx-text-muted);
+}
+
+.metric-value,
+.stat-value,
+#distanceValue,
+#durationValue {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--tx-text-main);
+}
+
+/* badges */
+.badges-row,
+.result-badges,
+.status-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.badge,
+.traffic-status,
+.confidence-indicator,
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 34px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.09);
+  color: var(--tx-text-main);
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.legal-note,
+.result-legal,
+.disclaimer {
+  margin-top: 14px;
+  font-size: 0.77rem;
+  line-height: 1.45;
+  color: var(--tx-text-muted);
+}
+
+/* -------------------------------
+   10. REGISTRO / ADMIN / PILOTO
+-------------------------------- */
+.register-card,
+.register-section {
+  background: linear-gradient(180deg, rgba(110,168,255,0.08), rgba(255,255,255,0.04));
+  border: 1px solid rgba(110,168,255,0.18);
+}
+
+.admin-card,
+.admin-panel,
+.pilot-card,
+.pilot-panel {
+  background: linear-gradient(180deg, rgba(214,179,106,0.08), rgba(255,255,255,0.04));
+  border: 1px solid rgba(214,179,106,0.20);
+}
+
+/* -------------------------------
+   11. AJUSTE MÓVIL
+-------------------------------- */
+@media (max-width: 640px) {
+  .quick-grid,
+  .quick-actions,
+  .quick-buttons,
+  .frequent-grid,
+  .shortcuts-grid,
+  .result-metrics,
+  .metrics-grid,
+  .result-stats {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  #estimatedPrice,
+  .result-main-price,
+  .result-price {
+    font-size: 2.4rem;
+  }
+
+  .section-title,
+  .card-title,
+  .panel-title,
+  .block-title {
+    font-size: 0.74rem;
+    letter-spacing: 0.13em;
+  }
+}
+/* =========================================================
+   TAXIPRO — AJUSTE PRO 4.5-C
+   Más claro + menos redondeado + más técnico
+========================================================= */
+
+/* paleta algo más luminosa */
+:root {
+  --tx-panel-1: rgba(255, 255, 255, 0.07);
+  --tx-panel-2: rgba(255, 255, 255, 0.10);
+  --tx-panel-3: rgba(214, 179, 106, 0.12);
+  --tx-line-soft: rgba(255, 255, 255, 0.14);
+  --tx-line-gold: rgba(214, 179, 106, 0.30);
+  --tx-text-soft: rgba(244, 247, 251, 0.78);
+  --tx-text-muted: rgba(244, 247, 251, 0.62);
+
+  --tx-radius-panel: 14px;
+  --tx-radius-button: 10px;
+  --tx-radius-input: 10px;
+  --tx-radius-result: 16px;
+}
+
+/* paneles más claros y más técnicos */
+.section-card,
+.card,
+.panel,
+.surface,
+.map-card,
+.route-card,
+.input-card,
+.quick-card,
+.tariff-card,
+.supplements-card,
+.result-card,
+.register-card,
+.admin-card,
+.pilot-card,
+#resultSection {
+  background: linear-gradient(180deg, var(--tx-panel-2), var(--tx-panel-1));
+  border: 1px solid var(--tx-line-soft);
+  border-radius: var(--tx-radius-panel);
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.18);
+}
+
+/* títulos algo más nítidos */
+.section-title,
+.card-title,
+.panel-title,
+.block-title,
+.quick-title,
+.tariff-title,
+.supplements-title,
+.result-title,
+.register-title {
+  color: #e2bd74;
+  border-bottom: 1px solid rgba(214, 179, 106, 0.20);
+  font-size: 0.77rem;
+  letter-spacing: 0.16em;
+}
+
+/* campos menos redondeados */
+input,
+select,
+textarea,
+.form-control {
+  border-radius: var(--tx-radius-input);
+  background: rgba(6, 18, 31, 0.82);
+  border: 1px solid rgba(255,255,255,0.12);
+}
+
+/* quick buttons más rectangulares */
+.quick-button,
+.quick-btn,
+.quick-action,
+.frequent-btn,
+.shortcut-btn,
+button[data-origin],
+button[data-destination],
+button[data-quick] {
+  min-height: 46px;
+  border-radius: var(--tx-radius-button);
+  border: 1px solid rgba(255,255,255,0.13);
+  background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.05));
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
+}
+
+.quick-button:hover,
+.quick-btn:hover,
+.quick-action:hover,
+.frequent-btn:hover,
+.shortcut-btn:hover,
+button[data-origin]:hover,
+button[data-destination]:hover,
+button[data-quick]:hover {
+  border-color: rgba(214,179,106,0.34);
+  background: linear-gradient(180deg, rgba(214,179,106,0.14), rgba(255,255,255,0.05));
+}
+
+/* botón principal más sólido */
+.button-primary,
+.btn-primary,
+.primary-btn,
+#calculateBtn,
+#startTripBtn,
+#registerServiceBtn {
+  border-radius: 12px;
+}
+
+/* resultado más rectangular y más limpio */
+.result-card,
+.result-section,
+#resultSection {
+  border-radius: var(--tx-radius-result);
+  background: linear-gradient(180deg, rgba(214,179,106,0.16), rgba(255,255,255,0.06));
+  border: 1px solid rgba(214,179,106,0.34);
+}
+
+/* cajas internas del resultado más firmes */
+.metric-box,
+.result-metric,
+.stat-box {
+  border-radius: 10px;
+  background: rgba(8, 20, 34, 0.54);
+  border: 1px solid rgba(255,255,255,0.10);
+}
+
+/* botón de usar ubicación más técnico */
+#useLocationBtn,
+.use-location-btn,
+.location-btn {
+  border-radius: 10px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.09), rgba(255,255,255,0.05));
+  border: 1px solid rgba(255,255,255,0.12);
+}
+/* =========================================================
+   TAXIPRO — 4.5-D AJUSTE REAL SOBRE HTML ACTUAL
+   Más claro + más técnico + menos redondeado + 3D sutil
+========================================================= */
+
+:root {
+  --tx-panel-a: rgba(255, 255, 255, 0.09);
+  --tx-panel-b: rgba(255, 255, 255, 0.12);
+  --tx-panel-c: rgba(255, 255, 255, 0.06);
+  --tx-line-a: rgba(255, 255, 255, 0.14);
+  --tx-line-b: rgba(214, 179, 106, 0.28);
+  --tx-line-c: rgba(214, 179, 106, 0.42);
+  --tx-text-main: #f4f7fb;
+  --tx-text-soft: rgba(244, 247, 251, 0.78);
+  --tx-text-muted: rgba(244, 247, 251, 0.60);
+  --tx-gold: #d6b36a;
+  --tx-gold-hi: #ead39e;
+  --tx-gold-shadow: #9a7739;
+  --tx-bg-input: rgba(8, 20, 34, 0.82);
+  --tx-radius-panel: 14px;
+  --tx-radius-box: 10px;
+  --tx-radius-btn: 10px;
+}
+
+/* secciones más claras y más firmes */
+.app-section {
+  background: linear-gradient(180deg, var(--tx-panel-b), var(--tx-panel-c));
+  border: 1px solid var(--tx-line-a);
+  border-radius: var(--tx-radius-panel);
+  padding: 14px;
+  margin-bottom: 16px;
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.18);
+}
+
+/* títulos más pro */
+.app-section .section-title {
+  margin: 0 0 12px 0;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(214, 179, 106, 0.18);
+  color: var(--tx-gold);
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+/* labels */
+.input-group label {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--tx-text-soft);
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* inputs y select más rectos */
+.input-group input,
+.input-group select,
+#originInput,
+#destinationInput,
+#pricingMode {
+  min-height: 50px;
+  width: 100%;
+  background: var(--tx-bg-input);
+  color: var(--tx-text-main);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: var(--tx-radius-box);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+}
+
+.input-group input:focus,
+.input-group select:focus,
+#originInput:focus,
+#destinationInput:focus,
+#pricingMode:focus {
+  outline: none;
+  border-color: rgba(214, 179, 106, 0.42);
+  box-shadow: 0 0 0 3px rgba(214, 179, 106, 0.10);
+}
+
+/* parrillas limpias */
+#quickOrigins,
+#quickDestinations,
+.quick-buttons,
+.supplements-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+/* botones de accesos rápidos */
+#quickOrigins button,
+#quickDestinations button,
+.quick-buttons button {
+  min-height: 46px;
+  padding: 12px 14px;
+  border-radius: var(--tx-radius-btn);
+  border: 1px solid rgba(255,255,255,0.14);
+  background: linear-gradient(180deg, rgba(255,255,255,0.09), rgba(255,255,255,0.05));
+  color: var(--tx-text-main);
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-align: center;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
+  transition: transform 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+}
+
+#quickOrigins button:hover,
+#quickDestinations button:hover,
+.quick-buttons button:hover {
+  transform: translateY(-1px);
+  border-color: rgba(214, 179, 106, 0.34);
+  background: linear-gradient(180deg, rgba(214,179,106,0.14), rgba(255,255,255,0.06));
+}
+
+#quickOrigins button:active,
+#quickDestinations button:active,
+.quick-buttons button:active {
+  transform: translateY(1px);
+}
+
+/* suplementos más técnicos */
+.supplements-panel {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  padding: 12px;
+}
+
+.supplements-title {
+  margin-bottom: 12px;
+  color: var(--tx-text-soft);
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.supplement-btn {
+  min-height: 46px;
+  padding: 11px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.04));
+  color: var(--tx-text-main);
+  font-size: 0.74rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  transition: transform 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+}
+
+.supplement-btn:hover {
+  transform: translateY(-1px);
+  border-color: rgba(214, 179, 106, 0.28);
+}
+
+.supplement-btn.active,
+.supplement-btn[aria-pressed="true"] {
+  background: linear-gradient(180deg, rgba(214,179,106,0.18), rgba(214,179,106,0.08));
+  border-color: rgba(214,179,106,0.38);
+}
+
+/* botones principales 3D sutil */
+#calculateBtn,
+#startTripBtn,
+#registerServiceBtn,
+.button-primary,
+.btn-primary,
+.primary-btn {
+  position: relative;
+  overflow: hidden;
+  min-height: 56px;
+  padding: 14px 18px;
+  border-radius: 12px;
+  border: 1px solid rgba(0,0,0,0.22);
+  background: linear-gradient(180deg, var(--tx-gold-hi), var(--tx-gold));
+  color: #07111d;
+  font-size: 0.90rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  box-shadow:
+    0 6px 0 var(--tx-gold-shadow),
+    0 12px 24px rgba(0,0,0,0.24);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+#calculateBtn::before,
+#startTripBtn::before,
+#registerServiceBtn::before,
+.button-primary::before,
+.btn-primary::before,
+.primary-btn::before {
+  content: "";
+  position: absolute;
+  inset: 1px 1px auto 1px;
+  height: 45%;
+  border-radius: 11px 11px 8px 8px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.24), rgba(255,255,255,0.03));
+  pointer-events: none;
+}
+
+#calculateBtn:hover,
+#startTripBtn:hover,
+#registerServiceBtn:hover,
+.button-primary:hover,
+.btn-primary:hover,
+.primary-btn:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    0 7px 0 var(--tx-gold-shadow),
+    0 14px 26px rgba(0,0,0,0.26);
+}
+
+#calculateBtn:active,
+#startTripBtn:active,
+#registerServiceBtn:active,
+.button-primary:active,
+.btn-primary:active,
+.primary-btn:active {
+  transform: translateY(3px);
+  box-shadow:
+    0 2px 0 var(--tx-gold-shadow),
+    0 6px 14px rgba(0,0,0,0.22);
+}
+
+/* botón usar ubicación más coherente */
+#useLocationBtn,
+.use-location-btn,
+.location-btn {
+  min-height: 46px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.14);
+  background: linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.05));
+  color: var(--tx-text-main);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+/* por si quedara algún icono pegado en spans */
+#quickOrigins button i,
+#quickOrigins button svg,
+#quickDestinations button i,
+#quickDestinations button svg,
+.supplement-btn i,
+.supplement-btn svg,
+#quickOrigins button .icon,
+#quickDestinations button .icon,
+.supplement-btn .icon {
+  display: none !important;
+}
+
+@media (max-width: 640px) {
+  #quickOrigins,
+  #quickDestinations,
+  .quick-buttons,
+  .supplements-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+/* =========================================================
+   TAXIPRO — CABECERA HERO PROFESIONAL
+========================================================= */
+
+.taxipro-header {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+
+  background: linear-gradient(180deg, rgba(7,17,29,0.95), rgba(7,17,29,0.85));
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+
+  transition: all 0.3s ease;
+}
+
+.taxipro-header-inner {
+  padding: 22px 16px 18px;
+  text-align: center;
+}
+
+/* LOGO */
+.taxipro-logo {
+  font-size: 1.6rem;
+  font-weight: 900;
+  letter-spacing: 0.18em;
+  color: #d6b36a;
+}
+
+/* SUBTÍTULO */
+.taxipro-subtitle {
+  margin-top: 6px;
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  color: rgba(255,255,255,0.6);
+  text-transform: uppercase;
+}
+
+/* ---------------------------
+   MODO COMPACTO (al hacer scroll)
+---------------------------- */
+
+.taxipro-header.compact .taxipro-header-inner {
+  padding: 10px 12px;
+}
+
+.taxipro-header.compact .taxipro-logo {
+  font-size: 1rem;
+  letter-spacing: 0.14em;
+}
+
+.taxipro-header.compact .taxipro-subtitle {
+  display: none;
+}
+/* =========================================================
+   TAXIPRO — LOGO SUPERIOR IZQUIERDO MÁS GRANDE
+========================================================= */
+
+.app-header {
+  min-height: 62px;
+  padding: 12px 14px;
+}
+
+.app-header .logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 84px;
+  min-height: 42px;
+  padding: 6px 10px;
+  background: rgba(7, 17, 29, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.18);
+}
+
+.app-header .logo img {
+  height: 34px;
+  width: auto;
+  object-fit: contain;
+  display: block;
+  filter: brightness(1.08) contrast(1.08);
+}
+
+@media (max-width: 640px) {
+  .app-header .logo {
+    min-width: 74px;
+    min-height: 38px;
+    padding: 5px 8px;
+  }
+
+  .app-header .logo img {
+    height: 30px;
+  }
+}
+/* =========================================================
+   TAXIPRO — LOGO TIPOGRÁFICO SUPERIOR
+========================================================= */
+
+.app-header {
+  min-height: 62px;
+  padding: 12px 14px;
+}
+
+.app-header .logo.logo-text {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 108px;
+  min-height: 42px;
+  padding: 6px 12px;
+  background: rgba(7, 17, 29, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.18);
+}
+
+.app-header .logo.logo-text span {
+  color: #d6b36a;
+  font-size: 0.95rem;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  line-height: 1;
+}
+
+@media (max-width: 640px) {
+  .app-header .logo.logo-text {
+    min-width: 96px;
+    min-height: 38px;
+    padding: 5px 10px;
+  }
+
+  .app-header .logo.logo-text span {
+    font-size: 0.86rem;
+  }
+}
+/* =========================================================
+   TAXIPRO — DISEÑO FINAL PRO (equilibrio técnico + presencia)
+========================================================= */
+
+/* -------------------------------
+   VARIABLES BASE
+-------------------------------- */
+:root {
+  --tx-bg: #07111d;
+  --tx-panel-a: rgba(255,255,255,0.08);
+  --tx-panel-b: rgba(255,255,255,0.12);
+  --tx-panel-c: rgba(255,255,255,0.05);
+
+  --tx-line: rgba(255,255,255,0.14);
+  --tx-line-soft: rgba(255,255,255,0.08);
+
+  --tx-gold: #d6b36a;
+  --tx-gold-hi: #ead39e;
+  --tx-gold-shadow: #9a7739;
+
+  --tx-text-main: #f4f7fb;
+  --tx-text-soft: rgba(244,247,251,0.78);
+  --tx-text-muted: rgba(244,247,251,0.6);
+
+  --tx-radius-panel: 14px;
+  --tx-radius-box: 10px;
+  --tx-radius-btn: 10px;
+
+  --tx-shadow: 0 14px 30px rgba(0,0,0,0.18);
+}
+
+/* -------------------------------
+   CONTENEDOR GENERAL
+-------------------------------- */
+body {
+  background: linear-gradient(180deg, #07111d 0%, #0a1626 100%);
+  color: var(--tx-text-main);
+}
+
+/* -------------------------------
+   HEADER SUPERIOR
+-------------------------------- */
+.app-header {
+  min-height: 62px;
+  padding: 12px 14px;
+  background: rgba(7,17,29,0.9);
+  border-bottom: 1px solid var(--tx-line-soft);
+}
+
+/* LOGO */
+.app-header .logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 100px;
+  min-height: 42px;
+  padding: 6px 12px;
+  background: rgba(7,17,29,0.9);
+  border: 1px solid var(--tx-line);
+  border-radius: 8px;
+}
+
+.app-header .logo span {
+  font-size: 0.95rem;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  color: var(--tx-gold);
+}
+
+/* -------------------------------
+   SECCIONES
+-------------------------------- */
+.app-section {
+  background: linear-gradient(180deg, var(--tx-panel-b), var(--tx-panel-c));
+  border: 1px solid var(--tx-line);
+  border-radius: var(--tx-radius-panel);
+  padding: 14px;
+  margin-bottom: 16px;
+  box-shadow: var(--tx-shadow);
+}
+
+/* TÍTULOS */
+.section-title {
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(214,179,106,0.18);
+  color: var(--tx-gold);
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+/* -------------------------------
+   INPUTS
+-------------------------------- */
+.input-group label {
+  margin-bottom: 6px;
+  font-size: 0.75rem;
+  color: var(--tx-text-soft);
+  text-transform: uppercase;
+}
+
+.input-group input,
+.input-group select {
+  width: 100%;
+  min-height: 50px;
+  background: rgba(8,20,34,0.85);
+  border: 1px solid var(--tx-line);
+  border-radius: var(--tx-radius-box);
+  color: var(--tx-text-main);
+}
+
+.input-group input:focus,
+.input-group select:focus {
+  outline: none;
+  border-color: var(--tx-gold);
+}
+
+/* -------------------------------
+   ACCESOS RÁPIDOS
+-------------------------------- */
+#quickOrigins,
+#quickDestinations,
+.quick-buttons {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+#quickOrigins button,
+#quickDestinations button {
+  min-height: 46px;
+  border-radius: var(--tx-radius-btn);
+  border: 1px solid var(--tx-line);
+  background: linear-gradient(180deg, var(--tx-panel-b), var(--tx-panel-c));
+  color: var(--tx-text-main);
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+#quickOrigins button:hover,
+#quickDestinations button:hover {
+  border-color: var(--tx-gold);
+}
+
+/* -------------------------------
+   SUPLEMENTOS
+-------------------------------- */
+.supplements-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.supplement-btn {
+  min-height: 46px;
+  border-radius: 10px;
+  border: 1px solid var(--tx-line);
+  background: linear-gradient(180deg, var(--tx-panel-b), var(--tx-panel-c));
+  color: var(--tx-text-main);
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.supplement-btn.active {
+  background: rgba(214,179,106,0.18);
+  border-color: var(--tx-gold);
+}
+
+/* -------------------------------
+   BOTÓN PRINCIPAL 3D
+-------------------------------- */
+#calculateBtn,
+#startTripBtn,
+#registerServiceBtn {
+  position: relative;
+  min-height: 56px;
+  border-radius: 12px;
+  background: linear-gradient(180deg, var(--tx-gold-hi), var(--tx-gold));
+  color: #07111d;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  border: 1px solid rgba(0,0,0,0.2);
+
+  box-shadow:
+    0 6px 0 var(--tx-gold-shadow),
+    0 12px 24px rgba(0,0,0,0.24);
+}
+
+#calculateBtn:active,
+#startTripBtn:active,
+#registerServiceBtn:active {
+  transform: translateY(3px);
+  box-shadow:
+    0 2px 0 var(--tx-gold-shadow),
+    0 6px 14px rgba(0,0,0,0.22);
+}
+
+/* -------------------------------
+   RESULTADO (PROTAGONISTA)
+-------------------------------- */
+#resultSection {
+  background: linear-gradient(180deg, rgba(214,179,106,0.18), rgba(255,255,255,0.06));
+  border: 1px solid var(--tx-gold);
+  border-radius: 16px;
+  padding: 18px;
+}
+
+#estimatedPrice {
+  font-size: 2.6rem;
+  font-weight: 900;
+  text-align: center;
+}
+
+#priceRange {
+  text-align: center;
+  color: var(--tx-text-soft);
+}
+
+/* -------------------------------
+   MÉTRICAS
+-------------------------------- */
+.metric-box {
+  border-radius: 10px;
+  border: 1px solid var(--tx-line);
+  padding: 10px;
+  background: rgba(8,20,34,0.6);
+}
+
+/* -------------------------------
+   RESPONSIVE
+-------------------------------- */
+@media (max-width: 640px) {
+  #estimatedPrice {
+    font-size: 2.2rem;
+  }
+}
+/* =========================================================
+   TAXIPRO — MODO CLIENTE / PANTALLA PRESENTACIÓN
+   Añadir al FINAL de styles.css
+========================================================= */
+
+/* contenedor general del modo cliente */
+.client-mode,
+.client-card,
+#clientModeCard,
+.client-display {
+  position: relative;
+  background:
+    linear-gradient(180deg, rgba(214,179,106,0.16), rgba(255,255,255,0.06));
+  border: 1px solid rgba(214,179,106,0.34);
+  border-radius: 16px;
+  padding: 18px;
+  box-shadow: 0 18px 36px rgba(0,0,0,0.22);
+  overflow: hidden;
+}
+
+/* acento lateral elegante */
+.client-mode::before,
+.client-card::before,
+#clientModeCard::before,
+.client-display::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 4px;
+  background: linear-gradient(180deg, rgba(214,179,106,0.95), rgba(214,179,106,0.18));
+}
+
+/* título del bloque */
+.client-mode-title,
+.client-card-title,
+#clientModeCard .section-title,
+.client-display-title {
+  margin: 0 0 12px 0;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(214,179,106,0.18);
+  color: #d6b36a;
+  font-size: 0.76rem;
+  font-weight: 900;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+/* cabecera principal */
+.client-hero,
+.client-summary {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 0 14px;
+  text-align: center;
+}
+
+/* etiqueta superior */
+.client-estimate-label,
+.client-price-label {
+  color: rgba(244,247,251,0.70);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/* precio protagonista */
+.client-price,
+#clientEstimatedPrice,
+.client-main-price {
+  font-size: clamp(2.8rem, 9vw, 4.4rem);
+  line-height: 0.96;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  color: #ffffff;
+  text-align: center;
+  text-shadow: 0 2px 12px rgba(0,0,0,0.18);
+}
+
+/* rango de precio */
+.client-range,
+#clientPriceRange,
+.client-price-range {
+  color: rgba(244,247,251,0.78);
+  font-size: 1rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+/* métricas limpias */
+.client-metrics,
+.client-data-grid,
+.client-stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.client-metric,
+.client-stat,
+.client-data-box {
+  background: rgba(8,20,34,0.48);
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 10px;
+  padding: 12px;
+  text-align: center;
+}
+
+.client-metric-label,
+.client-stat-label,
+.client-data-label {
+  display: block;
+  margin-bottom: 4px;
+  color: rgba(244,247,251,0.58);
+  font-size: 0.70rem;
+  font-weight: 800;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+}
+
+.client-metric-value,
+.client-stat-value,
+.client-data-value {
+  color: #f4f7fb;
+  font-size: 1.05rem;
+  font-weight: 900;
+}
+
+/* badges discretos */
+.client-badges,
+.client-status-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.client-badge,
+.client-status-pill {
+  min-height: 34px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(255,255,255,0.06);
+  color: #f4f7fb;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+/* aviso legal */
+.client-legal,
+.client-note,
+.client-disclaimer {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  color: rgba(244,247,251,0.64);
+  font-size: 0.78rem;
+  line-height: 1.45;
+  text-align: center;
+}
+
+/* acciones del modo cliente */
+.client-actions,
+.client-mode-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.client-actions button,
+.client-mode-actions button,
+#openClientModeBtn,
+#closeClientModeBtn {
+  flex: 1 1 auto;
+  min-height: 48px;
+  border-radius: 10px;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* versión compacta dentro de la app */
+.client-mode.compact,
+.client-card.compact,
+#clientModeCard.compact {
+  padding: 14px;
+}
+
+.client-mode.compact .client-price,
+.client-card.compact .client-price,
+#clientModeCard.compact .client-price {
+  font-size: clamp(2.1rem, 8vw, 3rem);
+}
+
+/* versión fullscreen opcional */
+.client-mode.fullscreen,
+.client-card.fullscreen,
+#clientModeCard.fullscreen {
+  min-height: calc(100vh - 110px);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* si reutilizas datos reales ya existentes */
+#clientModeCard #estimatedPrice,
+.client-card #estimatedPrice,
+.client-mode #estimatedPrice {
+  font-size: clamp(2.8rem, 9vw, 4.4rem);
+  text-align: center;
+  font-weight: 900;
+}
+
+#clientModeCard #priceRange,
+.client-card #priceRange,
+.client-mode #priceRange {
+  text-align: center;
+  color: rgba(244,247,251,0.78);
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+/* si la tarjeta cliente reutiliza distance/duration */
+#clientModeCard #distanceValue,
+#clientModeCard #durationValue,
+.client-card #distanceValue,
+.client-card #durationValue {
+  font-size: 1.05rem;
+  font-weight: 900;
+}
+
+/* móvil */
+@media (max-width: 640px) {
+  .client-metrics,
+  .client-data-grid,
+  .client-stats {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .client-price,
+  #clientEstimatedPrice,
+  .client-main-price {
+    font-size: 2.9rem;
+  }
+
+  .client-actions,
+  .client-mode-actions {
+    flex-direction: column;
+  }
+}
+#clientInlineCard {
+  display: none !important;
+}
+/* =========================================================
+   TAXIPRO — PANTALLA CLIENTE FULLSCREEN
+========================================================= */
+
+#clientMode {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+
+  background: #07111d;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 20px;
+}
+
+#clientMode.hidden {
+  display: none;
+}
+
+#clientMode .client-card {
+  width: 100%;
+  max-width: 420px;
+
+  background: linear-gradient(180deg, rgba(214,179,106,0.16), rgba(255,255,255,0.06));
+  border: 1px solid rgba(214,179,106,0.35);
+  border-radius: 16px;
+
+  padding: 20px;
+  text-align: center;
+}
+
+/* precio grande */
+#clientMode .client-price {
+  font-size: 3rem;
+  font-weight: 900;
+  margin: 12px 0;
+}
+
+/* ruta */
+#clientMode .client-route {
+  font-size: 0.9rem;
+  color: rgba(255,255,255,0.7);
+}
+
+/* meta */
+.client-meta {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 16px;
+}
+
+.meta-label {
+  font-size: 0.7rem;
+  color: rgba(255,255,255,0.6);
+  text-transform: uppercase;
+}
+
+.meta-value {
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+/* idiomas */
+.legal-block {
+  margin-top: 12px;
+  font-size: 0.75rem;
+  color: rgba(255,255,255,0.7);
+}
+
+/* botón cerrar */
+.client-close-btn {
+  margin-top: 18px;
+  width: 100%;
+  height: 48px;
+
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.15);
+  color: white;
+
+  border-radius: 10px;
+}
+.access-gate {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: linear-gradient(180deg, #07111d 0%, #0f1f31 100%);
+}
+
+.access-card {
+  width: 100%;
+  max-width: 420px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  border-radius: 18px;
+  padding: 24px;
+  color: #fff;
+  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.28);
+}
+
+.access-card h2 {
+  margin: 0 0 16px;
+  font-size: 1.2rem;
+}
+
+.access-card input {
+  width: 100%;
+  margin-bottom: 12px;
+}
+
+.access-card button {
+  width: 100%;
+  margin-top: 4px;
+}
+
+.hidden {
+  display: none !important;
+}

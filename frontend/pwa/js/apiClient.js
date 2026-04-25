@@ -3,58 +3,124 @@ const API_BASE = "https://taxipro.onrender.com/api";
 const TAXI_ID_KEY = "taxipro_taxi_id";
 const DEVICE_ID_KEY = "taxipro_device_id";
 
+function normalizeTaxiCode(value) {
+  return String(value || "").trim().toUpperCase();
+}
+
 function getStoredTaxiCode() {
-  return String(localStorage.getItem(TAXI_ID_KEY) || "")
-    .trim()
-    .toUpperCase();
+  return normalizeTaxiCode(localStorage.getItem(TAXI_ID_KEY) || "");
+}
+
+function generateDeviceId() {
+  if (window.crypto?.randomUUID) {
+    return window.crypto.randomUUID();
+  }
+
+  return `device-${Date.now()}-${Math.random().toString(16).slice(2)}`;
 }
 
 function getStoredDeviceId() {
-  return String(localStorage.getItem(DEVICE_ID_KEY) || "").trim();
+  let deviceId = String(localStorage.getItem(DEVICE_ID_KEY) || "").trim();
+
+  if (!deviceId) {
+    deviceId = generateDeviceId();
+    localStorage.setItem(DEVICE_ID_KEY, deviceId);
+  }
+
+  return deviceId;
 }
 
 function buildPilotHeaders(taxiCode = "") {
-  const cleanTaxiCode = String(taxiCode || getStoredTaxiCode())
-    .trim()
-    .toUpperCase();
-
+  const cleanTaxiCode = normalizeTaxiCode(taxiCode || getStoredTaxiCode());
   const cleanDeviceId = getStoredDeviceId();
 
-  return {
+  const headers = {
     "Content-Type": "application/json",
-    "x-taxi-code": cleanTaxiCode,
     "x-device-id": cleanDeviceId
   };
+
+  if (cleanTaxiCode) {
+    headers["x-taxi-code"] = cleanTaxiCode;
+  }
+
+  return headers;
 }
 
-export async function activatePilotDeviceAPI({
-  taxi_code,
-  device_id,
-  device_name,
-  role = "operator",
-  activation_key = ""
-}) {
-  const response = await fetch(`${API_BASE}/pilot/activate`, {
-    method: "POST",
+async function apiRequest(path, options = {}) {
+  const response = await fetch(`${API_BASE}${path}`, {
+    ...options,
     headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      taxi_code: String(taxi_code || "").trim().toUpperCase(),
-      device_id: String(device_id || "").trim(),
-      device_name: String(device_name || "").trim(),
-      role: String(role || "operator").trim().toLowerCase(),
-      activation_key: String(activation_key || "").trim()
-    })
+      ...buildPilotHeaders(),
+      ...(options.headers || {})
+    }
   });
 
   const data = await response.json().catch(() => ({}));
 
   if (!response.ok) {
-    throw new Error(data?.error || "Error activando dispositivo");
+    throw new Error(data.error || "Error de servidor");
   }
 
   return data;
+}
+
+export async function fetchPilotMe() {
+  return apiRequest("/pilot/me", { method: "GET" });
+}
+
+export async function activateWithInvite(inviteCode, displayName = "") {
+  return apiRequest("/pilot/activate-invite", {
+    method: "POST",
+    body: JSON.stringify({
+      invite_code: String(inviteCode || "").trim().toUpperCase(),
+      display_name: String(displayName || "").trim()
+    })
+  });
+}
+
+export async function createInviteAPI(expiresHours = 24) {
+  return apiRequest("/pilot/invites", {
+    method: "POST",
+    body: JSON.stringify({
+      expires_hours: expiresHours
+    })
+  });
+}
+
+export async function getPilotDevicesAPI() {
+  return apiRequest("/pilot/devices", {
+    method: "GET"
+  });
+}
+
+export async function updatePilotDeviceRoleAPI(deviceId, role) {
+  return apiRequest("/pilot/device/role", {
+    method: "POST",
+    body: JSON.stringify({
+      device_id: String(deviceId || "").trim(),
+      role: String(role || "").trim().toLowerCase()
+    })
+  });
+}
+
+export async function updatePilotDeviceStatusAPI(deviceId, status) {
+  return apiRequest("/pilot/device/status", {
+    method: "POST",
+    body: JSON.stringify({
+      device_id: String(deviceId || "").trim(),
+      status: String(status || "").trim().toLowerCase()
+    })
+  });
+}
+
+export async function assignTaxiToDeviceAPI(deviceId, taxiCode) {
+  return apiRequest("/pilot/device/assign-taxi", {
+    method: "POST",
+    body: JSON.stringify({
+      device_id: String(deviceId || "").trim(),
+      taxi_code: normalizeTaxiCode(taxiCode)
+    })
+  });
 }
 
 export async function calculateFareAPI(
@@ -76,9 +142,7 @@ export async function calculateFareAPI(
     throw new Error("Datos inválidos para cálculo");
   }
 
-  const cleanTaxiCode = String(taxiCode || getStoredTaxiCode())
-    .trim()
-    .toUpperCase();
+  const cleanTaxiCode = normalizeTaxiCode(taxiCode || getStoredTaxiCode());
 
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 8000);
@@ -143,11 +207,11 @@ export async function registerServiceAPI(serviceData) {
   const numericEstimatedPrice = Number(estimated_price);
   const numericMeterPrice = Number(meter_price);
 
-  const cleanTaxiCode = String(taxi_code || taxi_id || getStoredTaxiCode())
-    .trim()
-    .toUpperCase();
+  const cleanTaxiCode = normalizeTaxiCode(taxi_code || taxi_id || getStoredTaxiCode());
 
-  if (!cleanTaxiCode) throw new Error("Falta taxi_id");
+  if (!cleanTaxiCode) {
+    throw new Error("Falta taxi_id");
+  }
 
   if (
     !Number.isFinite(numericEstimatedPrice) ||
@@ -226,10 +290,7 @@ export async function registerServiceAPI(serviceData) {
 }
 
 export async function getServicesAPI(taxiId, limit = 20) {
-  const cleanTaxiId = String(taxiId || getStoredTaxiCode())
-    .trim()
-    .toUpperCase();
-
+  const cleanTaxiId = normalizeTaxiCode(taxiId || getStoredTaxiCode());
   const numericLimit = Number(limit);
 
   if (!cleanTaxiId) {

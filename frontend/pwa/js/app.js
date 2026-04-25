@@ -1,6 +1,10 @@
 import { initMap, computeRoute } from "./map.js";
 import {
-  activatePilotDeviceAPI,
+  activateWithInvite,
+  fetchPilotMe,
+  getPilotDevicesAPI,
+  updatePilotDeviceRoleAPI,
+  updatePilotDeviceStatusAPI,
   calculateFareAPI,
   registerServiceAPI,
   getServicesAPI
@@ -21,15 +25,6 @@ import {
 const TAXI_ID_KEY = "taxipro_taxi_id";
 const DEVICE_ID_KEY = "taxipro_device_id";
 const DEVICE_NAME_KEY = "taxipro_device_name";
-const DEVICE_ACTIVATED_KEY = "taxipro_device_activated";
-const PILOT_ALLOWED_IDS = [
-  "TX001",
-  "TX002",
-  "TX003",
-  "TXT0001",
-  "TXT0002",
-  "TXT0003"
-];
 
 const originInput = document.getElementById("originInput");
 const destinationInput = document.getElementById("destinationInput");
@@ -65,6 +60,7 @@ let reminderTimer = null;
 let isSavingService = false;
 let exitArmed = false;
 let currentPilotDevice = null;
+let currentDestinationRoutingValue = null;
 
 /* ===============================
    DEVICE / TAXI ID
@@ -106,86 +102,6 @@ function getDeviceName() {
   }
 
   return deviceName;
-}
-
-function markDeviceActivated() {
-  localStorage.setItem(DEVICE_ACTIVATED_KEY, "true");
-}
-
-function clearDeviceActivatedFlag() {
-  localStorage.removeItem(DEVICE_ACTIVATED_KEY);
-}
-
-function isDeviceActivated() {
-  return localStorage.getItem(DEVICE_ACTIVATED_KEY) === "true";
-}
-
-async function ensureDeviceActivation() {
-  const taxiCode = getTaxiId();
-  const deviceId = getDeviceId();
-  const deviceName = getDeviceName();
-
-  if (!taxiCode) {
-    throw new Error("No hay taxi_code configurado");
-  }
-
-  if (isDeviceActivated()) {
-    return;
-  }
-
-  const activationKey = window.prompt("Introduce la clave de activación TAXIPRO");
-
-  if (!activationKey) {
-    throw new Error("Acceso bloqueado");
-  }
-
-  await activatePilotDeviceAPI({
-    taxi_code: taxiCode,
-    device_id: deviceId,
-    device_name: deviceName,
-    activation_key: activationKey
-  });
-
-  markDeviceActivated();
-}
-
-function isPilotAuthorized(taxiId) {
-  return PILOT_ALLOWED_IDS.includes(normalizeTaxiId(taxiId));
-}
-
-async function fetchCurrentPilotDevice() {
-  const response = await fetch("https://taxipro.onrender.com/api/pilot/me", {
-    headers: {
-      "x-taxi-code": getTaxiId(),
-      "x-device-id": getDeviceId()
-    }
-  });
-
-  const contentType = response.headers.get("content-type") || "";
-
-  if (!contentType.includes("application/json")) {
-    const rawText = await response.text();
-    throw new Error(`Respuesta no JSON en /api/pilot/me (${response.status})`);
-  }
-
-  const data = await response.json();
-
-  if (!response.ok) {
-    throw new Error(data.error || "No se pudo obtener el dispositivo actual");
-  }
-
-  return data.device || null;
-}
-async function syncCurrentPilotDevice() {
-  currentPilotDevice = await fetchCurrentPilotDevice();
-
-  if (currentPilotDevice?.status === "active") {
-    markDeviceActivated();
-  } else {
-    clearDeviceActivatedFlag();
-  }
-
-  updatePilotIdentityUI();
 }
 
 /* ===============================
@@ -254,10 +170,33 @@ function enableAppExitGuard() {
    SPLASH
 =============================== */
 
-const SPLASH_MIN_MS = 320;
-const splashStart = Date.now();
-let splashRemoved = false;
+function hideSplashWhenReady() {
+  document.body.classList.add("app-ready");
 
+  const splash = document.getElementById("splash");
+  if (!splash) return;
+
+  splash.classList.add("hide");
+  splash.style.opacity = "0";
+  splash.style.visibility = "hidden";
+  splash.style.pointerEvents = "none";
+  splash.style.display = "none";
+
+  setTimeout(() => {
+    const currentSplash = document.getElementById("splash");
+    if (currentSplash) currentSplash.remove();
+  }, 50);
+}
+
+function forceHideSplash() {
+  document.body.classList.add("app-ready");
+
+  const splash = document.getElementById("splash");
+  if (splash) {
+    splash.style.display = "none";
+    splash.remove();
+  }
+}
 
 /* ===============================
    QUICK LOCATIONS
@@ -289,27 +228,16 @@ const QUICK_DESTINATION_CONFIG = {
   }
 };
 
-let currentDestinationRoutingValue = null;
-
 /* ===============================
    PILOT UI
 =============================== */
 
 function updatePilotIdentityUI() {
   const pilotTaxiId = document.getElementById("pilotTaxiId");
-  if (pilotTaxiId) {
-    const role = currentPilotDevice?.role || "operator";
-    pilotTaxiId.innerText = `${getTaxiId()} · ${role}`;
-  }
-}
+  if (!pilotTaxiId) return;
 
-function syncPilotAccessVisibility() {
-  const pilotAccessBtn = document.getElementById("pilotAccessBtn");
-  if (!pilotAccessBtn) return;
-
-  const allowed = isPilotAuthorized(getTaxiId());
-  pilotAccessBtn.classList.toggle("hidden", !allowed);
-  updatePilotIdentityUI();
+  const role = currentPilotDevice?.role || "sin acceso";
+  pilotTaxiId.innerText = `${getTaxiId()} · ${role}`;
 }
 
 function togglePilotStats(forceState = null) {
@@ -332,6 +260,7 @@ function setupPilotAccessControls() {
   let longPressTriggered = false;
 
   if (pilotAccessBtn) {
+    pilotAccessBtn.classList.remove("hidden");
     pilotAccessBtn.addEventListener("click", () => {
       togglePilotStats();
     });
@@ -379,8 +308,6 @@ function saveTaxiIdFromSettings() {
 
   const normalized = normalizeTaxiId(taxiIdInput.value || "TX001");
   localStorage.setItem(TAXI_ID_KEY, normalized);
-  localStorage.removeItem(DEVICE_ACTIVATED_KEY);
-  currentPilotDevice = null;
 
   if (settingsModal) {
     settingsModal.classList.add("hidden");
@@ -394,7 +321,6 @@ function saveTaxiIdFromSettings() {
   }
 
   updatePilotIdentityUI();
-  syncPilotAccessVisibility();
   refreshServicesFromBackend();
 }
 
@@ -409,10 +335,265 @@ async function refreshServicesFromBackend() {
   }
 }
 
-function refreshServicesInBackground() {
-  refreshServicesFromBackend().catch((error) => {
-    console.warn("Historial cargado en segundo plano con error:", error?.message || error);
+/* ===============================
+   ACCESS GATE
+=============================== */
+
+function showLoadingState() {
+  const gate = document.getElementById("accessGate");
+  const app = document.getElementById("mainApp");
+
+  if (app) app.classList.add("hidden");
+  if (!gate) return;
+
+  gate.classList.remove("hidden");
+  gate.innerHTML = `
+    <div class="access-card">
+      <h2>Comprobando acceso…</h2>
+      <p>Verificando dispositivo y permisos.</p>
+    </div>
+  `;
+}
+
+function renderActivationScreen() {
+  const gate = document.getElementById("accessGate");
+  const app = document.getElementById("mainApp");
+
+  if (app) app.classList.add("hidden");
+  if (!gate) return;
+
+  gate.classList.remove("hidden");
+  gate.innerHTML = `
+    <div class="access-card">
+      <h2>Introduce tu código de acceso</h2>
+      <input id="inviteCodeInput" type="text" placeholder="TAXI-XXXX-XXXX" />
+      <input id="displayNameInput" type="text" placeholder="Nombre visible (opcional)" />
+      <button id="activateInviteBtn" type="button">Activar dispositivo</button>
+      <p id="accessGateMessage"></p>
+    </div>
+  `;
+
+  const btn = document.getElementById("activateInviteBtn");
+  const input = document.getElementById("inviteCodeInput");
+  const displayNameInput = document.getElementById("displayNameInput");
+  const message = document.getElementById("accessGateMessage");
+
+  btn?.addEventListener("click", async () => {
+    try {
+      btn.disabled = true;
+      if (message) message.textContent = "";
+
+      const code = input?.value?.trim()?.toUpperCase() || "";
+      const displayName = displayNameInput?.value?.trim() || "";
+
+      await activateWithInvite(code, displayName);
+
+      if (message) {
+        message.textContent = "Dispositivo registrado. Pendiente de aprobación.";
+      }
+
+      setTimeout(() => {
+        initApp();
+      }, 1200);
+    } catch (error) {
+      if (message) {
+        message.textContent = error.message || "Código inválido o caducado";
+      }
+    } finally {
+      btn.disabled = false;
+    }
   });
+}
+
+function renderPendingScreen() {
+  const gate = document.getElementById("accessGate");
+  const app = document.getElementById("mainApp");
+
+  if (app) app.classList.add("hidden");
+  if (!gate) return;
+
+  gate.classList.remove("hidden");
+  gate.innerHTML = `
+    <div class="access-card">
+      <h2>Pendiente de aprobación</h2>
+      <p>Tu dispositivo ya está registrado.</p>
+      <p>Espera a que un manager o superadmin apruebe el acceso.</p>
+      <button id="retryAccessBtn" type="button">Reintentar</button>
+    </div>
+  `;
+
+  document.getElementById("retryAccessBtn")?.addEventListener("click", () => {
+    initApp();
+  });
+}
+
+function renderDeniedScreen(status) {
+  const gate = document.getElementById("accessGate");
+  const app = document.getElementById("mainApp");
+
+  if (app) app.classList.add("hidden");
+  if (!gate) return;
+
+  const text = status === "blocked" ? "Acceso bloqueado" : "Acceso desactivado";
+
+  gate.classList.remove("hidden");
+  gate.innerHTML = `
+    <div class="access-card">
+      <h2>${text}</h2>
+      <p>Este dispositivo no tiene acceso operativo en este momento.</p>
+      <button id="retryDeniedBtn" type="button">Reintentar</button>
+    </div>
+  `;
+
+  document.getElementById("retryDeniedBtn")?.addEventListener("click", () => {
+    initApp();
+  });
+}
+
+function renderMainApp(me) {
+  const gate = document.getElementById("accessGate");
+  const app = document.getElementById("mainApp");
+
+  if (gate) gate.classList.add("hidden");
+  if (app) app.classList.remove("hidden");
+
+  document.body.dataset.role = me.role || "";
+  document.body.dataset.status = me.status || "";
+
+  const adminSection = document.getElementById("adminDevicesSection");
+  if (adminSection) {
+    const canManage = ["manager", "superadmin"].includes(me.role);
+    adminSection.classList.toggle("hidden", !canManage);
+  }
+}
+
+async function syncCurrentPilotDevice() {
+  const me = await fetchPilotMe();
+  currentPilotDevice = me;
+  updatePilotIdentityUI();
+  return me;
+}
+
+/* ===============================
+   ADMIN / MANAGER DEVICES
+=============================== */
+
+async function fetchPilotDevices() {
+  const response = await getPilotDevicesAPI();
+  return Array.isArray(response?.devices) ? response.devices : [];
+}
+
+async function updateDeviceRole(deviceId, role) {
+  return updatePilotDeviceRoleAPI(deviceId, role);
+}
+
+async function updateDeviceStatus(deviceId, status) {
+  return updatePilotDeviceStatusAPI(deviceId, status);
+}
+
+async function approvePendingDevice(deviceId) {
+  await updateDeviceRole(deviceId, "operator");
+  await updateDeviceStatus(deviceId, "active");
+}
+
+function renderDevices(devices) {
+  const container = document.getElementById("adminDevicesList");
+  if (!container) return;
+
+  const currentId = getDeviceId();
+
+  container.innerHTML = devices.map((d) => {
+    const isCurrent = d.device_id === currentId;
+    const role = String(d.role || "").toLowerCase();
+    const status = String(d.status || "").toLowerCase();
+    const isPending = role === "pending";
+
+    const canActivate = !isCurrent && status !== "active";
+    const canDeactivate = !isCurrent && status !== "inactive";
+    const canBlock = !isCurrent && status !== "blocked";
+    const canSetOperator = !isCurrent && role !== "operator";
+    const canSetManager = !isCurrent && role !== "manager" && role !== "superadmin";
+
+    return `
+      <div class="admin-device-card">
+        <div><strong>${d.display_name || "DISPOSITIVO"}</strong>${isCurrent ? " · ACTUAL" : ""}</div>
+        <div>${d.device_id}</div>
+        <div>ROL: ${String(d.role || "").toUpperCase()}</div>
+        <div>ESTADO: ${String(d.status || "").toUpperCase()}</div>
+        <div>TAXI: ${d.taxi_code || "—"}</div>
+
+        <div class="admin-device-actions">
+          ${!isCurrent && isPending ? `<button type="button" class="device-action-btn success" data-action="approve" data-id="${d.device_id}">APROBAR</button>` : ""}
+          ${canActivate ? `<button type="button" class="device-action-btn success" data-action="activate" data-id="${d.device_id}">ACTIVAR</button>` : ""}
+          ${canDeactivate ? `<button type="button" class="device-action-btn" data-action="inactive" data-id="${d.device_id}">DESACTIVAR</button>` : ""}
+          ${canBlock ? `<button type="button" class="device-action-btn danger" data-action="block" data-id="${d.device_id}">BLOQUEAR</button>` : ""}
+          ${canSetOperator ? `<button type="button" class="device-action-btn" data-action="operator" data-id="${d.device_id}">OPERATOR</button>` : ""}
+          ${canSetManager ? `<button type="button" class="device-action-btn" data-action="manager" data-id="${d.device_id}">MANAGER</button>` : ""}
+        </div>
+      </div>
+    `;
+  }).join("");
+
+  container.querySelectorAll("button[data-action][data-id]").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      const id = btn.dataset.id;
+      const action = btn.dataset.action;
+
+      if (!id || !action) return;
+
+      try {
+        btn.disabled = true;
+
+        if (action === "approve") {
+          await approvePendingDevice(id);
+        }
+
+        if (action === "activate") {
+          await updateDeviceStatus(id, "active");
+        }
+
+        if (action === "inactive") {
+          await updateDeviceStatus(id, "inactive");
+        }
+
+        if (action === "block") {
+          await updateDeviceStatus(id, "blocked");
+        }
+
+        if (action === "operator") {
+          await updateDeviceRole(id, "operator");
+        }
+
+        if (action === "manager") {
+          await updateDeviceRole(id, "manager");
+        }
+
+        const refreshedDevices = await fetchPilotDevices();
+        renderDevices(refreshedDevices);
+        await syncCurrentPilotDevice();
+      } catch (error) {
+        alert(error.message || "No se pudo actualizar el dispositivo");
+        btn.disabled = false;
+      }
+    });
+  });
+}
+
+async function initAdminPanel() {
+  const section = document.getElementById("adminDevicesSection");
+  if (!section) return;
+
+  const canManage = ["manager", "superadmin"].includes(currentPilotDevice?.role);
+
+  if (!canManage) {
+    section.classList.add("hidden");
+    return;
+  }
+
+  section.classList.remove("hidden");
+
+  const devices = await fetchPilotDevices();
+  renderDevices(devices);
 }
 
 /* ===============================
@@ -1088,7 +1269,9 @@ showClientBtn?.addEventListener("click", () => {
 
   if (clientDistance) {
     clientDistance.textContent =
-      lastRoute.distanceKm > 0 ? `${lastRoute.distanceKm.toFixed(1)} km` : "Tarifa fija";
+      lastRoute.distanceKm > 0
+        ? `${lastRoute.distanceKm.toFixed(1)} km`
+        : "Tarifa fija";
   }
 
   if (clientDuration) {
@@ -1142,368 +1325,68 @@ function waitForGoogleMaps() {
   });
 }
 
-// reutiliza variable global existente
+async function initTaxiProCore() {
+  updatePilotIdentityUI();
+  setupPilotAccessControls();
 
-function hideSplashWhenReady() {
-  document.body.classList.add("app-ready");
-
-  const splash = document.getElementById("splash");
-  if (!splash) return;
-
-  splash.classList.add("hide");
-  splash.style.opacity = "0";
-  splash.style.visibility = "hidden";
-  splash.style.pointerEvents = "none";
-  splash.style.display = "none";
-
-  setTimeout(() => {
-    const currentSplash = document.getElementById("splash");
-    if (currentSplash) {
-      currentSplash.remove();
-    }
-  }, 50);
-}
-function forceHideSplash() {
-  document.body.classList.add("app-ready");
-
-  const splash = document.getElementById("splash");
-  if (splash) {
-    splash.style.display = "none";
-    splash.remove();
-  }
-}
-
-async function fetchPilotDevices() {
-  const response = await fetch("https://taxipro.onrender.com/api/pilot/devices", {
-    headers: {
-      "x-taxi-code": getTaxiId(),
-      "x-device-id": getDeviceId()
-    }
-  });
-
-  const data = await response.json();
-
-  if (!response.ok) {
-    throw new Error(data.error || "Error cargando dispositivos");
+  if (originInput) {
+    originInput.value = "";
   }
 
-  return data.devices || [];
+  if (startTripBtn) startTripBtn.disabled = true;
+  if (saveMeterBtn) saveMeterBtn.disabled = true;
+
+  await waitForGoogleMaps();
+  initMap();
+  initAutocomplete();
+
+  await refreshServicesFromBackend();
+  await initAdminPanel();
 }
 
-async function deactivateDevice(deviceId) {
-  const response = await fetch("https://taxipro.onrender.com/api/pilot/device/deactivate", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-taxi-code": getTaxiId(),
-      "x-device-id": getDeviceId()
-    },
-    body: JSON.stringify({
-      device_id: deviceId
-    })
-  });
-
-  const data = await response.json();
-
-  if (!response.ok) {
-    throw new Error(data.error || "No se pudo desactivar el dispositivo");
-  }
-
-  return data;
-}
-async function activateDevice(deviceId) {
-  const response = await fetch("https://taxipro.onrender.com/api/pilot/device/activate", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-taxi-code": getTaxiId(),
-      "x-device-id": getDeviceId()
-    },
-    body: JSON.stringify({
-      device_id: deviceId
-    })
-  });
-
-  const data = await response.json();
-
-  if (!response.ok) {
-    throw new Error(data.error || "No se pudo activar el dispositivo");
-  }
-
-  return data;
-}
-
-async function updateDeviceRole(deviceId, role) {
-  const response = await fetch("https://taxipro.onrender.com/api/pilot/device/role", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-taxi-code": getTaxiId(),
-      "x-device-id": getDeviceId()
-    },
-    body: JSON.stringify({
-      device_id: deviceId,
-      role
-    })
-  });
-
-  const data = await response.json();
-
-  if (!response.ok) {
-    throw new Error(data.error || "No se pudo actualizar el rol del dispositivo");
-  }
-
-  return data;
-}
-
-async function renameDevice(deviceId, deviceName) {
-  const response = await fetch("https://taxipro.onrender.com/api/pilot/device/rename", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-taxi-code": getTaxiId(),
-      "x-device-id": getDeviceId()
-    },
-    body: JSON.stringify({
-      device_id: deviceId,
-      device_name: deviceName
-    })
-  });
-
-  const data = await response.json();
-
-  if (!response.ok) {
-    throw new Error(data.error || "No se pudo renombrar el dispositivo");
-  }
-
-  return data;
-}
-
-function renderDevices(devices) {  
-  
-  const container = document.getElementById("adminDevicesList");
-  if (!container) return;
-
-  const currentId = getDeviceId();
-
-  container.innerHTML = devices.map((d) => {
-    const isCurrent = d.device_id === currentId;
-    const isActive = d.status === "active";
-    const isAdmin = d.role === "admin";
-
-    const statusClass = isActive
-      ? "admin-device-status-active"
-      : "admin-device-status-inactive";
-
-    let actionButtons = "";
-
-    if (!isCurrent && isActive) {
-      actionButtons += `
-        <button
-          type="button"
-          class="device-action-btn danger"
-          data-action="deactivate"
-          data-id="${d.device_id}"
-        >
-          DESACTIVAR
-        </button>
-      `;
-    }
-
-    if (!isCurrent && !isActive) {
-      actionButtons += `
-        <button
-          type="button"
-          class="device-action-btn success"
-          data-action="activate"
-          data-id="${d.device_id}"
-        >
-          ACTIVAR
-        </button>
-      `;
-    }
-
-    if (!isCurrent && !isAdmin) {
-      actionButtons += `
-        <button
-          type="button"
-          class="device-action-btn"
-          data-action="make-admin"
-          data-id="${d.device_id}"
-        >
-          HACER ADMIN
-        </button>
-      `;
-    }
-
-    if (!isCurrent && isAdmin) {
-      actionButtons += `
-        <button
-          type="button"
-          class="device-action-btn"
-          data-action="make-operator"
-          data-id="${d.device_id}"
-        >
-          QUITAR ADMIN
-        </button>
-      `;
-    }
-
-    actionButtons += `
-      <button
-        type="button"
-        class="device-action-btn"
-        data-action="rename"
-        data-id="${d.device_id}"
-        data-name="${encodeURIComponent(d.device_name || "")}"
-      >
-        RENOMBRAR
-      </button>
-    `;
-
-    return `
-      <div class="admin-device-card">
-        <div><strong>${d.device_name || "DISPOSITIVO"}</strong>${isCurrent ? " · ACTUAL" : ""}</div>
-        <div>${d.device_id}</div>
-        <div>ROL: ${String(d.role || "").toUpperCase()}</div>
-        <div class="${statusClass}">ESTADO: ${String(d.status || "").toUpperCase()}</div>
-        <div class="admin-device-actions">
-          ${actionButtons}
-        </div>
-      </div>
-    `;
-  }).join("");
-
-  container.querySelectorAll("button[data-action][data-id]").forEach((btn) => {
-    btn.addEventListener("click", async () => {
-      const id = btn.dataset.id;
-      const action = btn.dataset.action;
-
-      if (!id || !action) return;
-
-      try {
-        btn.disabled = true;
-
-        if (action === "activate") {
-          if (!window.confirm("¿Activar dispositivo?")) {
-            btn.disabled = false;
-            return;
-          }
-          await activateDevice(id);
-        }
-
-        if (action === "deactivate") {
-          if (!window.confirm("¿Desactivar dispositivo?")) {
-            btn.disabled = false;
-            return;
-          }
-          await deactivateDevice(id);
-        }
-
-        if (action === "make-admin") {
-          if (!window.confirm("¿Convertir este dispositivo en admin?")) {
-            btn.disabled = false;
-            return;
-          }
-          await updateDeviceRole(id, "admin");
-        }
-
-        if (action === "make-operator") {
-          if (!window.confirm("¿Quitar permisos admin a este dispositivo?")) {
-            btn.disabled = false;
-            return;
-          }
-          await updateDeviceRole(id, "operator");
-        }
-
-        if (action === "rename") {
-          const currentName = decodeURIComponent(btn.dataset.name || "");
-          const newName = window.prompt("Nuevo nombre del dispositivo:", currentName);
-
-          if (!newName || !newName.trim()) {
-            btn.disabled = false;
-            return;
-          }
-
-          await renameDevice(id, newName.trim());
-        }
-
-        const refreshedDevices = await fetchPilotDevices();
-        renderDevices(refreshedDevices);
-
-        await syncCurrentPilotDevice();
-      } catch (error) {
-        alert(error.message || "No se pudo actualizar el dispositivo");
-        btn.disabled = false;
-      }
-    });
-  });
-}
-
-async function initAdminPanel() {
-  const section = document.getElementById("adminDevicesSection");
-  if (!section) return;
-
-  if (!currentPilotDevice || currentPilotDevice.role !== "admin") {
-    section.classList.add("hidden");
-    return;
-  }
-
-  section.classList.remove("hidden");
-
-  const devices = await fetchPilotDevices();
-  renderDevices(devices);
-}
-
-async function initializeApp() {
+async function initApp() {
   try {
-    console.log("INIT 1");
     getDeviceId();
     getDeviceName();
 
-    updatePilotIdentityUI();
-    syncPilotAccessVisibility();
-    setupPilotAccessControls();
+    showLoadingState();
 
-    if (originInput) {
-      originInput.value = "";
+    const me = await syncCurrentPilotDevice();
+
+    if (!me.exists || me.screen === "activation") {
+      renderActivationScreen();
+      forceHideSplash();
+      return;
     }
 
-    if (startTripBtn) startTripBtn.disabled = true;
-    if (saveMeterBtn) saveMeterBtn.disabled = true;
-
-    console.log("INIT 3 - antes activacion");
-    await ensureDeviceActivation();
-    console.log("INIT 4 - despues activacion");
-
-    await syncCurrentPilotDevice();
-    console.log("INIT 4.1 - dispositivo sincronizado desde backend");
-
-    console.log("INIT 5 - antes Google Maps");
-    await waitForGoogleMaps();
-    console.log("INIT 6 - despues Google Maps");
-
-    initMap();
-    initAutocomplete();
-    console.log("INIT 7 - mapa iniciado");
-
-    await refreshServicesFromBackend();
-    console.log("INIT 8 - historial cargado");
-
-    await initAdminPanel();
-    console.log("INIT 9 - panel admin listo");
-
-    hideSplashWhenReady();
-
-    setTimeout(() => {
+    if (me.screen === "pending") {
+      renderPendingScreen();
       forceHideSplash();
-    }, 200);
+      return;
+    }
+
+    if (me.screen === "denied") {
+      renderDeniedScreen(me.status);
+      forceHideSplash();
+      return;
+    }
+
+    if (me.screen === "app") {
+      renderMainApp(me);
+      await initTaxiProCore();
+      hideSplashWhenReady();
+      return;
+    }
+
+    renderActivationScreen();
+    forceHideSplash();
   } catch (error) {
     console.error("Error inicializando la app:", error);
     forceHideSplash();
     alert(error.message || "No se pudo inicializar la app.");
   }
 }
+
 document.addEventListener("DOMContentLoaded", () => {
   enableAppExitGuard();
 
@@ -1518,14 +1401,25 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 window.addEventListener("load", () => {
-  initializeApp();
+  initApp();
 
   setTimeout(() => {
     forceHideSplash();
   }, 2500);
 });
 
-let deferredPrompt = null;
+window.addEventListener("scroll", () => {
+  const header = document.querySelector(".taxipro-header");
+  if (!header) return;
+
+  if (window.scrollY > 40) {
+    header.classList.add("compact");
+  } else {
+    header.classList.remove("compact");
+  }
+});
+
+window.fetchPilotMe = fetchPilotMe;
 
 /* ==============================
    SERVICE WORKER REGISTRO
