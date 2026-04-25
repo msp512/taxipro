@@ -3,7 +3,7 @@ import helmet from "helmet";
 import rateLimit from "express-rate-limit";
 import path from "path";
 import { fileURLToPath } from "url";
-import compression from "compression";
+//import compression from "compression";
 
 import fareRoutes from "./routes/fareRoutes.js";
 import techRoutes from "./routes/techRoutes.js";
@@ -35,7 +35,7 @@ app.set("trust proxy", 1);
 // ================================
 // COMPRESIÓN
 // ================================
-app.use(compression());
+//app.use(compression());
 
 // ================================
 // TIMEOUT GLOBAL

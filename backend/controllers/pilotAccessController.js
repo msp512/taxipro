@@ -254,3 +254,55 @@ export async function updateDeviceStatus(req, res) {
     });
   }
 }
+export async function createInvite(req, res) {
+  try {
+    const {
+      target_role = "operator",
+      target_taxi_code = null,
+      requires_approval = true
+    } = req.body;
+
+    const code =
+      "TAXI-" +
+      Math.random().toString(36).substring(2, 6).toUpperCase() +
+      "-" +
+      Math.random().toString(36).substring(2, 6).toUpperCase();
+
+    const expiresAt = new Date();
+    expiresAt.setHours(expiresAt.getHours() + 48);
+
+    const result = await pool.query(
+      `
+      INSERT INTO pilot_invites (
+        invite_code,
+        created_by_device_id,
+        target_role,
+        target_taxi_code,
+        requires_approval,
+        is_active,
+        expires_at,
+        created_at
+      )
+      VALUES ($1,$2,$3,$4,$5,true,$6,NOW())
+      RETURNING invite_code
+      `,
+      [
+        code,
+        req.device.device_id,
+        target_role,
+        target_taxi_code,
+        requires_approval,
+        expiresAt
+      ]
+    );
+
+    res.json({
+      ok: true,
+      invite_code: result.rows[0].invite_code
+    });
+
+  } catch (error) {
+    console.error("createInvite error:", error);
+    res.status(500).json({ ok: false, error: "Error creando invitación" });
+  }
+}
