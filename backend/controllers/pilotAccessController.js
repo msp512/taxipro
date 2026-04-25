@@ -48,60 +48,107 @@ export async function getPilotMe(req, res) {
  */
 export async function activateWithInvite(req, res) {
   try {
-    const { invite_code, display_name, device_id } = req.body;
+    const inviteCode = String(
+      req.body.invite_code || req.body.code || ""
+    ).trim().toUpperCase();
 
-    if (!invite_code || !display_name || !device_id) {
+    const deviceId = String(
+      req.body.device_id || req.headers["x-device-id"] || ""
+    ).trim();
+
+    const displayName = String(
+      req.body.display_name ||
+      req.body.device_name ||
+      deviceId ||
+      "Dispositivo TAXIPRO"
+    ).trim();
+
+    if (!inviteCode || !deviceId) {
       return res.status(400).json({
         ok: false,
         error: "Datos incompletos"
       });
     }
 
-    // Buscar invitación válida
     const inviteResult = await pool.query(
       `
       SELECT *
       FROM pilot_invites
       WHERE invite_code = $1
       AND is_active = true
+      AND (expires_at IS NULL OR expires_at > NOW())
       `,
-      [invite_code]
+      [inviteCode]
     );
 
     if (inviteResult.rows.length === 0) {
       return res.status(403).json({
         ok: false,
-        error: "Código de invitación inválido"
+        error: "Código de invitación inválido o caducado"
       });
     }
 
     const invite = inviteResult.rows[0];
 
-    // Insertar o actualizar dispositivo
+    const role = invite.requires_approval
+      ? "pending"
+      : invite.target_role || "operator";
+
+    const status = invite.requires_approval
+      ? "inactive"
+      : "active";
+
     const result = await pool.query(
       `
-      INSERT INTO authorized_devices (device_id, display_name, role, status, created_at)
-      VALUES ($1, $2, 'pending', 'inactive', NOW())
+      INSERT INTO authorized_devices (
+        device_id,
+        display_name,
+        role,
+        status,
+        taxi_code,
+        created_at,
+        updated_at
+      )
+      VALUES ($1, $2, $3, $4, $5, NOW(), NOW())
       ON CONFLICT (device_id)
-      DO UPDATE SET display_name = $2
+      DO UPDATE SET
+        display_name = EXCLUDED.display_name,
+        updated_at = NOW()
       RETURNING *
       `,
-      [device_id, display_name]
+      [
+        deviceId,
+        displayName,
+        role,
+        status,
+        invite.target_taxi_code || null
+      ]
+    );
+
+    await pool.query(
+      `
+      UPDATE pilot_invites
+      SET used_by_device_id = $1,
+          used_at = NOW(),
+          is_active = false
+      WHERE invite_code = $2
+      `,
+      [deviceId, inviteCode]
     );
 
     res.json({
       ok: true,
       device: result.rows[0]
     });
+
   } catch (error) {
-    console.error("Error en activateWithInvite:", error);
+    console.error("activateWithInvite error:", error);
     res.status(500).json({
       ok: false,
       error: "Error activando dispositivo"
     });
   }
 }
-
 /**
  * Asignar taxi a un dispositivo
  */
