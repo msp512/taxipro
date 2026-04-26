@@ -456,9 +456,18 @@ function renderMainApp(me) {
 
   const device = me?.device || me || {};
 
-  if (gate) gate.classList.add("hidden");
-  if (app) app.classList.remove("hidden");
+  if (gate) {
+    gate.classList.add("hidden");
+    gate.innerHTML = "";
+    gate.style.display = "none";
+  }
 
+  if (app) {
+    app.classList.remove("hidden");
+    app.style.display = "block";
+  }
+
+  document.body.classList.add("pilot-authorized");
   document.body.dataset.role = device.role || "";
   document.body.dataset.status = device.status || "";
 
@@ -467,6 +476,7 @@ function renderMainApp(me) {
     const canManage = ["manager", "superadmin"].includes(device.role);
     adminSection.classList.toggle("hidden", !canManage);
   }
+
   console.log("MAIN APP RENDERED", me);
 }
 
