@@ -454,26 +454,47 @@ function renderMainApp(me) {
   const gate = document.getElementById("accessGate");
   const app = document.getElementById("mainApp");
 
+  const device = me?.device || me || {};
+
   if (gate) gate.classList.add("hidden");
   if (app) app.classList.remove("hidden");
 
-  document.body.dataset.role = me.role || "";
-  document.body.dataset.status = me.status || "";
+  document.body.dataset.role = device.role || "";
+  document.body.dataset.status = device.status || "";
 
   const adminSection = document.getElementById("adminDevicesSection");
   if (adminSection) {
-    const canManage = ["manager", "superadmin"].includes(me.role);
+    const canManage = ["manager", "superadmin"].includes(device.role);
     adminSection.classList.toggle("hidden", !canManage);
   }
+  console.log("MAIN APP RENDERED", me);
 }
 
 async function syncCurrentPilotDevice() {
   const me = await fetchPilotMe();
-  currentPilotDevice = me;
+
+  currentPilotDevice = me?.device || null;
+
+  if (me?.device?.taxi_code) {
+    localStorage.setItem("taxipro_taxi_id", me.device.taxi_code);
+  }
+
+  if (me?.device?.device_id) {
+    localStorage.setItem("taxipro_device_id", me.device.device_id);
+  }
+
+  if (me?.device?.role) {
+    localStorage.setItem("taxipro_device_role", me.device.role);
+  }
+
+  if (me?.screen === "app") {
+    localStorage.setItem("taxipro_device_activated", "true");
+  }
+
   updatePilotIdentityUI();
+
   return me;
 }
-
 /* ===============================
    ADMIN / MANAGER DEVICES
 =============================== */
@@ -1352,6 +1373,7 @@ async function initApp() {
     showLoadingState();
 
     const me = await syncCurrentPilotDevice();
+    console.log("PILOT ME INIT:", me);
 
     if (!me.exists || me.screen === "activation") {
       renderActivationScreen();
@@ -1371,12 +1393,12 @@ async function initApp() {
       return;
     }
 
-    if (me.screen === "app") {
-      renderMainApp(me);
-      await initTaxiProCore();
-      hideSplashWhenReady();
-      return;
-    }
+    if (me?.screen === "app" || me?.device?.status === "active") {
+  renderMainApp(me);
+  await initTaxiProCore();
+  hideSplashWhenReady();
+  return;
+}
 
     renderActivationScreen();
     forceHideSplash();
