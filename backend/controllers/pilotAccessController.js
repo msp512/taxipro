@@ -99,32 +99,31 @@ export async function activateWithInvite(req, res) {
       : "active";
 
     const result = await pool.query(
-      `
-      INSERT INTO authorized_devices (
-        device_id,
-        display_name,
-        role,
-        status,
-        taxi_code,
-        created_at,
-        updated_at
-      )
-      VALUES ($1, $2, $3, $4, $5, NOW(), NOW())
-      ON CONFLICT (device_id)
-      DO UPDATE SET
-        display_name = EXCLUDED.display_name,
-        updated_at = NOW()
-      RETURNING *
-      `,
-      [
-        deviceId,
-        displayName,
-        role,
-        status,
-        invite.target_taxi_code || null
-      ]
-    );
-
+  `
+  INSERT INTO authorized_devices (
+    device_id,
+    display_name,
+    role,
+    status,
+    taxi_code,
+    created_at,
+    updated_at
+  )
+  VALUES ($1, $2, $3, $4, $5, NOW(), NOW())
+  ON CONFLICT (device_id)
+  DO UPDATE SET
+    display_name = EXCLUDED.display_name,
+    updated_at = NOW()
+  RETURNING *
+  `,
+  [
+    deviceId,
+    displayName,
+    role,
+    status,
+    invite.target_taxi_code || null
+  ]
+);
     await pool.query(
       `
       UPDATE pilot_invites

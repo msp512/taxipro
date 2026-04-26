@@ -69,13 +69,32 @@ export async function fetchPilotMe() {
 }
 
 export async function activateWithInvite(inviteCode, displayName = "") {
-  return apiRequest("/pilot/activate-invite", {
+  const deviceId = localStorage.getItem("taxipro_device_id");
+
+  if (!inviteCode || !deviceId) {
+    throw new Error("Datos incompletos");
+  }
+
+  const response = await fetch(`${API_BASE}/pilot/activate-invite`, {
     method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-device-id": deviceId
+    },
     body: JSON.stringify({
-      invite_code: String(inviteCode || "").trim().toUpperCase(),
-      display_name: String(displayName || "").trim()
+      invite_code: inviteCode,
+      display_name: displayName || deviceId,
+      device_id: deviceId
     })
   });
+
+  const data = await response.json();
+
+  if (!response.ok || data.ok === false) {
+    throw new Error(data.error || "No se pudo activar el dispositivo");
+  }
+
+  return data;
 }
 
 export async function createInviteAPI(expiresHours = 24) {
