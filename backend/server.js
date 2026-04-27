@@ -1,3 +1,5 @@
+console.log("🚨 VERSION NUEVA BACKEND 🚨");
+console.log("SERVER VERSION 2 - ROUTES UPDATED");
 import express from "express";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
