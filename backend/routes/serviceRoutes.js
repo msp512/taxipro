@@ -3,11 +3,14 @@ import {
   registerService,
   getServicesByTaxi
 } from "../controllers/serviceController.js";
-import { requireAuthorizedDevice } from "../middleware/requireAuthorizedDevice.js";
+import {
+  attachDevice,
+  requireAuthorizedDevice
+} from "../middleware/requireAuthorizedDevice.js";
 
 const router = express.Router();
 
-router.get("/", requireAuthorizedDevice, getServicesByTaxi);
-router.post("/register-service", requireAuthorizedDevice, registerService);
+router.get("/", attachDevice, requireAuthorizedDevice, getServicesByTaxi);
+router.post("/register-service", attachDevice, requireAuthorizedDevice, registerService);
 
 export default router;

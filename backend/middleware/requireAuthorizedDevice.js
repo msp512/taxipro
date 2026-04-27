@@ -5,6 +5,12 @@ import pool from "../db.js";
  */
 export async function attachDevice(req, res, next) {
   try {
+    console.log("ATTACH DEVICE HIT", {
+  path: req.originalUrl,
+  deviceId: req.headers["x-device-id"],
+  taxiCode: req.headers["x-taxi-code"]
+});
+
     const deviceId = req.headers["x-device-id"];
 
     if (!deviceId) {
