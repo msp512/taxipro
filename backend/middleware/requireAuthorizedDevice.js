@@ -7,9 +7,6 @@ export async function attachDevice(req, res, next) {
   try {
     const deviceId = req.headers["x-device-id"];
 
-    // 🔥 AÑADE ESTO AQUÍ
-    console.log("🔥 attachDevice ejecutado", deviceId);
-
     if (!deviceId) {
       return res.status(401).json({
         ok: false,
@@ -45,6 +42,8 @@ export async function attachDevice(req, res, next) {
  * Requiere que el dispositivo esté activo
  */
 export function requireAuthorizedDevice(req, res, next) {
+  }
+
   if (!req.device) {
     return res.status(401).json({
       ok: false,
@@ -61,7 +60,7 @@ export function requireAuthorizedDevice(req, res, next) {
   }
 
   next();
-}
+
 
 /**
  * Solo manager o superadmin
