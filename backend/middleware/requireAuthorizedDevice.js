@@ -29,9 +29,10 @@ export async function attachDevice(req, res, next) {
 
     req.device = result.rows[0];
     next();
+
   } catch (error) {
     console.error("attachDevice error:", error);
-    res.status(500).json({
+    return res.status(500).json({
       ok: false,
       error: "Error identificando dispositivo"
     });
@@ -42,8 +43,6 @@ export async function attachDevice(req, res, next) {
  * Requiere que el dispositivo esté activo
  */
 export function requireAuthorizedDevice(req, res, next) {
-  }
-
   if (!req.device) {
     return res.status(401).json({
       ok: false,
@@ -60,7 +59,7 @@ export function requireAuthorizedDevice(req, res, next) {
   }
 
   next();
-
+}
 
 /**
  * Solo manager o superadmin
