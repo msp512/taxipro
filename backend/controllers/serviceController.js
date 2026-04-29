@@ -63,7 +63,8 @@ export async function registerService(req, res) {
       city,
       route_mode,
       destination_changed,
-      destination_changed_at
+      destination_changed_at,
+      stops_json
     } = req.body;
 
     const cleanTaxiCode = normalizeTaxiCode(taxi_code || taxi_id);
@@ -157,6 +158,8 @@ export async function registerService(req, res) {
       ).toFixed(4)
     );
 
+    const cleanStopsJson = Array.isArray(stops_json) ? stops_json : [];
+
     const insertQuery = `
       INSERT INTO services
       (
@@ -176,10 +179,11 @@ export async function registerService(req, res) {
         city,
         route_mode,
         destination_changed,
-        destination_changed_at
+        destination_changed_at,
+        stops_json
       )
       VALUES
-      ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17)
+      ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18)
       RETURNING *
     `;
 
@@ -200,7 +204,8 @@ export async function registerService(req, res) {
       cleanCity,
       cleanRouteMode,
       cleanDestinationChanged,
-      cleanDestinationChangedAt
+      cleanDestinationChangedAt,
+      cleanStopsJson
     ];
 
     const result = await db.query(insertQuery, insertValues);
@@ -268,6 +273,7 @@ export async function getServicesByTaxi(req, res) {
         route_mode,
         destination_changed,
         destination_changed_at,
+        stops_json, 
         created_at
       FROM services
       WHERE taxi_code = $1 OR taxi_id = $1
