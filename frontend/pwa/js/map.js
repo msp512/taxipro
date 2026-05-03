@@ -62,14 +62,17 @@ export function initMap() {
   return map;
 }
 
-export function computeRoute(origin, destination) {
+export function computeRoute(origin, destination, stops = []) {
   return new Promise((resolve, reject) => {
     if (!directionsService || !directionsRenderer) {
       reject(new Error("Mapa no inicializado"));
       return;
     }
 
-    const waypoints = [];
+    const waypoints = stops.map(stop => ({
+      location: stop,
+      stopover: true
+    }));
 
     if (shouldForceBabaluAccess(origin, destination)) {
       waypoints.push({
@@ -100,10 +103,12 @@ export function computeRoute(origin, destination) {
         directionsRenderer.setDirections(result);
 
         const route = result.routes[0];
+
         const totalDistanceMeters = route.legs.reduce(
           (sum, leg) => sum + (leg.distance?.value || 0),
           0
         );
+
         const totalDurationSeconds = route.legs.reduce(
           (sum, leg) => sum + (leg.duration?.value || 0),
           0

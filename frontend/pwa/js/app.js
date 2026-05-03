@@ -27,7 +27,11 @@ const DEVICE_ID_KEY = "taxipro_device_id";
 const DEVICE_NAME_KEY = "taxipro_device_name";
 
 const originInput = document.getElementById("originInput");
+const stopInput = document.getElementById("stopInput");
 const destinationInput = document.getElementById("destinationInput");
+const stopsContainer = document.getElementById("stopsContainer");
+const addStopBtn = document.getElementById("addStopBtn");
+const clearStopBtn = document.getElementById("clearStopBtn");
 const pricingMode = document.getElementById("pricingMode");
 const calculateBtn = document.getElementById("calculateBtn");
 const startTripBtn = document.getElementById("startTripBtn");
@@ -326,7 +330,7 @@ function saveTaxiIdFromSettings() {
 
 async function refreshServicesFromBackend() {
   try {
-    const response = await getServicesAPI(getTaxiId(), 20);
+    const response = await getServicesAPI(getTaxiId(), 100);
     const services = Array.isArray(response?.services) ? response.services : [];
     renderHistory(services);
     updatePilotStats(services);
@@ -453,7 +457,6 @@ function renderDeniedScreen(status) {
 function renderMainApp(me) {
   const gate = document.getElementById("accessGate");
   const app = document.getElementById("mainApp");
-
   const device = me?.device || me || {};
 
   if (gate) {
@@ -505,6 +508,7 @@ async function syncCurrentPilotDevice() {
 
   return me;
 }
+
 /* ===============================
    ADMIN / MANAGER DEVICES
 =============================== */
@@ -575,29 +579,12 @@ function renderDevices(devices) {
       try {
         btn.disabled = true;
 
-        if (action === "approve") {
-          await approvePendingDevice(id);
-        }
-
-        if (action === "activate") {
-          await updateDeviceStatus(id, "active");
-        }
-
-        if (action === "inactive") {
-          await updateDeviceStatus(id, "inactive");
-        }
-
-        if (action === "block") {
-          await updateDeviceStatus(id, "blocked");
-        }
-
-        if (action === "operator") {
-          await updateDeviceRole(id, "operator");
-        }
-
-        if (action === "manager") {
-          await updateDeviceRole(id, "manager");
-        }
+        if (action === "approve") await approvePendingDevice(id);
+        if (action === "activate") await updateDeviceStatus(id, "active");
+        if (action === "inactive") await updateDeviceStatus(id, "inactive");
+        if (action === "block") await updateDeviceStatus(id, "blocked");
+        if (action === "operator") await updateDeviceRole(id, "operator");
+        if (action === "manager") await updateDeviceRole(id, "manager");
 
         const refreshedDevices = await fetchPilotDevices();
         renderDevices(refreshedDevices);
@@ -693,6 +680,10 @@ function applyPlaceToInput(input, place) {
     if (input === destinationInput) {
       currentDestinationRoutingValue = cleanValue;
     }
+
+    if (input === stopInput) {
+      // La parada intermedia se guarda por el valor visible del input.
+    }
   }
 }
 
@@ -740,7 +731,42 @@ function initAutocomplete() {
   if (!window.google?.maps?.places) return;
 
   if (originInput) createMallorcaOriginAutocomplete(originInput);
+  if (stopInput) createMallorcaDestinationAutocomplete(stopInput);
   if (destinationInput) createMallorcaDestinationAutocomplete(destinationInput);
+}
+
+function getRouteRequest() {
+  const origin = originInput?.value.trim() || "";
+  const destination = destinationInput?.value.trim() || "";
+
+  const stops = [];
+
+  if (stopInput?.value.trim()) {
+    stops.push(stopInput.value.trim());
+  }
+
+  return {
+    origin,
+    stops,
+    destination
+  };
+}
+function clearStops() {
+  if (stopInput) {
+    stopInput.value = "";
+  }
+}
+
+function formatClientRoute(route) {
+  const parts = [
+    route?.origin,
+    ...(route?.stops || []),
+    route?.destination
+  ].filter(Boolean);
+
+  if (!parts.length) return "Trayecto estimado";
+
+  return parts.map((p) => String(p).split(",")[0]).join(" → ");
 }
 
 function reverseGeocode(lat, lng) {
@@ -961,6 +987,10 @@ settingsModal?.addEventListener("click", (event) => {
   }
 });
 
+clearStopBtn?.addEventListener("click", () => {
+  clearStops();
+});
+
 reminderActionBtn?.addEventListener("click", () => {
   const section = document.getElementById("meterInputSection");
   section?.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -1026,8 +1056,10 @@ pricingMode?.addEventListener("change", () => {
 });
 
 calculateBtn?.addEventListener("click", async () => {
-  const origin = originInput?.value.trim();
-  const destination = destinationInput?.value.trim();
+  const routeRequest = getRouteRequest();
+
+  const origin = routeRequest.origin;
+  const destination = routeRequest.destination;
   const destinationForRoute = currentDestinationRoutingValue || destination;
   const mode = pricingMode?.value || "taxipro";
 
@@ -1048,29 +1080,54 @@ calculateBtn?.addEventListener("click", async () => {
     calculateBtn.disabled = true;
     calculateBtn.textContent = "Calculando…";
 
-    if (mode === "taxipro") {
-      if (!origin) {
-        alert("Selecciona origen o usa ubicación actual");
-        clearCurrentEstimate();
-        return;
-      }
+    if (!origin) {
+      alert("Selecciona origen o usa ubicación actual");
+      clearCurrentEstimate();
+      return;
+    }
 
-      if (origin.length < 6) {
-        alert("Introduce un origen más completo.");
-        clearCurrentEstimate();
-        return;
-      }
+    if (origin.length < 6) {
+      alert("Introduce un origen más completo.");
+      clearCurrentEstimate();
+      return;
+    }
 
-      const route = await computeRoute(origin, destinationForRoute);
+    const route = await computeRoute(
+      origin,
+      destinationForRoute,
+      routeRequest.stops
+    );
 
-      if (!route) {
-        clearCurrentEstimate();
-        throw new Error("No se pudo calcular la ruta");
-      }
+    if (!route) {
+      clearCurrentEstimate();
+      throw new Error("No se pudo calcular la ruta");
+    }
 
-      lastRoute = route;
+    lastRoute = {
+      origin,
+      stops: routeRequest.stops,
+      destination,
+      distanceKm: route.distanceKm,
+      durationMinutes: route.durationMinutes
+    };
 
+    let fixedFare = null;
+
+    if (mode !== "taxipro") {
+      fixedFare = resolveFixedFare(mode, origin, destination);
+    }
+
+    if (fixedFare) {
+      lastFare = fixedFare;
+
+      showPriceResult({
+        ...fixedFare,
+        distanceKm: route.distanceKm,
+        durationMinutes: route.durationMinutes
+      });
+    } else {
       const supplements = getSelectedSupplements();
+
       const fare = await calculateFareAPI(
         route.distanceKm,
         route.durationMinutes,
@@ -1079,66 +1136,19 @@ calculateBtn?.addEventListener("click", async () => {
         getTaxiId()
       );
 
-      lastFare = fare;
+      lastFare = {
+        ...fare,
+        modeLabel: "Estimación TaxiPro"
+      };
 
       showPriceResult({
         ...fare,
         distanceKm: route.distanceKm,
         durationMinutes: route.durationMinutes
       });
-    } else {
-      if (!origin) {
-        alert("En tarifas fijas debes indicar origen.");
-        clearCurrentEstimate();
-        return;
-      }
 
-      let fixedFare = resolveFixedFare(mode, origin, destination);
-
-      if (!fixedFare) {
-        const route = await computeRoute(origin, destinationForRoute);
-
-        if (!route) {
-          clearCurrentEstimate();
-          throw new Error("No existe tarifa fija y tampoco se pudo calcular la ruta");
-        }
-
-        lastRoute = route;
-
-        const supplements = getSelectedSupplements();
-        const fare = await calculateFareAPI(
-          route.distanceKm,
-          route.durationMinutes,
-          "Palma",
-          supplements,
-          getTaxiId()
-        );
-
-        lastFare = {
-          ...fare,
-          modeLabel: "Estimación TaxiPro"
-        };
-
-        showPriceResult({
-          ...fare,
-          distanceKm: route.distanceKm,
-          durationMinutes: route.durationMinutes
-        });
-
+      if (mode !== "taxipro") {
         alert("No había tarifa fija exacta. Se ha mostrado estimación TaxiPro.");
-      } else {
-        lastRoute = {
-          distanceKm: 0,
-          durationMinutes: 0
-        };
-
-        lastFare = fixedFare;
-
-        showPriceResult({
-          ...fixedFare,
-          distanceKm: 0,
-          durationMinutes: 0
-        });
       }
     }
 
@@ -1176,8 +1186,9 @@ startTripBtn?.addEventListener("click", () => {
     distance_km: lastRoute.distanceKm,
     duration_min: lastRoute.durationMinutes,
     estimated_total: lastFare.price,
-    origin: originInput?.value.trim(),
-    destination: destinationInput?.value.trim()
+    origin: lastRoute.origin,
+    destination: lastRoute.destination,
+    stops: lastRoute.stops || []
   });
 
   startTripBtn.disabled = true;
@@ -1221,10 +1232,11 @@ saveMeterBtn?.addEventListener("click", async () => {
     await registerServiceAPI({
       taxi_id: getTaxiId(),
       taxi_code: getTaxiId(),
-      origin: originInput?.value.trim() || "Origen manual",
-      destination: destinationInput?.value.trim(),
-      destination_initial: destinationInput?.value.trim(),
-      destination_final: destinationInput?.value.trim(),
+      origin: lastRoute.origin || originInput?.value.trim() || "Origen manual",
+      destination: lastRoute.destination || destinationInput?.value.trim(),
+      destination_initial: lastRoute.destination || destinationInput?.value.trim(),
+      destination_final: lastRoute.destination || destinationInput?.value.trim(),
+      stops_json: lastRoute.stops || [],
       distance_km: lastRoute.distanceKm,
       duration_min: lastRoute.durationMinutes,
       estimated_price: lastFare.price,
@@ -1275,18 +1287,13 @@ showClientBtn?.addEventListener("click", () => {
     return;
   }
 
-  const origin = originInput?.value.trim();
-  const destination = destinationInput?.value.trim();
-
   const clientRoute = document.getElementById("clientRoute");
   const clientPrice = document.getElementById("clientPrice");
   const clientDistance = document.getElementById("clientDistance");
   const clientDuration = document.getElementById("clientDuration");
 
   if (clientRoute) {
-    clientRoute.textContent = origin && destination
-      ? `${origin.split(",")[0]} → ${destination.split(",")[0]}`
-      : "Trayecto estimado";
+    clientRoute.textContent = formatClientRoute(lastRoute);
   }
 
   if (clientPrice) {
@@ -1358,6 +1365,7 @@ function waitForGoogleMaps() {
 
 async function initTaxiProCore() {
   updatePilotIdentityUI();
+
   setupPilotAccessControls();
 
   if (originInput) {
@@ -1385,7 +1393,7 @@ async function initApp() {
     const me = await syncCurrentPilotDevice();
     console.log("PILOT ME INIT:", me);
 
-    if (!me.exists || me.screen === "activation") {
+    if (!me?.ok || me?.screen === "activation") {
       renderActivationScreen();
       forceHideSplash();
       return;
@@ -1404,11 +1412,25 @@ async function initApp() {
     }
 
     if (me?.screen === "app" || me?.device?.status === "active") {
-  renderMainApp(me);
-  await initTaxiProCore();
-  hideSplashWhenReady();
-  return;
-}
+      currentPilotDevice = me?.device || null;
+
+      renderMainApp(me);
+      hideSplashWhenReady();
+
+      try {
+        await initTaxiProCore();
+      } catch (coreError) {
+        console.error("Error inicializando núcleo TaxiPro:", coreError);
+      }
+
+      renderMainApp(me);
+
+      setTimeout(() => {
+        renderMainApp(me);
+      }, 300);
+
+      return;
+    }
 
     renderActivationScreen();
     forceHideSplash();

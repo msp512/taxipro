@@ -3141,4 +3141,50 @@ body {
 
 .hidden {
   display: none !important;
+}button,
+.btn-primary,
+.btn-secondary,
+.supplement-btn,
+.quick-buttons button,
+#calculateBtn,
+#startTripBtn,
+#saveMeterBtn,
+#showClientMode {
+  box-shadow:
+    0 6px 0 rgba(0, 0, 0, 0.28),
+    0 14px 26px rgba(0, 0, 0, 0.28);
+  transform: translateY(0);
+  transition: transform 0.12s ease, box-shadow 0.12s ease, filter 0.12s ease;
+}
+
+button:active,
+.btn-primary:active,
+.btn-secondary:active,
+.supplement-btn:active,
+.quick-buttons button:active,
+#calculateBtn:active,
+#startTripBtn:active,
+#saveMeterBtn:active,
+#showClientMode:active {
+  transform: translateY(5px);
+  box-shadow:
+    0 2px 0 rgba(0, 0, 0, 0.35),
+    0 6px 14px rgba(0, 0, 0, 0.22);
+}
+
+#calculateBtn,
+#showClientMode,
+#saveMeterBtn {
+  background: linear-gradient(180deg, #f5d889 0%, #c99424 100%);
+  color: #07111d;
+  border: 1px solid rgba(255, 220, 140, 0.65);
+}button {
+  box-shadow: 0 4px 0 rgba(0,0,0,0.25);
+  transform: translateY(0);
+  transition: all 0.1s ease;
+}
+
+button:active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 rgba(0,0,0,0.25);
 }

@@ -114,6 +114,31 @@
   </div>
 </section>
 
+<section class="app-section" id="stopsSection">
+  <div class="section-title">Paradas intermedias</div>
+
+  <div id="stopsContainer">
+    <div class="input-group stop-field">
+      <label for="stopInput">Parada opcional</label>
+      <input id="stopInput" type="text" placeholder="Buscar parada intermedia…" autocomplete="off">
+    </div>
+  </div>
+
+  <div class="stop-actions">
+    <button id="addStopBtn" type="button" class="btn-secondary" disabled>
+      + Añadir otra parada
+    </button>
+
+    <button id="clearStopBtn" type="button" class="btn-secondary">
+      Eliminar parada
+    </button>
+  </div>
+
+  <p class="field-hint">
+    Disponible actualmente: 1 parada intermedia. Preparado para ampliar a varias.
+  </p>
+</section>
+
 <section class="app-section">
   <div class="section-title">Destino</div>
   <div class="input-group">
@@ -172,7 +197,21 @@
       </section>
 
       <section class="app-section app-section--result">
-  <div class="section-title">Resultado</div>
+  <div id="meterInputSection" class="meter-input-section" style="margin-top:10px;">
+  <input
+    id="meterPriceInput"
+    type="number"
+    inputmode="decimal"
+    step="0.01"
+    min="0"
+    placeholder="Importe final del taxímetro"
+  >
+
+  <button id="saveMeterBtn" type="button" style="margin-top:10px;" disabled>
+    Registrar servicio
+  </button>
+</div>
+        <div class="section-title">Resultado</div>
 
   <div id="resultSection" class="result-container hidden">
     <div class="estimation-card">
@@ -198,39 +237,13 @@
       Mostrar al cliente
     </button>
 
-    <!-- 🔥 NUEVA TARJETA CLIENTE (INTEGRADA) -->
-    <div id="clientInlineCard" class="client-card hidden">
-  <div class="section-title">Pantalla cliente</div>
-
-  <div class="client-hero">
-    <div class="client-estimate-label">Estimación orientativa</div>
-    <div class="client-price" id="clientEstimatedPrice">--,-- €</div>
-    <div class="client-range" id="clientPriceRange">Rango aproximado: --,-- € – --,-- €</div>
-  </div>
-
-  <div class="client-metrics">
-    <div class="client-metric">
-      <span class="client-metric-label">Distancia</span>
-      <span class="client-metric-value" id="clientDistanceValue">-- km</span>
-    </div>
-    <div class="client-metric">
-      <span class="client-metric-label">Duración</span>
-      <span class="client-metric-value" id="clientDurationValue">-- min</span>
-    </div>
-  </div>
-
-  <div class="client-badges">
-    <div class="client-badge" id="clientTrafficStatus">Tráfico: --</div>
-    <div class="client-badge" id="clientConfidenceStatus">Confianza: --</div>
-  </div>
-
-  <div class="client-legal">
-    Estimación orientativa según tarifa oficial. El precio final lo marca el taxímetro.
-  </div>
-</div>
-    <!-- RESTO IGUAL -->
-   </section>
-        
+    </section>
+    
+    <section id="historyPanel" class="app-section hidden">
+      <div class="section-title">Historial</div>
+      <div id="historyList"></div>
+    </section>
+    
     </div>
   </main>
 

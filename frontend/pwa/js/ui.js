@@ -98,6 +98,35 @@ export function renderHistory(services) {
     return;
   }
 
+  function parseStops(value) {
+    if (Array.isArray(value)) return value;
+
+    if (typeof value === "string") {
+      try {
+        const parsed = JSON.parse(value);
+        return Array.isArray(parsed) ? parsed : [];
+      } catch {
+        return [];
+      }
+    }
+
+    return [];
+  }
+
+  function formatRoute(service) {
+    const origin = service.origin || "";
+    const destination = service.destination || "Destino no disponible";
+    const stops = parseStops(service.stops_json);
+
+    const parts = [
+      origin,
+      ...stops,
+      destination
+    ].filter(Boolean);
+
+    return parts.map((p) => String(p).split(",")[0]).join(" → ");
+  }
+
   panel.classList.remove("hidden");
   list.innerHTML = "";
 
@@ -119,10 +148,10 @@ export function renderHistory(services) {
     if (deviationPercent > 2) deviationClass = "history-deviation-positive";
     if (deviationPercent < -2) deviationClass = "history-deviation-negative";
 
-    const destination = service.destination || "Destino no disponible";
+    const routeText = formatRoute(service);
 
     item.innerHTML = `
-      <div style="font-size:0.82rem;color:#9ca3af;margin-bottom:6px">${destination}</div>
+      <div style="font-size:0.82rem;color:#9ca3af;margin-bottom:6px">${routeText}</div>
       <div>Estimado: ${estimated.toFixed(2)} €</div>
       <div>Real: ${real.toFixed(2)} €</div>
       <div>Desviación: ${deviationEuro >= 0 ? "+" : ""}${deviationEuro.toFixed(2)} €</div>

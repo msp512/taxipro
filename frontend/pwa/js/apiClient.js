@@ -8,7 +8,11 @@ function normalizeTaxiCode(value) {
 }
 
 function getStoredTaxiCode() {
-  return normalizeTaxiCode(localStorage.getItem(TAXI_ID_KEY) || "");
+  return normalizeTaxiCode(
+    localStorage.getItem(TAXI_ID_KEY) ||
+    localStorage.getItem("taxipro_taxi_code") ||
+    "TX001"
+  );
 }
 
 function generateDeviceId() {
@@ -164,7 +168,7 @@ export async function calculateFareAPI(
   const cleanTaxiCode = normalizeTaxiCode(taxiCode || getStoredTaxiCode());
 
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 8000);
+  const timeout = setTimeout(() => controller.abort(), 20000);
 
   try {
     const response = await fetch(`${API_BASE}/fare/estimate`, {
@@ -278,7 +282,7 @@ export async function registerServiceAPI(serviceData) {
   };
 
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 8000);
+  const timeout = setTimeout(() => controller.abort(), 20000);
 
   try {
     const response = await fetch(`${API_BASE}/services/register-service`, {
@@ -322,7 +326,7 @@ export async function getServicesAPI(taxiId, limit = 20) {
       : 20;
 
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 8000);
+  const timeout = setTimeout(() => controller.abort(), 20000);
 
   try {
     const params = new URLSearchParams({
