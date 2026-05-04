@@ -1375,9 +1375,19 @@ async function initTaxiProCore() {
   if (startTripBtn) startTripBtn.disabled = true;
   if (saveMeterBtn) saveMeterBtn.disabled = true;
 
+  if (typeof updateRouteBlockStates === "function") {
   updateRouteBlockStates();
+}
+
+if (typeof updateSupplementsSummary === "function") {
   updateSupplementsSummary();
+}
+
+if (typeof hideCalculatedMap === "function") {
   hideCalculatedMap();
+} else {
+  routeMapSection?.classList.add("hidden");
+}
 
   await waitForGoogleMaps();
   initMap();
