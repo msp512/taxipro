@@ -1408,22 +1408,6 @@ function showMainAppWithoutPilot() {
   }
 }
 
-function showMainAppWithoutPilot() {
-  const gate = document.getElementById("accessGate");
-  const app = document.getElementById("mainApp");
-
-  if (gate) {
-    gate.classList.add("hidden");
-    gate.innerHTML = "";
-    gate.style.display = "none";
-  }
-
-  if (app) {
-    app.classList.remove("hidden");
-    app.style.display = "block";
-  }
-}
-
 async function initApp() {
   try {
     getDeviceId();
