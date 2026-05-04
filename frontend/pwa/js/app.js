@@ -1375,12 +1375,53 @@ async function initTaxiProCore() {
   if (startTripBtn) startTripBtn.disabled = true;
   if (saveMeterBtn) saveMeterBtn.disabled = true;
 
+  updateRouteBlockStates();
+  updateSupplementsSummary();
+  hideCalculatedMap();
+
   await waitForGoogleMaps();
   initMap();
   initAutocomplete();
 
-  await refreshServicesFromBackend();
-  await initAdminPanel();
+  refreshServicesFromBackend().catch((error) => {
+    console.warn("Historial no disponible al iniciar:", error.message);
+  });
+
+  initAdminPanel().catch((error) => {
+    console.warn("Panel admin no disponible al iniciar:", error.message);
+  });
+}
+
+function showMainAppWithoutPilot() {
+  const gate = document.getElementById("accessGate");
+  const app = document.getElementById("mainApp");
+
+  if (gate) {
+    gate.classList.add("hidden");
+    gate.innerHTML = "";
+    gate.style.display = "none";
+  }
+
+  if (app) {
+    app.classList.remove("hidden");
+    app.style.display = "block";
+  }
+}
+
+function showMainAppWithoutPilot() {
+  const gate = document.getElementById("accessGate");
+  const app = document.getElementById("mainApp");
+
+  if (gate) {
+    gate.classList.add("hidden");
+    gate.innerHTML = "";
+    gate.style.display = "none";
+  }
+
+  if (app) {
+    app.classList.remove("hidden");
+    app.style.display = "block";
+  }
 }
 
 async function initApp() {
@@ -1388,56 +1429,40 @@ async function initApp() {
     getDeviceId();
     getDeviceName();
 
-    showLoadingState();
+    showMainAppWithoutPilot();
+    hideSplashWhenReady();
 
-    const me = await syncCurrentPilotDevice();
-    console.log("PILOT ME INIT:", me);
-
-    if (!me?.ok || me?.screen === "activation") {
-      renderActivationScreen();
-      forceHideSplash();
-      return;
+    try {
+      await initTaxiProCore();
+    } catch (coreError) {
+      console.error("Error inicializando núcleo TaxiPro:", coreError);
     }
 
-    if (me.screen === "pending") {
-      renderPendingScreen();
-      forceHideSplash();
-      return;
-    }
+    syncCurrentPilotDevice()
+      .then((me) => {
+        currentPilotDevice = me?.device || null;
 
-    if (me.screen === "denied") {
-      renderDeniedScreen(me.status);
-      forceHideSplash();
-      return;
-    }
+        if (me?.device?.taxi_code) {
+          localStorage.setItem("taxipro_taxi_id", me.device.taxi_code);
+        }
 
-    if (me?.screen === "app" || me?.device?.status === "active") {
-      currentPilotDevice = me?.device || null;
+        updatePilotIdentityUI();
 
-      renderMainApp(me);
-      hideSplashWhenReady();
+        if (me?.screen === "app" || me?.device?.status === "active") {
+          renderMainApp(me);
 
-      try {
-        await initTaxiProCore();
-      } catch (coreError) {
-        console.error("Error inicializando núcleo TaxiPro:", coreError);
-      }
-
-      renderMainApp(me);
-
-      setTimeout(() => {
-        renderMainApp(me);
-      }, 300);
-
-      return;
-    }
-
-    renderActivationScreen();
-    forceHideSplash();
+          initAdminPanel().catch((error) => {
+            console.warn("Panel admin no disponible:", error.message);
+          });
+        }
+      })
+      .catch((error) => {
+        console.warn("Piloto no disponible al iniciar:", error.message);
+      });
   } catch (error) {
     console.error("Error inicializando la app:", error);
     forceHideSplash();
-    alert(error.message || "No se pudo inicializar la app.");
+    showMainAppWithoutPilot();
   }
 }
 
