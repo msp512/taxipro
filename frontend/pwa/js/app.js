@@ -29,6 +29,7 @@ const DEVICE_NAME_KEY = "taxipro_device_name";
 const originInput = document.getElementById("originInput");
 const stopInput = document.getElementById("stopInput");
 const destinationInput = document.getElementById("destinationInput");
+const routeMapSection = document.getElementById("routeMapSection");
 const stopsContainer = document.getElementById("stopsContainer");
 const addStopBtn = document.getElementById("addStopBtn");
 const clearStopBtn = document.getElementById("clearStopBtn");
@@ -1386,7 +1387,7 @@ if (typeof updateSupplementsSummary === "function") {
 if (typeof hideCalculatedMap === "function") {
   hideCalculatedMap();
 } else {
-  routeMapSection?.classList.add("hidden");
+  document.getElementById("routeMapSection")?.classList.add("hidden");
 }
 
   await waitForGoogleMaps();
