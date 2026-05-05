@@ -1,12 +1,13 @@
 import express from "express";
 import { estimateFare } from "../controllers/fareController.js";
-import {
-  attachDevice,
-  requireAuthorizedDevice
-} from "../middleware/requireAuthorizedDevice.js";
 
 const router = express.Router();
 
-router.post("/estimate", attachDevice, requireAuthorizedDevice, estimateFare);
+/*
+  TAXIPRO — cálculo de tarifa
+  El cálculo debe funcionar aunque el módulo PILOTO no esté disponible
+  o el dispositivo todavía no esté registrado.
+*/
+router.post("/estimate", estimateFare);
 
 export default router;
