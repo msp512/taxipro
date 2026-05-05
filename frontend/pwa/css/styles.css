@@ -3187,4 +3187,52 @@ button:active,
 button:active {
   transform: translateY(3px);
   box-shadow: 0 1px 0 rgba(0,0,0,0.25);
+}/* =========================================================
+   MICROBLOQUE A.2 — Botón PILOTO en header
+========================================================= */
+
+.app-header .header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.app-header .pilot-access-btn--header {
+  position: static !important;
+  inset: auto !important;
+  top: auto !important;
+  right: auto !important;
+  z-index: auto !important;
+
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+
+  width: auto;
+  min-width: auto;
+  height: 36px;
+  min-height: 36px;
+
+  padding: 7px 10px;
+  border-radius: 10px;
+  border: 1px solid rgba(214,179,106,0.38);
+  background: rgba(214,179,106,0.14);
+  color: #f3d893;
+
+  font-size: 0.68rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  line-height: 1;
+
+  box-shadow: none !important;
+  transform: none;
+}
+
+.app-header .pilot-access-btn--header:active {
+  transform: translateY(1px);
+}
+
+.app-header .settings-btn {
+  flex: 0 0 auto;
 }
