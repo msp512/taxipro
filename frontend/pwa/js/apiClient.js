@@ -190,7 +190,25 @@ export async function calculateFareAPI(
     const data = await response.json().catch(() => ({}));
 
     if (!response.ok) {
-      throw new Error(data?.error || "API error en estimate");
+  console.error("TaxiPro estimate backend error:", {
+    status: response.status,
+    data,
+    payload: {
+      taxi_code: cleanTaxiCode,
+      device_id: getStoredDeviceId(),
+      distance: numericDistance,
+      duration: numericDuration,
+      city,
+      supplements
+    }
+  });
+
+  const detailText = Array.isArray(data?.details)
+    ? data.details.map((d) => `${d.field}: ${d.message}`).join(" | ")
+    : data?.detail;
+
+  throw new Error(detailText || data?.error || "API error en estimate");
+}
     }
 
     return data;
