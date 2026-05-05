@@ -15,13 +15,29 @@ const TARIFF = {
 };
 
 const SUPPLEMENT_VALUES = {
+  // Compatibilidad antigua
   airport: 4.65,
   radio: 1.15,
   christmas: 4.75,
-  pax56: 3.0,
-  pax78: 6.0,
-  mountain1: 8.52,
-  mountain2: 4.26
+  mountain1: 4.26,
+  mountain2: 4.26,
+
+  // Palma / Tarifa 1-2
+  airport_t12: 4.65,
+  port_t12: 4.65,
+  radio_t12: 1.15,
+  mountain1_t12: 4.26,
+  mountain2_t12: 4.26,
+
+  // Interurbana / Tarifa 3-4
+  airport_t34: 3.08,
+  port_t34: 3.08,
+  radio_t34: 1.11,
+  mountain1_t34: 4.26,
+  mountain2_t34: 4.26,
+
+  // Especiales
+  holiday_special: 4.75
 };
 
 function isValidServiceData({ deviation, distance, duration, speed }) {
@@ -37,8 +53,33 @@ function isValidServiceData({ deviation, distance, duration, speed }) {
   return true;
 }
 
+function normalizeSupplementKey(item) {
+  if (!item) return "";
+
+  if (typeof item === "string") {
+    return item.trim();
+  }
+
+  if (typeof item === "object" && item.key) {
+    return String(item.key).trim();
+  }
+
+  return "";
+}
+
+function normalizeSelectedSupplements(supplements = []) {
+  if (!Array.isArray(supplements)) return [];
+
+  return supplements
+    .map(normalizeSupplementKey)
+    .filter(Boolean);
+}
+
 function calculateSupplementsTotal(supplements = []) {
-  return supplements.reduce((sum, key) => {
+  if (!Array.isArray(supplements)) return 0;
+
+  return supplements.reduce((sum, item) => {
+    const key = normalizeSupplementKey(item);
     return sum + (SUPPLEMENT_VALUES[key] || 0);
   }, 0);
 }
@@ -102,12 +143,14 @@ export async function estimateFare(req, res) {
       supplements = []
     } = parsed.data;
 
+    const selectedSupplements = normalizeSelectedSupplements(supplements);
+
     logger.info(
       {
         distance,
         duration,
         city,
-        supplements
+        supplements: selectedSupplements
       },
       "Fare request received"
     );
@@ -115,7 +158,7 @@ export async function estimateFare(req, res) {
     const type = classifyService({
       distance,
       duration,
-      supplements
+      supplements: selectedSupplements
     });
 
     const speed = calculateAverageSpeed(distance * 1000, duration * 60);
@@ -135,7 +178,7 @@ export async function estimateFare(req, res) {
       });
     }
 
-    const supplementsTotal = calculateSupplementsTotal(supplements);
+    const supplementsTotal = calculateSupplementsTotal(selectedSupplements);
 
     let price = calculateBaseEstimatedPrice({
       distance,
@@ -200,7 +243,7 @@ export async function estimateFare(req, res) {
         speed,
         city,
         type,
-        supplements,
+        supplements: selectedSupplements,
         supplementsTotal,
         correctionFactor,
         confidence,
@@ -220,7 +263,7 @@ export async function estimateFare(req, res) {
       },
       confidence,
       supplements: {
-        selected: supplements,
+        selected: selectedSupplements,
         total: supplementsTotal
       },
       meta: {
@@ -246,8 +289,8 @@ export async function estimateFare(req, res) {
     );
 
     return res.status(500).json({
-  error: "service registration failed",
-  detail: error.message
-});
+      error: "fare calculation failed",
+      detail: error.message
+    });
   }
 }

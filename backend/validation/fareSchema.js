@@ -1,16 +1,57 @@
 import { z } from "zod";
 
 const allowedSupplements = [
+  // Compatibilidad antigua
   "airport",
   "radio",
   "christmas",
-  "pax56",
-  "pax78",
   "mountain1",
-  "mountain2"
+  "mountain2",
+
+  // Palma / Tarifa 1-2
+  "airport_t12",
+  "port_t12",
+  "radio_t12",
+  "mountain1_t12",
+  "mountain2_t12",
+
+  // Interurbana / Tarifa 3-4
+  "airport_t34",
+  "port_t34",
+  "radio_t34",
+  "mountain1_t34",
+  "mountain2_t34",
+
+  // Especiales
+  "holiday_special"
 ];
 
-export const fareSchema = z.object({
+const supplementSchema = z.union([
+  z.enum(allowedSupplements),
+  z.object({
+    key: z.enum(allowedSupplements),
+    label: z.string().optional(),
+    amount: z.union([z.number(), z.string()]).optional()
+  })
+]);
+
+export const fareSchema = z.preprocess((raw) => {
+  const body = raw && typeof raw === "object" ? { ...raw } : {};
+
+  return {
+    ...body,
+
+    // Acepta tanto distance/duration como distanceKm/durationMinutes
+    distance: Number(body.distance ?? body.distanceKm),
+    duration: Number(body.duration ?? body.durationMinutes),
+
+    city: body.city || "Palma",
+
+    supplements: Array.isArray(body.supplements)
+      ? body.supplements
+      : []
+  };
+}, z.object({
   distance: z
     .number({
       invalid_type_error: "distance must be a number"
@@ -33,7 +74,7 @@ export const fareSchema = z.object({
     .optional(),
 
   supplements: z
-    .array(z.enum(allowedSupplements))
+    .array(supplementSchema)
     .max(10, "too many supplements")
     .optional()
-});
+}));
