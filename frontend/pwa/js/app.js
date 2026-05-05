@@ -1339,6 +1339,21 @@ closeClientBtn?.addEventListener("click", () => {
   clientMode?.classList.add("hidden");
 });
 
+function setupHistoryDetails() {
+  const historyDetails = document.getElementById("historyDetails");
+  const historySummary = document.getElementById("historySummary");
+
+  if (!historyDetails || !historySummary) return;
+
+  historyDetails.removeAttribute("open");
+
+  historyDetails.addEventListener("toggle", () => {
+    historySummary.textContent = historyDetails.open
+      ? "Ocultar detalle"
+      : "Últimos servicios";
+  });
+}
+
 /* ===============================
    APP INIT
 =============================== */
@@ -1442,6 +1457,7 @@ async function initApp() {
         }
 
         updatePilotIdentityUI();
+        setupHistoryDetails();
 
         if (me?.screen === "app" || me?.device?.status === "active") {
           renderMainApp(me);

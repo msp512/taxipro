@@ -158,20 +158,81 @@
   </div>
 </section>
 
-<section class="app-section">
-  <div class="section-title">Suplementos</div>
-  <div id="supplementsPanel" class="supplements-panel">
-    <div class="supplements-title">Selecciona solo los aplicables</div>
-    <div class="supplements-grid">
-      <button class="supplement-btn" data-supplement="airport" type="button">AEROPUERTO / PUERTO</button>
-      <button class="supplement-btn" data-supplement="radio" type="button">EMISORA</button>
-      <button class="supplement-btn" data-supplement="christmas" type="button">NAVIDAD</button>
-      <button class="supplement-btn" data-supplement="pax56" type="button">5-6 PASAJEROS</button>
-      <button class="supplement-btn" data-supplement="pax78" type="button">7-8 PASAJEROS</button>
-      <button class="supplement-btn" data-supplement="mountain1" type="button">MONTAÑA 1</button>
-      <button class="supplement-btn" data-supplement="mountain2" type="button">MONTAÑA 2</button>
+<section class="app-section supplements-section">
+  <details id="supplementsDetails" class="supplements-details">
+    <summary>
+      <span>Suplementos</span>
+      <small id="supplementsSummary">Ninguno seleccionado</small>
+    </summary>
+
+    <div id="supplementsPanel" class="supplements-panel">
+
+      <div class="supplements-group-title">Palma / Tarifa 1-2</div>
+      <div class="supplements-grid supplements-grid--compact">
+        <button class="supplement-btn" data-supplement="airport_t12" type="button">
+          Aeropuerto / Puerto
+          <small>+4,65 €</small>
+        </button>
+
+        <button class="supplement-btn" data-supplement="radio_t12" type="button">
+          Emisora
+          <small>+1,15 €</small>
+        </button>
+
+        <button class="supplement-btn" data-supplement="mountain1_t12" type="button">
+          Montaña 1
+          <small>+4,26 €</small>
+        </button>
+
+        <button class="supplement-btn" data-supplement="mountain2_t12" type="button">
+          Montaña 2
+          <small>+4,26 €</small>
+        </button>
+      </div>
+
+      <div class="supplements-group-title">Interurbana / Tarifa 3-4</div>
+      <div class="supplements-grid supplements-grid--compact">
+        <button class="supplement-btn" data-supplement="airport_t34" type="button">
+          Aeropuerto / Puerto
+          <small>+3,08 €</small>
+        </button>
+
+        <button class="supplement-btn" data-supplement="radio_t34" type="button">
+          Emisora
+          <small>+1,11 €</small>
+        </button>
+
+        <button class="supplement-btn" data-supplement="mountain1_t34" type="button">
+          Montaña 1
+          <small>+4,26 €</small>
+        </button>
+
+        <button class="supplement-btn" data-supplement="mountain2_t34" type="button">
+          Montaña 2
+          <small>+4,26 €</small>
+        </button>
+      </div>
+
+      <div class="supplements-group-title">Especiales</div>
+      <div class="supplements-grid supplements-grid--compact">
+        <button class="supplement-btn" data-supplement="christmas" type="button">
+          Navidad / Fin de Año
+          <small>+4,75 €</small>
+        </button>
+
+        <button class="supplement-btn" data-supplement="pax56" type="button">
+          5-6 pasajeros
+          <small>Consultar</small>
+        </button>
+
+        <button class="supplement-btn" data-supplement="pax78" type="button">
+          7-8 pasajeros
+          <small>Consultar</small>
+        </button>
+      </div>
+
     </div>
-  </div>
+  </details>
 </section>
       <section class="app-section">
         <div class="section-title">Acción</div>

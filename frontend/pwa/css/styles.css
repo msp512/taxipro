@@ -3236,3 +3236,117 @@ button:active {
 .app-header .settings-btn {
   flex: 0 0 auto;
 }
+/* =========================================================
+   A5 — Suplementos plegables con importes T1/T2 y T3/T4
+========================================================= */
+
+.supplements-section {
+  padding: 0;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+}
+
+.supplements-details {
+  border: 1px solid rgba(255,255,255,0.10);
+  border-radius: 18px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.055), rgba(255,255,255,0.026));
+  overflow: hidden;
+}
+
+.supplements-details summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 13px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.supplements-details summary::-webkit-details-marker {
+  display: none;
+}
+
+.supplements-details summary::before {
+  content: "▸";
+  color: #d6b36a;
+  font-weight: 900;
+}
+
+.supplements-details[open] summary::before {
+  content: "▾";
+}
+
+.supplements-details summary span {
+  font-size: 0.95rem;
+  font-weight: 900;
+  color: #ffffff;
+}
+
+.supplements-details summary small {
+  font-size: 0.72rem;
+  color: rgba(255,255,255,0.58);
+  text-align: right;
+}
+
+.supplements-panel {
+  padding: 0 14px 14px;
+  border-top: 1px solid rgba(255,255,255,0.07);
+}
+
+.supplements-group-title {
+  margin: 14px 0 8px;
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(214,179,106,0.88);
+}
+
+.supplements-grid--compact {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.supplement-btn {
+  min-height: 44px;
+  padding: 8px 9px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: linear-gradient(180deg, rgba(255,255,255,0.075), rgba(255,255,255,0.032));
+  color: #ffffff;
+  font-size: 0.78rem;
+  font-weight: 850;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+}
+
+.supplement-btn small {
+  display: block;
+  font-size: 0.68rem;
+  font-weight: 800;
+  color: rgba(214,179,106,0.95);
+}
+
+.supplement-btn.active {
+  border-color: rgba(52,199,89,0.82);
+  background: linear-gradient(180deg, rgba(52,199,89,0.18), rgba(52,199,89,0.06));
+  box-shadow:
+    0 8px 20px rgba(0,0,0,0.18),
+    0 0 0 2px rgba(52,199,89,0.12);
+}
+
+.supplement-btn.active small {
+  color: #a7f3b8;
+}
+
+@media (max-width: 420px) {
+  .supplements-grid--compact {
+    grid-template-columns: 1fr;
+  }
+}
