@@ -1397,18 +1397,18 @@ async function initTaxiProCore() {
   if (saveMeterBtn) saveMeterBtn.disabled = true;
 
   if (typeof updateRouteBlockStates === "function") {
-  updateRouteBlockStates();
-}
+    updateRouteBlockStates();
+  }
 
-if (typeof updateSupplementsSummary === "function") {
-  updateSupplementsSummary();
-}
+  if (typeof updateSupplementsSummary === "function") {
+    updateSupplementsSummary();
+  }
 
-if (typeof hideCalculatedMap === "function") {
-  hideCalculatedMap();
-} else {
-  document.getElementById("routeMapSection")?.classList.add("hidden");
-}
+  if (typeof hideCalculatedMap === "function") {
+    hideCalculatedMap();
+  } else {
+    document.getElementById("routeMapSection")?.classList.add("hidden");
+  }
 
   await waitForGoogleMaps();
   initMap();
@@ -1423,20 +1423,54 @@ if (typeof hideCalculatedMap === "function") {
   });
 }
 
-function showMainAppWithoutPilot() {
+function renderConnectionRetryScreen(message = "No se pudo conectar con el servidor.") {
   const gate = document.getElementById("accessGate");
   const app = document.getElementById("mainApp");
 
-  if (gate) {
-    gate.classList.add("hidden");
-    gate.innerHTML = "";
-    gate.style.display = "none";
+  if (app) {
+    app.classList.add("hidden");
+    app.style.display = "none";
   }
 
-  if (app) {
-    app.classList.remove("hidden");
-    app.style.display = "block";
-  }
+  if (!gate) return;
+
+  gate.classList.remove("hidden");
+  gate.style.display = "flex";
+  gate.innerHTML = `
+    <div class="access-card">
+      <h2>Conectando con TAXIPRO</h2>
+      <p>${message}</p>
+      <p>Si el servidor estaba en reposo, puede tardar unos segundos en despertar.</p>
+      <button id="retryConnectionBtn" type="button">Reintentar conexión</button>
+    </div>
+  `;
+
+  document.getElementById("retryConnectionBtn")?.addEventListener("click", () => {
+    initApp();
+  });
+}
+
+function isDeviceNotRegisteredError(error) {
+  const message = String(error?.message || "").toLowerCase();
+
+  return (
+    message.includes("dispositivo no registrado") ||
+    message.includes("device not registered") ||
+    message.includes("not registered") ||
+    message.includes("404")
+  );
+}
+
+function isTimeoutOrNetworkError(error) {
+  const message = String(error?.message || "").toLowerCase();
+
+  return (
+    message.includes("tiempo de espera") ||
+    message.includes("timeout") ||
+    message.includes("failed to fetch") ||
+    message.includes("network") ||
+    message.includes("abort")
+  );
 }
 
 async function initApp() {
@@ -1444,41 +1478,81 @@ async function initApp() {
     getDeviceId();
     getDeviceName();
 
-    showMainAppWithoutPilot();
+    showLoadingState();
+
+    let me;
+
+    try {
+      me = await syncCurrentPilotDevice();
+    } catch (pilotError) {
+      console.warn("Piloto no disponible al iniciar:", pilotError.message);
+
+      forceHideSplash();
+
+      if (isDeviceNotRegisteredError(pilotError)) {
+        renderActivationScreen();
+        return;
+      }
+
+      if (isTimeoutOrNetworkError(pilotError)) {
+        renderConnectionRetryScreen("Tiempo de espera agotado al comprobar el acceso.");
+        return;
+      }
+
+      renderConnectionRetryScreen(pilotError.message || "No se pudo verificar el acceso.");
+      return;
+    }
+
+    console.log("PILOT ME INIT:", me);
+
+    if (!me?.ok || me?.screen === "activation") {
+      renderActivationScreen();
+      forceHideSplash();
+      return;
+    }
+
+    if (me.screen === "pending") {
+      renderPendingScreen();
+      forceHideSplash();
+      return;
+    }
+
+    if (me.screen === "denied") {
+      renderDeniedScreen(me.status);
+      forceHideSplash();
+      return;
+    }
+
+    const device = me?.device || null;
+    const isActiveDevice =
+      me?.screen === "app" ||
+      String(device?.status || "").toLowerCase() === "active";
+
+    if (!isActiveDevice) {
+      renderDeniedScreen(device?.status || "inactive");
+      forceHideSplash();
+      return;
+    }
+
+    currentPilotDevice = device;
+
+    renderMainApp(me);
     hideSplashWhenReady();
 
     try {
       await initTaxiProCore();
     } catch (coreError) {
       console.error("Error inicializando núcleo TaxiPro:", coreError);
+      renderConnectionRetryScreen("Acceso autorizado, pero no se pudo inicializar TAXIPRO.");
+      return;
     }
 
-    syncCurrentPilotDevice()
-      .then((me) => {
-        currentPilotDevice = me?.device || null;
-
-        if (me?.device?.taxi_code) {
-          localStorage.setItem("taxipro_taxi_id", me.device.taxi_code);
-        }
-
-        updatePilotIdentityUI();
-        setupHistoryDetails();
-
-        if (me?.screen === "app" || me?.device?.status === "active") {
-          renderMainApp(me);
-
-          initAdminPanel().catch((error) => {
-            console.warn("Panel admin no disponible:", error.message);
-          });
-        }
-      })
-      .catch((error) => {
-        console.warn("Piloto no disponible al iniciar:", error.message);
-      });
+    setupHistoryDetails();
+    renderMainApp(me);
   } catch (error) {
     console.error("Error inicializando la app:", error);
     forceHideSplash();
-    showMainAppWithoutPilot();
+    renderConnectionRetryScreen(error.message || "No se pudo inicializar la app.");
   }
 }
 
@@ -1499,8 +1573,17 @@ window.addEventListener("load", () => {
   initApp();
 
   setTimeout(() => {
-    forceHideSplash();
-  }, 2500);
+    const splash = document.getElementById("splash");
+    const gate = document.getElementById("accessGate");
+    const app = document.getElementById("mainApp");
+
+    const gateVisible = gate && !gate.classList.contains("hidden");
+    const appVisible = app && !app.classList.contains("hidden");
+
+    if (splash && (gateVisible || appVisible)) {
+      forceHideSplash();
+    }
+  }, 5000);
 });
 
 window.addEventListener("scroll", () => {
