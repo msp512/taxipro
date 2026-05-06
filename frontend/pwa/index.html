@@ -19,10 +19,22 @@
   <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
-  <header class="taxipro-header">
-  <div class="taxipro-header-inner">
-    <div class="taxipro-logo">TAXIPRO</div>
-    <div class="taxipro-subtitle">Estimación profesional del taxi</div>
+  <header class="taxipro-header taxipro-header--tariff">
+  <div class="taxipro-header-inner taxipro-header-inner--tariff">
+    <div class="taxipro-brand-block">
+      <div class="taxipro-logo">TAXIPRO</div>
+      <div class="taxipro-subtitle">Estimación profesional del taxi</div>
+    </div>
+
+    <div class="tariff-selector-header">
+      <label for="pricingMode">Modo tarifa</label>
+      <select id="pricingMode">
+        <option value="taxipro">TAXIPRO</option>
+        <option value="stipulated">ESTIPULADOS</option>
+        <option value="agency">AGENCIAS</option>
+        <option value="transfer">TRASLADOS</option>
+      </select>
+    </div>
   </div>
 </header>
   <div id="splash">
@@ -136,19 +148,6 @@
 </section>
 
 <section class="app-section">
-  <div class="section-title">Modo de tarifa</div>
-  <div class="input-group">
-    <label for="pricingMode">Tipo de cálculo</label>
-    <select id="pricingMode">
-      <option value="taxipro">TAXIPRO</option>
-      <option value="agency">AGENCIAS</option>
-      <option value="stipulated">ESTIPULADOS</option>
-      <option value="transfer">TRASLADOS</option>
-    </select>
-  </div>
-</section>
-
-<section class="app-section">
   <div class="section-title">Accesos rápidos de destino</div>
   <div id="quickDestinations" class="quick-buttons quick-destinations">
     <button data-quick-key="airport" type="button">AEROPUERTO</button>
@@ -220,16 +219,7 @@
           <small>+4,75 €</small>
         </button>
 
-        <button class="supplement-btn" data-supplement="pax56" type="button">
-          5-6 pasajeros
-          <small>Consultar</small>
-        </button>
-
-        <button class="supplement-btn" data-supplement="pax78" type="button">
-          7-8 pasajeros
-          <small>Consultar</small>
-        </button>
-      </div>
+        </div>
 
     </div>
   </details>

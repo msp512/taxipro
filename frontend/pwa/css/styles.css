@@ -3350,3 +3350,270 @@ button:active {
     grid-template-columns: 1fr;
   }
 }
+/* =========================================================
+   A5.3 — Estados visuales claros en bloques de ruta
+========================================================= */
+
+.route-card {
+  border: 2px solid rgba(255,255,255,0.14) !important;
+  transition:
+    border-color 0.18s ease,
+    background 0.18s ease,
+    box-shadow 0.18s ease,
+    transform 0.12s ease;
+}
+
+.route-card:focus-within {
+  border-color: rgba(214,179,106,0.82) !important;
+  box-shadow:
+    0 0 0 3px rgba(214,179,106,0.12),
+    0 12px 28px rgba(0,0,0,0.24);
+}
+
+.route-card.is-pending {
+  border-color: rgba(245,158,11,0.55) !important;
+  background: linear-gradient(180deg, rgba(245,158,11,0.10), rgba(255,255,255,0.035));
+}
+
+.route-card.is-complete {
+  border-color: rgba(52,199,89,0.82) !important;
+  background: linear-gradient(180deg, rgba(52,199,89,0.14), rgba(255,255,255,0.035));
+  box-shadow:
+    0 0 0 2px rgba(52,199,89,0.10),
+    0 14px 30px rgba(0,0,0,0.22);
+}
+
+.route-card--optional:not(.is-complete) {
+  border-color: rgba(148,163,184,0.32) !important;
+  background: linear-gradient(180deg, rgba(255,255,255,0.060), rgba(255,255,255,0.030));
+}
+
+.route-card-status {
+  background: rgba(255,255,255,0.08);
+  color: rgba(255,255,255,0.78);
+}
+
+.route-card.is-complete .route-card-status {
+  background: rgba(52,199,89,0.18);
+  color: #a7f3b8;
+}
+
+.route-card.is-pending .route-card-status {
+  background: rgba(245,158,11,0.16);
+  color: #fcd38a;
+}
+/* =========================================================
+   A5.4 — Compactar flujo principal en móvil
+========================================================= */
+
+.taxipro-flow-card {
+  gap: 10px;
+}
+
+.route-card {
+  padding: 12px !important;
+}
+
+.route-card .section-title {
+  margin-bottom: 8px;
+  padding-bottom: 7px;
+}
+
+.route-card .input-group {
+  gap: 5px;
+}
+
+.route-card input {
+  min-height: 43px;
+  padding: 10px 12px;
+  font-size: 0.92rem;
+}
+
+.compact-actions,
+.quick-buttons.compact-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px;
+  margin-top: 8px;
+}
+
+.compact-actions button,
+.quick-buttons.compact-actions button {
+  min-height: 34px;
+  padding: 7px 6px;
+  border-radius: 10px;
+  font-size: 0.68rem;
+  line-height: 1.1;
+}
+
+.compact-actions .location-btn {
+  grid-column: span 2;
+}
+
+.stop-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 7px;
+}
+
+.stop-actions button {
+  min-height: 34px;
+  padding: 7px 8px;
+  font-size: 0.72rem;
+}
+
+.field-hint {
+  margin-top: 7px;
+  font-size: 0.68rem;
+  line-height: 1.25;
+}
+
+.supplements-details summary {
+  min-height: 44px;
+  padding: 11px 12px;
+}
+
+.supplement-btn {
+  min-height: 40px;
+  padding: 7px 8px;
+  font-size: 0.70rem;
+}
+
+.supplement-btn small {
+  font-size: 0.62rem;
+}
+
+.calculate-main-btn,
+#calculateBtn {
+  min-height: 52px;
+}
+
+@media (max-width: 420px) {
+  .main-container {
+    padding: 8px 10px 22px;
+  }
+
+  .app-section {
+    margin-bottom: 10px;
+  }
+
+  .taxipro-flow-card {
+    gap: 8px;
+  }
+
+  .route-card {
+    padding: 10px !important;
+  }
+
+  .route-card input {
+    min-height: 40px;
+    padding: 9px 10px;
+  }
+
+  .compact-actions button,
+  .quick-buttons.compact-actions button {
+    min-height: 32px;
+    font-size: 0.64rem;
+  }
+
+  .supplements-grid--compact {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 7px;
+  }
+
+  .supplement-btn {
+    min-height: 38px;
+  }
+}
+/* =========================================================
+   A6 — Header superior con selector de modo tarifa
+========================================================= */
+
+.taxipro-header--tariff {
+  position: sticky;
+  top: 0;
+  z-index: 1200;
+  background:
+    linear-gradient(180deg, rgba(7,17,29,0.97), rgba(7,17,29,0.88));
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.taxipro-header-inner--tariff {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  padding: 10px 12px 12px;
+}
+
+.taxipro-brand-block {
+  text-align: center;
+}
+
+.tariff-selector-header {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 10px;
+  border-radius: 13px;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.10);
+}
+
+.tariff-selector-header label {
+  margin: 0;
+  color: rgba(255,255,255,0.68);
+  font-size: 0.68rem;
+  font-weight: 900;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.tariff-selector-header select {
+  width: 100%;
+  min-height: 38px;
+  padding: 7px 10px;
+  border-radius: 10px;
+  border: 1px solid rgba(214,179,106,0.32);
+  background: rgba(8,20,34,0.92);
+  color: #ffffff;
+  font-size: 0.82rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  outline: none;
+}
+
+.tariff-selector-header select:focus {
+  border-color: rgba(214,179,106,0.82);
+  box-shadow: 0 0 0 3px rgba(214,179,106,0.12);
+}
+
+@media (min-width: 560px) {
+  .taxipro-header-inner--tariff {
+    grid-template-columns: 1fr auto;
+    align-items: center;
+  }
+
+  .taxipro-brand-block {
+    text-align: left;
+  }
+
+  .tariff-selector-header {
+    min-width: 300px;
+  }
+}
+
+@media (max-width: 380px) {
+  .tariff-selector-header {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+
+  .tariff-selector-header select {
+    min-height: 36px;
+    font-size: 0.76rem;
+  }
+}

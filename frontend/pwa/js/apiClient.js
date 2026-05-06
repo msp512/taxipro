@@ -167,6 +167,15 @@ export async function calculateFareAPI(
 
   const cleanTaxiCode = normalizeTaxiCode(taxiCode || getStoredTaxiCode());
 
+  const payload = {
+    taxi_code: cleanTaxiCode,
+    device_id: getStoredDeviceId(),
+    distance: numericDistance,
+    duration: numericDuration,
+    city,
+    supplements: Array.isArray(supplements) ? supplements : []
+  };
+
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 20000);
 
@@ -174,14 +183,7 @@ export async function calculateFareAPI(
     const response = await fetch(`${API_BASE}/fare/estimate`, {
       method: "POST",
       headers: buildPilotHeaders(cleanTaxiCode),
-      body: JSON.stringify({
-        taxi_code: cleanTaxiCode,
-        device_id: getStoredDeviceId(),
-        distance: numericDistance,
-        duration: numericDuration,
-        city,
-        supplements
-      }),
+      body: JSON.stringify(payload),
       signal: controller.signal
     });
 
@@ -190,25 +192,17 @@ export async function calculateFareAPI(
     const data = await response.json().catch(() => ({}));
 
     if (!response.ok) {
-  console.error("TaxiPro estimate backend error:", {
-    status: response.status,
-    data,
-    payload: {
-      taxi_code: cleanTaxiCode,
-      device_id: getStoredDeviceId(),
-      distance: numericDistance,
-      duration: numericDuration,
-      city,
-      supplements
-    }
-  });
+      console.error("TaxiPro estimate backend error:", {
+        status: response.status,
+        data,
+        payload
+      });
 
-  const detailText = Array.isArray(data?.details)
-    ? data.details.map((d) => `${d.field}: ${d.message}`).join(" | ")
-    : data?.detail;
+      const detailText = Array.isArray(data?.details)
+        ? data.details.map((d) => `${d.field}: ${d.message}`).join(" | ")
+        : data?.detail;
 
-  throw new Error(detailText || data?.error || "API error en estimate");
-}
+      throw new Error(detailText || data?.error || "API error en estimate");
     }
 
     return data;

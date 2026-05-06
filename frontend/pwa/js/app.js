@@ -1340,16 +1340,21 @@ closeClientBtn?.addEventListener("click", () => {
 });
 
 function setupHistoryDetails() {
+  const historyPanel = document.getElementById("historyPanel");
   const historyDetails = document.getElementById("historyDetails");
   const historySummary = document.getElementById("historySummary");
 
   if (!historyDetails || !historySummary) return;
 
+  if (historyPanel) {
+    historyPanel.classList.remove("hidden");
+  }
+
   historyDetails.removeAttribute("open");
 
   historyDetails.addEventListener("toggle", () => {
     historySummary.textContent = historyDetails.open
-      ? "Ocultar detalle"
+      ? "Ocultar historial"
       : "Últimos servicios";
   });
 }
