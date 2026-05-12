@@ -276,10 +276,15 @@
       Mostrar al cliente
     </button>
 
+    <button id="newServiceBtn" type="button" class="btn-secondary new-service-btn hidden">
+      NUEVO SERVICIO
+</button>
+</div>
+
     </section>
 
-    <section class="app-section">
-        <div class="section-title">Mapa</div>
+    <section id="routeMapSection" class="app-section route-map-section hidden">
+  <div class="section-title">Mapa</div>
         <div class="map-shell">
           <div class="map-brand-badge">
             <img src="assets/icon-128.png" alt="TaxiPro">
@@ -379,13 +384,26 @@
 
   <!-- 🔥 ADMIN DEVICES -->
   <div id="adminDevicesSection" class="admin-devices hidden">
-    <div class="admin-devices-header">
-      <span>DISPOSITIVOS AUTORIZADOS</span>
-      <button id="refreshDevicesBtn" type="button">Actualizar</button>
-    </div>
-
-    <div id="adminDevicesList"></div>
+  <div class="admin-devices-header">
+    <span>DISPOSITIVOS AUTORIZADOS</span>
+    <button id="refreshDevicesBtn" type="button">Actualizar</button>
   </div>
+
+  <div class="admin-invite-panel">
+    <div class="admin-invite-title">Alta de nuevo dispositivo</div>
+    <p>
+      Genera un código temporal para que un nuevo móvil se registre como pendiente.
+      Después podrás aprobarlo desde este panel.
+    </p>
+
+    <button id="createInviteBtn" type="button">
+      GENERAR INVITACIÓN 72H
+    </button>
+
+    <div id="adminInviteResult"></div>
+  </div>
+
+  <div id="adminDevicesList"></div>
 </div>
 
 </div>

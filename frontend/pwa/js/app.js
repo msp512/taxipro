@@ -5,6 +5,7 @@ import {
   getPilotDevicesAPI,
   updatePilotDeviceRoleAPI,
   updatePilotDeviceStatusAPI,
+  createInviteAPI,
   calculateFareAPI,
   registerServiceAPI,
   getServicesAPI
@@ -35,6 +36,7 @@ const addStopBtn = document.getElementById("addStopBtn");
 const clearStopBtn = document.getElementById("clearStopBtn");
 const pricingMode = document.getElementById("pricingMode");
 const calculateBtn = document.getElementById("calculateBtn");
+const newServiceBtn = document.getElementById("newServiceBtn");
 const startTripBtn = document.getElementById("startTripBtn");
 const saveMeterBtn = document.getElementById("saveMeterBtn");
 const meterPriceInput = document.getElementById("meterPriceInput");
@@ -367,16 +369,34 @@ function renderActivationScreen() {
   if (app) app.classList.add("hidden");
   if (!gate) return;
 
+  const currentDeviceId = getDeviceId();
+
   gate.classList.remove("hidden");
   gate.innerHTML = `
     <div class="access-card">
       <h2>Introduce tu código de acceso</h2>
+
       <input id="inviteCodeInput" type="text" placeholder="TAXI-XXXX-XXXX" />
       <input id="displayNameInput" type="text" placeholder="Nombre visible (opcional)" />
+
+      <div class="device-id-box">
+        <div class="device-id-label">ID DE ESTE DISPOSITIVO</div>
+        <div id="currentDeviceIdLabel" class="device-id-value">${currentDeviceId}</div>
+        <button id="copyDeviceIdBtn" type="button" class="mini-copy-btn">COPIAR ID</button>
+      </div>
+
       <button id="activateInviteBtn" type="button">Activar dispositivo</button>
       <p id="accessGateMessage"></p>
     </div>
   `;
+
+  document.getElementById("copyDeviceIdBtn")?.addEventListener("click", async () => {
+    try {
+      await navigator.clipboard.writeText(currentDeviceId);
+    } catch {
+      // En algunos móviles puede fallar el portapapeles; el ID queda visible.
+    }
+  });
 
   const btn = document.getElementById("activateInviteBtn");
   const input = document.getElementById("inviteCodeInput");
@@ -598,6 +618,61 @@ function renderDevices(devices) {
   });
 }
 
+async function createAdminInvite() {
+  const btn = document.getElementById("createInviteBtn");
+  const output = document.getElementById("adminInviteResult");
+
+  if (!btn || !output) return;
+
+  try {
+    btn.disabled = true;
+    btn.textContent = "Generando…";
+    output.innerHTML = "";
+
+    const taxiCode = getTaxiId();
+    const result = await createInviteAPI(72, taxiCode);
+
+    const inviteCode = result?.invite_code || "";
+
+    if (!inviteCode) {
+      throw new Error("No se recibió código de invitación");
+    }
+
+    output.innerHTML = `
+      <div class="invite-code-card">
+        <div class="invite-label">INVITACIÓN 72H</div>
+        <div class="invite-code-value">${inviteCode}</div>
+        <div class="invite-hint">Taxi asociado: ${result?.target_taxi_code || taxiCode}</div>
+        <button id="copyInviteCodeBtn" type="button" class="mini-copy-btn">COPIAR CÓDIGO</button>
+      </div>
+    `;
+
+    document.getElementById("copyInviteCodeBtn")?.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(inviteCode);
+      } catch {
+        // Si falla el portapapeles, el código queda visible.
+      }
+    });
+  } catch (error) {
+    output.innerHTML = `
+      <div class="admin-error">
+        ${error.message || "No se pudo crear la invitación"}
+      </div>
+    `;
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "GENERAR INVITACIÓN 72H";
+  }
+}
+
+function setupAdminInviteControls() {
+  const btn = document.getElementById("createInviteBtn");
+  if (!btn) return;
+
+  btn.onclick = createAdminInvite;
+}
+
 async function initAdminPanel() {
   const section = document.getElementById("adminDevicesSection");
   if (!section) return;
@@ -611,8 +686,10 @@ async function initAdminPanel() {
 
   section.classList.remove("hidden");
 
-  const devices = await fetchPilotDevices();
-  renderDevices(devices);
+setupAdminInviteControls();
+
+const devices = await fetchPilotDevices();
+renderDevices(devices);
 }
 
 /* ===============================
@@ -758,6 +835,51 @@ function clearStops() {
   }
 }
 
+function showCalculatedMap() {
+  if (routeMapSection) {
+    routeMapSection.classList.remove("hidden");
+    routeMapSection.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }
+}
+
+function hideCalculatedMap() {
+  if (routeMapSection) {
+    routeMapSection.classList.add("hidden");
+  }
+}
+
+function resetCurrentService() {
+  clearCurrentEstimate();
+
+  if (originInput) originInput.value = "";
+  if (destinationInput) destinationInput.value = "";
+  clearStops();
+
+  currentDestinationRoutingValue = null;
+
+  document.querySelectorAll(".supplement-btn.active").forEach((btn) => {
+    btn.classList.remove("active");
+    btn.setAttribute("aria-pressed", "false");
+  });
+
+  const result = document.getElementById("resultSection");
+  result?.classList.add("hidden");
+  result?.classList.remove("show-result");
+
+  hideCalculatedMap();
+  clientMode?.classList.add("hidden");
+
+  if (typeof updateSupplementsSummary === "function") {
+    updateSupplementsSummary();
+  }
+
+  if (typeof updateRouteBlockStates === "function") {
+    updateRouteBlockStates();
+  }
+
+  originInput?.focus();
+}
+
 function formatClientRoute(route) {
   const parts = [
     route?.origin,
@@ -882,6 +1004,10 @@ function clearCurrentEstimate() {
   }
 
   hideMeterReminder();
+
+  if (newServiceBtn) {
+  newServiceBtn.classList.add("hidden");
+}
 
   const estimated = document.getElementById("estimatedPrice");
   const range = document.getElementById("priceRange");
@@ -1044,9 +1170,16 @@ document.querySelectorAll("#quickDestinations button").forEach((btn) => {
 
 document.querySelectorAll(".supplement-btn").forEach((btn) => {
   btn.addEventListener("click", () => {
-    btn.classList.toggle("active");
+    const isActive = btn.classList.toggle("active");
+    btn.setAttribute("aria-pressed", isActive ? "true" : "false");
+
+    if (typeof updateSupplementsSummary === "function") {
+      updateSupplementsSummary();
+    }
   });
 });
+
+newServiceBtn?.addEventListener("click", resetCurrentService);
 
 destinationInput?.addEventListener("input", () => {
   currentDestinationRoutingValue = destinationInput.value.trim();
@@ -1151,6 +1284,11 @@ calculateBtn?.addEventListener("click", async () => {
       if (mode !== "taxipro") {
         alert("No había tarifa fija exacta. Se ha mostrado estimación TaxiPro.");
       }
+    }
+    showCalculatedMap();
+
+    if (newServiceBtn) {
+      newServiceBtn.classList.remove("hidden");
     }
 
     if (startTripBtn) {

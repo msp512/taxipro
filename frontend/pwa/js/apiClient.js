@@ -51,21 +51,39 @@ function buildPilotHeaders(taxiCode = "") {
 }
 
 async function apiRequest(path, options = {}) {
-  const response = await fetch(`${API_BASE}${path}`, {
-    ...options,
-    headers: {
-      ...buildPilotHeaders(),
-      ...(options.headers || {})
+  const controller = new AbortController();
+  const timeoutMs = Number(options.timeoutMs || 12000);
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    const response = await fetch(`${API_BASE}${path}`, {
+      ...options,
+      signal: options.signal || controller.signal,
+      headers: {
+        ...buildPilotHeaders(),
+        ...(options.headers || {})
+      }
+    });
+
+    const data = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+      const error = new Error(data.error || "Error de servidor");
+      error.status = response.status;
+      error.data = data;
+      throw error;
     }
-  });
 
-  const data = await response.json().catch(() => ({}));
+    return data;
+  } catch (error) {
+    if (error.name === "AbortError") {
+      throw new Error("Tiempo de espera agotado");
+    }
 
-  if (!response.ok) {
-    throw new Error(data.error || "Error de servidor");
+    throw error;
+  } finally {
+    clearTimeout(timeout);
   }
-
-  return data;
 }
 
 export async function fetchPilotMe() {
@@ -73,7 +91,7 @@ export async function fetchPilotMe() {
 }
 
 export async function activateWithInvite(inviteCode, displayName = "") {
-  const deviceId = localStorage.getItem("taxipro_device_id");
+  const deviceId = getStoredDeviceId();
 
   if (!inviteCode || !deviceId) {
     throw new Error("Datos incompletos");
@@ -101,11 +119,13 @@ export async function activateWithInvite(inviteCode, displayName = "") {
   return data;
 }
 
-export async function createInviteAPI(expiresHours = 24) {
+export async function createInviteAPI(expiresHours = 72, targetTaxiCode = "") {
   return apiRequest("/pilot/invites", {
     method: "POST",
     body: JSON.stringify({
-      expires_hours: expiresHours
+      expires_hours: expiresHours,
+      target_taxi_code: normalizeTaxiCode(targetTaxiCode || getStoredTaxiCode()),
+      target_role: "operator"
     })
   });
 }

@@ -1,4 +1,4 @@
-const CACHE_NAME = "taxipro-v1";
+const CACHE_NAME = "taxipro-v5-admin-piloto";
 
 const urlsToCache = [
   "/",
