@@ -530,6 +530,49 @@ async function syncCurrentPilotDevice() {
   return me;
 }
 
+function wait(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function syncCurrentPilotDeviceWithRetry() {
+  const maxAttempts = 3;
+  const delayMs = 1800;
+
+  let lastError = null;
+
+  for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+    try {
+      const splashMessage = document.getElementById("splashMessage");
+
+      if (splashMessage) {
+        splashMessage.textContent =
+          attempt === 1
+            ? "Comprobando acceso..."
+            : `Servidor iniciándose. Reintento ${attempt}/${maxAttempts}...`;
+      }
+
+      return await syncCurrentPilotDevice();
+    } catch (error) {
+      lastError = error;
+
+      const isLastAttempt = attempt === maxAttempts;
+
+      if (!isTimeoutOrNetworkError(error) || isLastAttempt) {
+        throw error;
+      }
+
+      console.warn(
+        `Reintentando conexión piloto ${attempt}/${maxAttempts}:`,
+        error.message
+      );
+
+      await wait(delayMs);
+    }
+  }
+
+  throw lastError || new Error("No se pudo comprobar el acceso.");
+}
+
 /* ===============================
    ADMIN / MANAGER DEVICES
 =============================== */
@@ -695,6 +738,295 @@ renderDevices(devices);
 /* ===============================
    AUTOCOMPLETE / MAP HELPERS
 =============================== */
+
+function updateActiveTariffBadge() {
+  const nameEl = document.getElementById("activeTariffName");
+  const detailEl = document.getElementById("activeTariffDetail");
+
+  if (!nameEl || !detailEl) return;
+
+  const now = new Date();
+  const hour = now.getHours();
+  const day = now.getDay();
+
+  const isSunday = day === 0;
+  const isNight = hour < 7 || hour >= 21;
+
+  if (isSunday || isNight) {
+    nameEl.textContent = "Tarifa 2 / nocturna-festiva";
+    detailEl.textContent = "Aplicación prevista por horario o festivo";
+  } else {
+    nameEl.textContent = "Tarifa 1 / diurna";
+    detailEl.textContent = "Aplicación prevista por horario laborable";
+  }
+}
+
+function getTariffDisplayData(data) {
+  const tariff = data?.tariff || {};
+
+  const code =
+    data?.tariffCode ||
+    tariff.code ||
+    "";
+
+  const name =
+    data?.tariffName ||
+    tariff.name ||
+    "";
+
+  const reason =
+    data?.tariffReason ||
+    tariff.reason ||
+    "";
+
+  const routeScope =
+    data?.routeScope ||
+    tariff.routeScope ||
+    data?.meta?.routeScope ||
+    "";
+
+  const routeScopeReason =
+    data?.routeScopeReason ||
+    tariff.routeScopeReason ||
+    data?.meta?.routeScopeReason ||
+    "";
+
+  return {
+    code,
+    name,
+    reason,
+    routeScope,
+    routeScopeReason,
+    tariff
+  };
+}
+
+function getTrafficStateFromSpeed(speed) {
+  const numericSpeed = Number(speed);
+
+  if (!Number.isFinite(numericSpeed) || numericSpeed <= 0) {
+    return {
+      es: "Tráfico no disponible",
+      en: "Traffic unavailable",
+      de: "Verkehrsdaten nicht verfügbar",
+      detailEs: "Información de tráfico no disponible",
+      detailEn: "Traffic information is currently unavailable",
+      detailDe: "Verkehrsinformationen sind derzeit nicht verfügbar"
+    };
+  }
+
+  if (numericSpeed < 14) {
+    return {
+      es: "Mucho tráfico",
+      en: "Heavy traffic",
+      de: "Starker Verkehr",
+      detailEs: "Circulación lenta, más densa de lo habitual",
+      detailEn: "Slow traffic, heavier than usual",
+      detailDe: "Langsamer Verkehr, dichter als üblich"
+    };
+  }
+
+  if (numericSpeed < 22) {
+    return {
+      es: "Tráfico moderado",
+      en: "Moderate traffic",
+      de: "Mäßiger Verkehr",
+      detailEs: "Circulación relativamente densa",
+      detailEn: "Moderately dense traffic",
+      detailDe: "Relativ dichter Verkehr"
+    };
+  }
+
+  if (numericSpeed < 32) {
+    return {
+      es: "Tráfico fluido",
+      en: "Smooth traffic",
+      de: "Fließender Verkehr",
+      detailEs: "Condiciones normales de circulación",
+      detailEn: "Normal traffic conditions",
+      detailDe: "Normale Verkehrsbedingungen"
+    };
+  }
+
+  return {
+    es: "Poco tráfico",
+    en: "Light traffic",
+    de: "Wenig Verkehr",
+    detailEs: "Circulación más fluida de lo habitual",
+    detailEn: "Traffic is lighter than usual",
+    detailDe: "Der Verkehr ist flüssiger als üblich"
+  };
+}
+
+function ensureFareInfoCards() {
+  const estimationCard =
+    document.querySelector("#resultSection .estimation-card") ||
+    document.querySelector(".estimation-card");
+
+  if (!estimationCard) return;
+
+  let tariffCard = document.getElementById("tariffAppliedCard");
+
+  if (!tariffCard) {
+    tariffCard = document.createElement("div");
+    tariffCard.id = "tariffAppliedCard";
+    tariffCard.className = "tariff-applied-card hidden";
+    tariffCard.innerHTML = `
+      <div class="tariff-applied-label">TARIFA APLICADA</div>
+      <div id="tariffAppliedName" class="tariff-applied-name">—</div>
+      <div id="tariffAppliedReason" class="tariff-applied-reason">—</div>
+      <div id="tariffAppliedDetails" class="tariff-applied-details">—</div>
+    `;
+
+    const trafficCard = document.getElementById("liveTrafficCard");
+    estimationCard.insertBefore(tariffCard, trafficCard || null);
+  }
+
+  let trafficCard = document.getElementById("liveTrafficCard");
+
+  if (!trafficCard) {
+    trafficCard = document.createElement("div");
+    trafficCard.id = "liveTrafficCard";
+    trafficCard.className = "live-traffic-card hidden";
+    trafficCard.innerHTML = `
+      <div class="live-traffic-label">TRÁFICO ACTUAL</div>
+      <div id="liveTrafficState" class="live-traffic-state">—</div>
+      <div id="liveTrafficDetail" class="live-traffic-detail">—</div>
+    `;
+
+    estimationCard.appendChild(trafficCard);
+  }
+
+  let trafficStatus = document.getElementById("trafficStatusText");
+
+  if (!trafficStatus) {
+    trafficStatus = document.createElement("div");
+    trafficStatus.id = "trafficStatusText";
+    trafficStatus.className = "traffic-status";
+    trafficStatus.textContent = "Precios con tráfico actualizado";
+    estimationCard.appendChild(trafficStatus);
+  }
+}
+
+function updateTariffAppliedCard(data) {
+  ensureFareInfoCards();
+
+  const card = document.getElementById("tariffAppliedCard");
+  const nameEl = document.getElementById("tariffAppliedName");
+  const reasonEl = document.getElementById("tariffAppliedReason");
+  const detailsEl = document.getElementById("tariffAppliedDetails");
+
+  if (!card || !nameEl || !reasonEl || !detailsEl) return;
+
+  const {
+    code,
+    name,
+    reason,
+    routeScope,
+    routeScopeReason
+  } = getTariffDisplayData(data);
+
+  if (!code) {
+    card.classList.remove("hidden");
+    nameEl.textContent = "TARIFA NO RECIBIDA";
+    reasonEl.textContent = "El backend no ha devuelto tariffCode";
+    detailsEl.textContent = "Revisar respuesta de /fare/estimate en Network.";
+    return;
+  }
+
+  const scopeLabel =
+    routeScope === "interurban"
+      ? "Servicio interurbano"
+      : routeScope === "urban"
+        ? "Servicio urbano"
+        : "";
+
+  nameEl.textContent = code;
+  reasonEl.textContent = name || reason || "Tarifa aplicada";
+  detailsEl.textContent =
+    scopeLabel && routeScopeReason
+      ? `${scopeLabel} · ${routeScopeReason}`
+      : scopeLabel || routeScopeReason || reason || "";
+
+  card.classList.remove("hidden");
+}
+
+function updateTrafficCard(data) {
+  ensureFareInfoCards();
+
+  const card = document.getElementById("liveTrafficCard");
+  const stateEl = document.getElementById("liveTrafficState");
+  const detailEl = document.getElementById("liveTrafficDetail");
+  const textEl = document.getElementById("trafficStatusText");
+
+  if (!card || !stateEl || !detailEl || !textEl) return;
+
+  const traffic = getTrafficStateFromSpeed(data?.meta?.speed);
+
+  stateEl.textContent = traffic.es;
+
+  detailEl.innerHTML = `
+    <strong>ES</strong> ${traffic.detailEs}<br>
+    <strong>EN</strong> ${traffic.detailEn}<br>
+    <strong>DE</strong> ${traffic.detailDe}
+  `;
+
+  textEl.textContent = `Precios con tráfico actualizado · ${traffic.es}`;
+
+  card.classList.remove("hidden");
+}
+
+function updateClientTariffAndTraffic(data) {
+  const tariffNameEl = document.getElementById("clientTariffName");
+  const tariffReasonEl = document.getElementById("clientTariffReason");
+  const trafficStateEl = document.getElementById("clientTrafficState");
+  const trafficDetailEl = document.getElementById("clientTrafficDetail");
+
+  if (!trafficStateEl || !trafficDetailEl) return;
+
+  const {
+    code,
+    name,
+    reason,
+    routeScope,
+    routeScopeReason
+  } = getTariffDisplayData(data);
+
+  const traffic = getTrafficStateFromSpeed(data?.meta?.speed);
+
+  if (tariffNameEl && tariffReasonEl) {
+    if (code) {
+      const scopeLabel =
+        routeScope === "interurban"
+          ? "Servicio interurbano"
+          : routeScope === "urban"
+            ? "Servicio urbano"
+            : "";
+
+      tariffNameEl.textContent = code;
+
+      tariffReasonEl.innerHTML = `
+        <strong>ES</strong> ${name || reason || "Tarifa aplicada"}${scopeLabel ? ` · ${scopeLabel}` : ""}<br>
+        <strong>EN</strong> Official fare applied${code ? ` · ${code}` : ""}<br>
+        <strong>DE</strong> Angewendeter offizieller Tarif${code ? ` · ${code}` : ""}
+      `;
+
+      tariffNameEl.parentElement?.classList.remove("hidden");
+    } else {
+      tariffNameEl.textContent = "";
+      tariffReasonEl.textContent = "";
+      tariffNameEl.parentElement?.classList.add("hidden");
+    }
+  }
+
+  trafficStateEl.textContent = traffic.es;
+
+  trafficDetailEl.innerHTML = `
+    <strong>ES</strong> ${traffic.detailEs}<br>
+    <strong>EN</strong> ${traffic.detailEn}<br>
+    <strong>DE</strong> ${traffic.detailDe}
+  `;
+}
 
 function formatShortPlace(name, formattedAddress) {
   const safeName = (name || "").trim();
@@ -1016,6 +1348,9 @@ function clearCurrentEstimate() {
   const confidence = document.querySelector(".confidence-indicator");
   const estimationTitle = document.getElementById("estimationTitle");
   const trafficStatus = document.querySelector(".traffic-status");
+  const tariffAppliedCard = document.getElementById("tariffAppliedCard");
+  const liveTrafficCard = document.getElementById("liveTrafficCard");
+  const trafficStatusText = document.getElementById("trafficStatusText");
 
   if (estimationTitle) estimationTitle.textContent = "Estimación TaxiPro";
   if (estimated) estimated.textContent = "0.00 €";
@@ -1023,9 +1358,25 @@ function clearCurrentEstimate() {
   if (distance) distance.textContent = "-- km";
   if (duration) duration.textContent = "-- min";
   if (confidence) confidence.textContent = "Tarifa oficial aplicada sobre ruta estimada";
+  
   if (trafficStatus) {
     trafficStatus.textContent = "Estimación calculada con distancia, tiempo y tráfico actual";
+  
+    if (tariffAppliedCard) {
+  tariffAppliedCard.classList.add("hidden");
+}
   }
+}
+if (tariffAppliedCard) {
+  tariffAppliedCard.classList.add("hidden");
+}
+
+if (liveTrafficCard) {
+  liveTrafficCard.classList.add("hidden");
+}
+
+if (trafficStatusText) {
+  trafficStatusText.textContent = "Precios con tráfico actualizado en este momento";
 }
 
 function showMeterReminder() {
@@ -1226,6 +1577,8 @@ calculateBtn?.addEventListener("click", async () => {
       return;
     }
 
+    await ensureMapsReadyForCalculation(); 
+
     const route = await computeRoute(
       origin,
       destinationForRoute,
@@ -1263,27 +1616,44 @@ calculateBtn?.addEventListener("click", async () => {
       const supplements = getSelectedSupplements();
 
       const fare = await calculateFareAPI(
-        route.distanceKm,
-        route.durationMinutes,
-        "Palma",
-        supplements,
-        getTaxiId()
-      );
+  route.distanceKm,
+  route.durationMinutes,
+  "Palma",
+  supplements,
+  getTaxiId(),
+  {
+    origin,
+    destination,
+    stops: routeRequest.stops
+  }
+);
 
-      lastFare = {
-        ...fare,
-        modeLabel: "Estimación TaxiPro"
-      };
+console.log("FARE RESPONSE TAXIPRO:", fare);
+window.__lastFare = fare;
 
-      showPriceResult({
-        ...fare,
-        distanceKm: route.distanceKm,
-        durationMinutes: route.durationMinutes
-      });
+lastFare = {
+  ...fare,
+  modeLabel: "Estimación TaxiPro"
+};
 
-      if (mode !== "taxipro") {
-        alert("No había tarifa fija exacta. Se ha mostrado estimación TaxiPro.");
-      }
+showPriceResult({
+  ...fare,
+  distanceKm: route.distanceKm,
+  durationMinutes: route.durationMinutes
+});
+
+if (typeof updateTariffAppliedCard === "function") {
+  updateTariffAppliedCard(fare);
+}
+
+if (typeof updateTrafficCard === "function") {
+  updateTrafficCard(fare);
+}
+
+if (mode !== "taxipro") {
+  alert("No había tarifa fija exacta. Se ha mostrado estimación TaxiPro.");
+}
+
     }
     showCalculatedMap();
 
@@ -1470,6 +1840,10 @@ showClientBtn?.addEventListener("click", () => {
       : "precio estimado";
   }
 
+  if (typeof updateClientTariffAndTraffic === "function") {
+  updateClientTariffAndTraffic(lastFare);
+}
+
   clientMode?.classList.remove("hidden");
 });
 
@@ -1522,6 +1896,32 @@ function waitForGoogleMaps() {
   });
 }
 
+let mapsReadyPromise = null;
+
+function initMapsInBackground() {
+  if (mapsReadyPromise) return mapsReadyPromise;
+
+  mapsReadyPromise = waitForGoogleMaps()
+    .then(() => {
+      initMap();
+      initAutocomplete();
+      console.log("Google Maps inicializado");
+    })
+    .catch((error) => {
+      console.warn("Google Maps no disponible al iniciar:", error.message);
+    });
+
+  return mapsReadyPromise;
+}
+
+async function ensureMapsReadyForCalculation() {
+  if (!mapsReadyPromise) {
+    mapsReadyPromise = initMapsInBackground();
+  }
+
+  return mapsReadyPromise;
+}
+
 async function initTaxiProCore() {
   updatePilotIdentityUI();
 
@@ -1548,17 +1948,21 @@ async function initTaxiProCore() {
     document.getElementById("routeMapSection")?.classList.add("hidden");
   }
 
-  await waitForGoogleMaps();
-  initMap();
-  initAutocomplete();
+  // Carga Google Maps en segundo plano, sin bloquear la visualización inicial.
+  initMapsInBackground();
 
-  refreshServicesFromBackend().catch((error) => {
-    console.warn("Historial no disponible al iniciar:", error.message);
-  });
+  // Historial y panel admin también en segundo plano.
+  setTimeout(() => {
+    refreshServicesFromBackend().catch((error) => {
+      console.warn("Historial no disponible al iniciar:", error.message);
+    });
+  }, 500);
 
-  initAdminPanel().catch((error) => {
-    console.warn("Panel admin no disponible al iniciar:", error.message);
-  });
+  setTimeout(() => {
+    initAdminPanel().catch((error) => {
+      console.warn("Panel admin no disponible al iniciar:", error.message);
+    });
+  }, 900);
 }
 
 function renderConnectionRetryScreen(message = "No se pudo conectar con el servidor.") {
@@ -1621,7 +2025,7 @@ async function initApp() {
     let me;
 
     try {
-      me = await syncCurrentPilotDevice();
+      me = await syncCurrentPilotDeviceWithRetry();
     } catch (pilotError) {
       console.warn("Piloto no disponible al iniciar:", pilotError.message);
 
@@ -1633,9 +2037,11 @@ async function initApp() {
       }
 
       if (isTimeoutOrNetworkError(pilotError)) {
-        renderConnectionRetryScreen("Tiempo de espera agotado al comprobar el acceso.");
-        return;
-      }
+  renderConnectionRetryScreen(
+    "El servidor está tardando en responder. Puede estar iniciándose en Render."
+  );
+  return;
+}
 
       renderConnectionRetryScreen(pilotError.message || "No se pudo verificar el acceso.");
       return;

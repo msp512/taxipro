@@ -169,72 +169,25 @@ export async function assignTaxiToDeviceAPI(deviceId, taxiCode) {
 export async function calculateFareAPI(
   distance,
   duration,
-  city = "Palma",
+  city,
   supplements = [],
-  taxiCode = ""
+  taxiCode,
+  routeContext = {}
 ) {
-  const numericDistance = Number(distance);
-  const numericDuration = Number(duration);
+  return apiRequest("/fare/estimate", {
+    method: "POST",
+    headers: buildPilotHeaders(taxiCode),
+    body: JSON.stringify({
+      distance,
+      duration,
+      city,
+      supplements,
 
-  if (
-    !Number.isFinite(numericDistance) ||
-    !Number.isFinite(numericDuration) ||
-    numericDistance <= 0 ||
-    numericDuration <= 0
-  ) {
-    throw new Error("Datos inválidos para cálculo");
-  }
-
-  const cleanTaxiCode = normalizeTaxiCode(taxiCode || getStoredTaxiCode());
-
-  const payload = {
-    taxi_code: cleanTaxiCode,
-    device_id: getStoredDeviceId(),
-    distance: numericDistance,
-    duration: numericDuration,
-    city,
-    supplements: Array.isArray(supplements) ? supplements : []
-  };
-
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 20000);
-
-  try {
-    const response = await fetch(`${API_BASE}/fare/estimate`, {
-      method: "POST",
-      headers: buildPilotHeaders(cleanTaxiCode),
-      body: JSON.stringify(payload),
-      signal: controller.signal
-    });
-
-    clearTimeout(timeout);
-
-    const data = await response.json().catch(() => ({}));
-
-    if (!response.ok) {
-      console.error("TaxiPro estimate backend error:", {
-        status: response.status,
-        data,
-        payload
-      });
-
-      const detailText = Array.isArray(data?.details)
-        ? data.details.map((d) => `${d.field}: ${d.message}`).join(" | ")
-        : data?.detail;
-
-      throw new Error(detailText || data?.error || "API error en estimate");
-    }
-
-    return data;
-  } catch (error) {
-    clearTimeout(timeout);
-
-    if (error.name === "AbortError") {
-      throw new Error("Tiempo de espera agotado");
-    }
-
-    throw error;
-  }
+      origin: routeContext.origin || "",
+      destination: routeContext.destination || "",
+      stops: Array.isArray(routeContext.stops) ? routeContext.stops : []
+    })
+  });
 }
 
 export async function registerServiceAPI(serviceData) {

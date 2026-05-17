@@ -14,10 +14,22 @@ export const fareSchema = z.preprocess((raw) => {
 
   return {
     ...body,
+
     distance: Number(body.distance ?? body.distanceKm),
     duration: Number(body.duration ?? body.durationMinutes),
+
     city: body.city ? String(body.city) : "Palma",
-    supplements: Array.isArray(body.supplements) ? body.supplements : []
+
+    supplements: Array.isArray(body.supplements)
+      ? body.supplements
+      : [],
+
+    origin: body.origin ? String(body.origin) : "",
+    destination: body.destination ? String(body.destination) : "",
+
+    stops: Array.isArray(body.stops)
+      ? body.stops.map((stop) => String(stop || "").trim()).filter(Boolean)
+      : []
   };
 }, z.object({
   distance: z
@@ -44,5 +56,27 @@ export const fareSchema = z.preprocess((raw) => {
   supplements: z
     .array(supplementSchema)
     .max(20, "too many supplements")
+    .optional(),
+
+  origin: z
+    .string()
+    .trim()
+    .max(250, "origin too long")
+    .optional(),
+
+  destination: z
+    .string()
+    .trim()
+    .max(250, "destination too long")
+    .optional(),
+
+  stops: z
+    .array(
+      z.string()
+        .trim()
+        .min(1)
+        .max(250, "stop too long")
+    )
+    .max(8, "too many stops")
     .optional()
 }));

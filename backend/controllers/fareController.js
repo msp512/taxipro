@@ -4,6 +4,7 @@ import { calculateCorrectionFactor } from "../core/learningEngine.js";
 import { getRecentServices } from "../services/learningService.js";
 import { classifyService } from "../core/serviceClassifier.js";
 import { fareSchema } from "../validation/fareSchema.js";
+import { getTariffProfileByCity } from "../config/tariffProfiles.js";
 import logger from "../utils/logger.js";
 
 const CROSS_SPEED = 18;
@@ -11,38 +12,6 @@ const CROSS_SPEED = 18;
 // Ajuste temporal de calibración piloto TAXIPRO.
 // Incrementa la estimación final un 8% para corregir desviación detectada a la baja.
 const PILOT_PRICE_ADJUSTMENT_FACTOR = 1.08;
-
-const TARIFF = {
-  baseFare: 2.5,
-  priceKm: 1.2,
-  priceMinute: 19.4 / 60
-};
-
-const SUPPLEMENT_VALUES = {
-  // Compatibilidad antigua
-  airport: 4.65,
-  radio: 1.15,
-  christmas: 4.75,
-  mountain1: 4.26,
-  mountain2: 4.26,
-
-  // Palma / Tarifa 1-2
-  airport_t12: 4.65,
-  port_t12: 4.65,
-  radio_t12: 1.15,
-  mountain1_t12: 4.26,
-  mountain2_t12: 4.26,
-
-  // Interurbana / Tarifa 3-4
-  airport_t34: 3.08,
-  port_t34: 3.08,
-  radio_t34: 1.11,
-  mountain1_t34: 4.26,
-  mountain2_t34: 4.26,
-
-  // Especiales
-  holiday_special: 4.75
-};
 
 function isValidServiceData({ deviation, distance, duration, speed }) {
   if (typeof deviation !== "number") return false;
@@ -79,27 +48,235 @@ function normalizeSelectedSupplements(supplements = []) {
     .filter(Boolean);
 }
 
-function calculateSupplementsTotal(supplements = []) {
-  if (!Array.isArray(supplements)) return 0;
+function isSunday(date) {
+  return date.getDay() === 0;
+}
 
-  return supplements.reduce((sum, item) => {
-    const key = normalizeSupplementKey(item);
-    return sum + (SUPPLEMENT_VALUES[key] || 0);
+function isSaturdayAfternoon(date, profile) {
+  const day = date.getDay();
+  const hour = date.getHours();
+
+  return (
+    profile.rules?.saturdayAfternoonIsInterurbanHoliday === true &&
+    day === 6 &&
+    hour >= Number(profile.rules?.saturdayAfternoonStartHour || 14)
+  );
+}
+
+function isUrbanNight(date, profile) {
+  const hour = date.getHours();
+  const start = Number(profile.rules?.urbanNightStartHour || 21);
+  const end = Number(profile.rules?.urbanDayStartHour || 7);
+
+  return hour >= start || hour < end;
+}
+
+function isInterurbanNight(date, profile) {
+  const hour = date.getHours();
+  const start = Number(profile.rules?.interurbanNightStartHour || 21);
+  const end = Number(profile.rules?.interurbanDayStartHour || 6);
+
+  return hour >= start || hour < end;
+}
+
+function normalizePlaceText(value = "") {
+  return String(value || "")
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+}
+
+function getUrbanScopeKeywords(profile) {
+  return Array.isArray(profile.urbanScopeKeywords)
+    ? profile.urbanScopeKeywords.map(normalizePlaceText)
+    : [];
+}
+
+function isInsideUrbanScope(placeText, profile) {
+  const text = normalizePlaceText(placeText);
+
+  if (!text) return false;
+
+  const keywords = getUrbanScopeKeywords(profile);
+
+  return keywords.some((keyword) => {
+    return keyword && text.includes(keyword);
+  });
+}
+
+function resolveRouteScope({ city, origin, destination, stops = [], profile }) {
+  const normalizedCity = normalizePlaceText(city);
+
+  if (
+    normalizedCity.includes("interurb") ||
+    normalizedCity.includes("t3") ||
+    normalizedCity.includes("t4")
+  ) {
+    return {
+      scope: "interurban",
+      reason: "Servicio marcado como interurbano"
+    };
+  }
+
+  const points = [
+    origin,
+    ...(Array.isArray(stops) ? stops : []),
+    destination
+  ].filter(Boolean);
+
+  if (points.length < 2) {
+    return {
+      scope: "urban",
+      reason: "Ruta incompleta; se aplica ámbito urbano por defecto"
+    };
+  }
+
+  const allInsideUrbanScope = points.every((point) =>
+    isInsideUrbanScope(point, profile)
+  );
+
+  if (allInsideUrbanScope) {
+    return {
+      scope: "urban",
+      reason: "Origen y destino dentro del ámbito urbano ampliado de Palma"
+    };
+  }
+
+  return {
+    scope: "interurban",
+    reason: "Origen o destino fuera del ámbito urbano ampliado de Palma"
+  };
+}
+
+function resolveTariff({
+  city,
+  origin,
+  destination,
+  stops = [],
+  profile,
+  now = new Date()
+}) {
+  const routeScope = resolveRouteScope({
+    city,
+    origin,
+    destination,
+    stops,
+    profile
+  });
+
+  const sunday = isSunday(now);
+
+  if (routeScope.scope === "interurban") {
+    const night = isInterurbanNight(now, profile);
+    const saturdayAfternoon = isSaturdayAfternoon(now, profile);
+
+    if (sunday || night || saturdayAfternoon) {
+      const tariff = profile.tariffs.T4;
+
+      return {
+        ...tariff,
+        routeScope: routeScope.scope,
+        routeScopeReason: routeScope.reason,
+        reason: sunday
+          ? "Interurbana en domingo o festivo"
+          : saturdayAfternoon
+            ? "Interurbana en sábado desde las 14:00"
+            : "Interurbana nocturna entre 21:00 y 06:00"
+      };
+    }
+
+    return {
+      ...profile.tariffs.T3,
+      routeScope: routeScope.scope,
+      routeScopeReason: routeScope.reason,
+      reason: "Interurbana diurna entre 06:00 y 21:00"
+    };
+  }
+
+  const night = isUrbanNight(now, profile);
+
+  if (sunday || night) {
+    const tariff = profile.tariffs.T2;
+
+    return {
+      ...tariff,
+      routeScope: routeScope.scope,
+      routeScopeReason: routeScope.reason,
+      reason: sunday
+        ? "Urbana en domingo o festivo"
+        : "Urbana nocturna entre 21:00 y 07:00"
+    };
+  }
+
+  return {
+    ...profile.tariffs.T1,
+    routeScope: routeScope.scope,
+    routeScopeReason: routeScope.reason,
+    reason: "Urbana laborable entre 07:00 y 21:00"
+  };
+}
+
+function resolveSupplementKey(profile, key, scope) {
+  const cleanKey = String(key || "").trim();
+
+  if (!cleanKey) return "";
+
+  const alias = profile.supplementAliases?.[cleanKey];
+
+  if (alias) {
+    return alias?.[scope] || "";
+  }
+
+  return cleanKey;
+}
+
+function getSupplementDefinition(profile, key) {
+  return profile.supplements?.[key] || null;
+}
+
+function getSupplementsApplied(profile, supplements = [], scope = "urban") {
+  if (!Array.isArray(supplements)) return [];
+
+  return supplements
+    .map((originalKey) => {
+      const resolvedKey = resolveSupplementKey(profile, originalKey, scope);
+
+      if (!resolvedKey) {
+        return null;
+      }
+
+      const definition = getSupplementDefinition(profile, resolvedKey);
+
+      return {
+        key: resolvedKey,
+        originalKey,
+        label: definition?.label || resolvedKey,
+        amount: Number(definition?.amount || 0),
+        scope: definition?.scope || scope
+      };
+    })
+    .filter(Boolean);
+}
+
+function calculateSupplementsTotal(profile, supplements = [], scope = "urban") {
+  return getSupplementsApplied(profile, supplements, scope).reduce((sum, item) => {
+    return sum + Number(item.amount || 0);
   }, 0);
 }
 
-function calculateBaseEstimatedPrice({ distance, duration, speed }) {
-  const distancePart = distance * TARIFF.priceKm;
+function calculateBaseEstimatedPrice({ distance, duration, speed, tariff }) {
+  const distancePart = distance * tariff.priceKm;
 
   let timePart = 0;
 
   if (speed < CROSS_SPEED) {
     const timeWeight = Math.min(1, (CROSS_SPEED - speed) / CROSS_SPEED);
     const effectiveTime = duration * timeWeight;
-    timePart = effectiveTime * TARIFF.priceMinute;
+    timePart = effectiveTime * (tariff.waitingHour / 60);
   }
 
-  return TARIFF.baseFare + distancePart + timePart;
+  return tariff.flagfall + distancePart + timePart;
 }
 
 function calculateMarginBySpeed(speed) {
@@ -144,16 +321,38 @@ export async function estimateFare(req, res) {
       distance,
       duration,
       city,
-      supplements = []
+      supplements = [],
+      origin = "",
+      destination = "",
+      stops = []
     } = parsed.data;
 
     const selectedSupplements = normalizeSelectedSupplements(supplements);
+
+    const tariffProfile = getTariffProfileByCity(city);
+
+    const tariff = resolveTariff({
+      city,
+      origin,
+      destination,
+      stops,
+      profile: tariffProfile,
+      now: new Date()
+    });
 
     logger.info(
       {
         distance,
         duration,
         city,
+        origin,
+        destination,
+        stops,
+        tariffProfile: tariffProfile.id,
+        tariffCode: tariff.code,
+        tariffName: tariff.name,
+        routeScope: tariff.routeScope || tariff.scope,
+        routeScopeReason: tariff.routeScopeReason || null,
         supplements: selectedSupplements
       },
       "Fare request received"
@@ -182,12 +381,25 @@ export async function estimateFare(req, res) {
       });
     }
 
-    const supplementsTotal = calculateSupplementsTotal(selectedSupplements);
+    const tariffScope = tariff.routeScope || tariff.scope || "urban";
+
+    const supplementsApplied = getSupplementsApplied(
+      tariffProfile,
+      selectedSupplements,
+      tariffScope
+    );
+
+    const supplementsTotal = calculateSupplementsTotal(
+      tariffProfile,
+      selectedSupplements,
+      tariffScope
+    );
 
     let price = calculateBaseEstimatedPrice({
       distance,
       duration,
-      speed
+      speed,
+      tariff
     });
 
     let correctionFactor = 1;
@@ -250,10 +462,21 @@ export async function estimateFare(req, res) {
         duration,
         speed,
         city,
+        origin,
+        destination,
+        stops,
         type,
+        tariffProfile: tariffProfile.id,
+        tariffCode: tariff.code,
+        tariffName: tariff.name,
+        tariffReason: tariff.reason,
+        routeScope: tariff.routeScope || tariff.scope,
+        routeScopeReason: tariff.routeScopeReason || null,
         supplements: selectedSupplements,
+        supplementsApplied,
         supplementsTotal,
         correctionFactor,
+        pilotAdjustmentFactor: PILOT_PRICE_ADJUSTMENT_FACTOR,
         confidence,
         price,
         minPrice,
@@ -265,22 +488,68 @@ export async function estimateFare(req, res) {
 
     return res.json({
       price,
+
       interval: {
         min: minPrice,
         max: maxPrice
       },
+
       confidence,
+
+      tariffProfile: {
+        id: tariffProfile.id,
+        label: tariffProfile.label,
+        jurisdiction: tariffProfile.jurisdiction,
+        sourceLabel: tariffProfile.sourceLabel,
+        sourceNote: tariffProfile.sourceNote
+      },
+
+      tariff: {
+        code: tariff.code,
+        name: tariff.name,
+        reason: tariff.reason,
+        scope: tariff.scope,
+        routeScope: tariff.routeScope || tariff.scope,
+        routeScopeReason: tariff.routeScopeReason || null,
+        period: tariff.period,
+        flagfall: tariff.flagfall,
+        priceKm: tariff.priceKm,
+        waitingHour: tariff.waitingHour,
+        waitingMinute: Number((tariff.waitingHour / 60).toFixed(4))
+      },
+
+      tariffCode: tariff.code,
+      tariffName: tariff.name,
+      tariffReason: tariff.reason,
+
+      routeScope: tariff.routeScope || tariff.scope,
+      routeScopeReason: tariff.routeScopeReason || null,
+
       supplements: {
         selected: selectedSupplements,
+        applied: supplementsApplied,
         total: supplementsTotal
       },
+
+      calibration: {
+        correctionFactor,
+        pilotAdjustmentFactor: PILOT_PRICE_ADJUSTMENT_FACTOR,
+        learningStatus
+      },
+
       meta: {
         speed,
         city: city || null,
+        origin: origin || null,
+        destination: destination || null,
+        stops,
         type,
+        routeScope: tariff.routeScope || tariff.scope,
+        routeScopeReason: tariff.routeScopeReason || null,
         correctionFactor,
+        pilotAdjustmentFactor: PILOT_PRICE_ADJUSTMENT_FACTOR,
         learningStatus,
-        model: "taximeter_v3_intelligent"
+        model: "taximeter_v6_route_scope_tariffs"
       }
     });
   } catch (error) {
