@@ -12,6 +12,7 @@ const CROSS_SPEED = 18;
 // Ajuste temporal de calibración piloto TAXIPRO.
 // Incrementa la estimación final un 8% para corregir desviación detectada a la baja.
 const PILOT_PRICE_ADJUSTMENT_FACTOR = 1.08;
+const INTERURBAN_RETURN_FACTOR = 1.85;
 
 function isValidServiceData({ deviation, distance, duration, speed }) {
   if (typeof deviation !== "number") return false;
@@ -165,34 +166,70 @@ function resolveTariff({
     profile
   });
 
-  const sunday = isSunday(now);
+  const day = now.getDay(); // 0 domingo, 6 sábado
+  const minutes = now.getHours() * 60 + now.getMinutes();
+
+  const sixAM = 6 * 60;
+  const twoPM = 14 * 60;
+  const ninePM = 21 * 60;
+
+  const sunday = day === 0;
 
   if (routeScope.scope === "interurban") {
-    const night = isInterurbanNight(now, profile);
-    const saturdayAfternoon = isSaturdayAfternoon(now, profile);
-
-    if (sunday || night || saturdayAfternoon) {
-      const tariff = profile.tariffs.T4;
-
+    if (sunday) {
       return {
-        ...tariff,
+        ...profile.tariffs.T4,
         routeScope: routeScope.scope,
         routeScopeReason: routeScope.reason,
-        reason: sunday
-          ? "Interurbana en domingo o festivo"
-          : saturdayAfternoon
-            ? "Interurbana en sábado desde las 14:00"
-            : "Interurbana nocturna entre 21:00 y 06:00"
+        reason: "Interurbana en domingo o festivo"
       };
     }
 
+    if (day === 6) {
+      const isSaturdayT3 = minutes >= sixAM && minutes < twoPM;
+
+      return {
+        ...(isSaturdayT3 ? profile.tariffs.T3 : profile.tariffs.T4),
+        routeScope: routeScope.scope,
+        routeScopeReason: routeScope.reason,
+        reason: isSaturdayT3
+          ? "Interurbana sábado entre 06:00 y 14:00"
+          : "Interurbana sábado desde las 14:00"
+      };
+    }
+
+    const isDay = minutes >= sixAM && minutes < ninePM;
+
     return {
-      ...profile.tariffs.T3,
+      ...(isDay ? profile.tariffs.T3 : profile.tariffs.T4),
       routeScope: routeScope.scope,
       routeScopeReason: routeScope.reason,
-      reason: "Interurbana diurna entre 06:00 y 21:00"
+      reason: isDay
+        ? "Interurbana laborable entre 06:00 y 21:00"
+        : "Interurbana nocturna entre 21:00 y 06:00"
     };
   }
+
+  const urbanNight = isUrbanNight(now, profile);
+
+  if (sunday || urbanNight) {
+    return {
+      ...profile.tariffs.T2,
+      routeScope: routeScope.scope,
+      routeScopeReason: routeScope.reason,
+      reason: sunday
+        ? "Urbana en domingo o festivo"
+        : "Urbana nocturna entre 21:00 y 07:00"
+    };
+  }
+
+  return {
+    ...profile.tariffs.T1,
+    routeScope: routeScope.scope,
+    routeScopeReason: routeScope.reason,
+    reason: "Urbana laborable entre 07:00 y 21:00"
+  };
+}
 
   const night = isUrbanNight(now, profile);
 
@@ -215,7 +252,7 @@ function resolveTariff({
     routeScopeReason: routeScope.reason,
     reason: "Urbana laborable entre 07:00 y 21:00"
   };
-}
+
 
 function resolveSupplementKey(profile, key, scope) {
   const cleanKey = String(key || "").trim();
@@ -265,18 +302,17 @@ function calculateSupplementsTotal(profile, supplements = [], scope = "urban") {
   }, 0);
 }
 
-function calculateBaseEstimatedPrice({ distance, duration, speed, tariff }) {
+function calculateBaseEstimatedPrice({ distance, duration, tariff }) {
   const distancePart = distance * tariff.priceKm;
+  const timePart = (duration / 60) * tariff.waitingHour;
 
-  let timePart = 0;
-
-  if (speed < CROSS_SPEED) {
-    const timeWeight = Math.min(1, (CROSS_SPEED - speed) / CROSS_SPEED);
-    const effectiveTime = duration * timeWeight;
-    timePart = effectiveTime * (tariff.waitingHour / 60);
-  }
-
-  return tariff.flagfall + distancePart + timePart;
+  return {
+    basePrice: tariff.flagfall + distancePart + timePart,
+    distancePart,
+    timePart,
+    billableDistance: distance,
+    appliedDistanceFactor: 1
+  };
 }
 
 function calculateMarginBySpeed(speed) {
@@ -395,12 +431,13 @@ export async function estimateFare(req, res) {
       tariffScope
     );
 
-    let price = calculateBaseEstimatedPrice({
-      distance,
-      duration,
-      speed,
-      tariff
-    });
+    const baseCalculation = calculateBaseEstimatedPrice({
+  distance,
+  duration,
+  tariff
+});
+
+let price = baseCalculation.basePrice;
 
     let correctionFactor = 1;
     let learningStatus = "not_used";
@@ -546,10 +583,14 @@ export async function estimateFare(req, res) {
         type,
         routeScope: tariff.routeScope || tariff.scope,
         routeScopeReason: tariff.routeScopeReason || null,
+        baseCalculation,
+        interurbanReturnFactor: tariff.scope === "interurban"
+        ? INTERURBAN_RETURN_FACTOR
+        : 1,
         correctionFactor,
         pilotAdjustmentFactor: PILOT_PRICE_ADJUSTMENT_FACTOR,
         learningStatus,
-        model: "taximeter_v6_route_scope_tariffs"
+        model: "taximeter_v9_effective_interurban_km"
       }
     });
   } catch (error) {

@@ -39,30 +39,30 @@ export const TARIFF_PROFILES = {
       },
 
       T3: {
-        code: "T3",
-        name: "Tarifa 3 · Interurbana diurna",
-        reason: "Interurbana diurna entre 06:00 y 21:00",
-        scope: "interurban",
-        period: "day",
-        startHour: 6,
-        endHour: 21,
-        flagfall: 3.31,
-        priceKm: 0.58,
-        waitingHour: 19.52
-      },
+  code: "T3",
+  name: "Tarifa 3 · Interurbana diurna",
+  reason: "Interurbana diurna entre 06:00 y 21:00",
+  scope: "interurban",
+  period: "day",
+  startHour: 6,
+  endHour: 21,
+  flagfall: 3.31,
+  priceKm: 1.16,
+  waitingHour: 19.52
+},
 
-      T4: {
-        code: "T4",
-        name: "Tarifa 4 · Interurbana nocturna/festiva",
-        reason: "Interurbana nocturna, sábado tarde, domingo o festivo",
-        scope: "interurban",
-        period: "nightHoliday",
-        startHour: 21,
-        endHour: 6,
-        flagfall: 4.25,
-        priceKm: 0.66,
-        waitingHour: 18.98
-      }
+T4: {
+  code: "T4",
+  name: "Tarifa 4 · Interurbana nocturna/festiva",
+  reason: "Interurbana nocturna, sábado tarde, domingo o festivo",
+  scope: "interurban",
+  period: "nightHoliday",
+  startHour: 21,
+  endHour: 6,
+  flagfall: 4.25,
+  priceKm: 1.32,
+  waitingHour: 18.98
+}
     },
 
     supplements: {
