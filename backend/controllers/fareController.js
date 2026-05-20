@@ -7,8 +7,6 @@ import { fareSchema } from "../validation/fareSchema.js";
 import { getTariffProfileByCity } from "../config/tariffProfiles.js";
 import logger from "../utils/logger.js";
 
-const CROSS_SPEED = 18;
-
 // Ajuste temporal de calibración piloto TAXIPRO.
 // Incrementa la estimación final un 8% para corregir desviación detectada a la baja.
 const PILOT_PRICE_ADJUSTMENT_FACTOR = 1.08;
@@ -48,33 +46,10 @@ function normalizeSelectedSupplements(supplements = []) {
     .filter(Boolean);
 }
 
-function isSunday(date) {
-  return date.getDay() === 0;
-}
-
-function isSaturdayAfternoon(date, profile) {
-  const day = date.getDay();
-  const hour = date.getHours();
-
-  return (
-    profile.rules?.saturdayAfternoonIsInterurbanHoliday === true &&
-    day === 6 &&
-    hour >= Number(profile.rules?.saturdayAfternoonStartHour || 14)
-  );
-}
-
 function isUrbanNight(date, profile) {
   const hour = date.getHours();
   const start = Number(profile.rules?.urbanNightStartHour || 21);
   const end = Number(profile.rules?.urbanDayStartHour || 7);
-
-  return hour >= start || hour < end;
-}
-
-function isInterurbanNight(date, profile) {
-  const hour = date.getHours();
-  const start = Number(profile.rules?.interurbanNightStartHour || 21);
-  const end = Number(profile.rules?.interurbanDayStartHour || 6);
 
   return hour >= start || hour < end;
 }
@@ -340,7 +315,6 @@ export async function estimateFare(req, res) {
     } = parsed.data;
 
     const selectedSupplements = normalizeSelectedSupplements(supplements);
-
     const tariffProfile = getTariffProfileByCity(city);
 
     const tariff = resolveTariff({
@@ -407,13 +381,14 @@ export async function estimateFare(req, res) {
       tariffScope
     );
 
-        const baseCalculation = calculateBaseEstimatedPrice({
+    const baseCalculation = calculateBaseEstimatedPrice({
       distance,
       duration,
       tariff
     });
 
     let price = baseCalculation.basePrice;
+
     let correctionFactor = 1;
     let learningStatus = "not_used";
 
@@ -487,6 +462,7 @@ export async function estimateFare(req, res) {
         supplements: selectedSupplements,
         supplementsApplied,
         supplementsTotal,
+        baseCalculation,
         correctionFactor,
         pilotAdjustmentFactor: PILOT_PRICE_ADJUSTMENT_FACTOR,
         confidence,
@@ -549,7 +525,7 @@ export async function estimateFare(req, res) {
         learningStatus
       },
 
-            meta: {
+      meta: {
         speed,
         city: city || null,
         origin: origin || null,
