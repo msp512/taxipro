@@ -4210,3 +4210,2468 @@ button:active {
   color: #ffd0d0;
   font-size: 0.82rem;
 }
+/* =========================
+   RESULTADO PREMIUM
+========================= */
+
+.result-card,
+#resultCard,
+.result-panel {
+  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 18px;
+  padding: 18px;
+  margin-top: 16px;
+  box-shadow:
+    0 10px 25px rgba(15, 23, 42, 0.08),
+    0 2px 6px rgba(15, 23, 42, 0.05);
+}
+
+.result-card h2,
+.result-card h3,
+#estimatedPriceTitle {
+  font-size: 0.82rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #64748b;
+  margin-bottom: 10px;
+  font-weight: 700;
+}
+
+.result-price,
+#estimatedPrice,
+.result-total {
+  font-size: 2.4rem;
+  font-weight: 800;
+  line-height: 1;
+  color: #0f172a;
+  margin-bottom: 8px;
+}
+
+.result-range,
+#estimatedRange {
+  font-size: 1rem;
+  color: #334155;
+  margin-bottom: 12px;
+  font-weight: 600;
+}
+
+.result-meta,
+#routeMeta {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  font-size: 0.92rem;
+  color: #475569;
+  margin-top: 10px;
+}
+
+.result-meta span,
+#routeMeta span {
+  background: rgba(15, 23, 42, 0.05);
+  padding: 6px 10px;
+  border-radius: 10px;
+}
+
+.result-note,
+#fareLegalText {
+  margin-top: 14px;
+  font-size: 0.8rem;
+  color: #64748b;
+  line-height: 1.4;
+}
+
+/* =========================
+   TRANSICIÓN SUAVE
+========================= */
+
+.result-card,
+#resultCard {
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease,
+    opacity 0.25s ease;
+}
+
+.result-card:hover,
+#resultCard:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    0 16px 35px rgba(15, 23, 42, 0.10),
+    0 4px 12px rgba(15, 23, 42, 0.08);
+}
+
+/* =========================
+   MÓVIL
+========================= */
+
+@media (max-width: 768px) {
+  .result-card,
+  #resultCard {
+    padding: 16px;
+    border-radius: 16px;
+  }
+
+  .result-price,
+  #estimatedPrice {
+    font-size: 2rem;
+  }
+
+  .result-meta,
+  #routeMeta {
+    gap: 8px;
+  }
+}
+/* =========================
+   BOTONES PREMIUM
+========================= */
+
+button,
+.quick-btn,
+.action-btn,
+.mode-btn {
+  border: none;
+  border-radius: 12px;
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease,
+    background 0.18s ease;
+}
+
+/* BOTONES RÁPIDOS */
+
+.quick-btn {
+  background: #ffffff;
+  color: #0f172a;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  padding: 10px 14px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  min-height: 42px;
+  box-shadow:
+    0 2px 6px rgba(15, 23, 42, 0.04);
+}
+
+.quick-btn:hover {
+  transform: translateY(-1px);
+  background: #f8fafc;
+  box-shadow:
+    0 8px 18px rgba(15, 23, 42, 0.08);
+}
+
+.quick-btn:active {
+  transform: scale(0.98);
+}
+
+/* BOTÓN PRINCIPAL */
+
+.primary-btn,
+#calculateBtn {
+  background: linear-gradient(
+    135deg,
+    #0f172a 0%,
+    #1e293b 100%
+  );
+  color: white;
+  width: 100%;
+  min-height: 54px;
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  box-shadow:
+    0 12px 28px rgba(15, 23, 42, 0.18);
+}
+
+.primary-btn:hover,
+#calculateBtn:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    0 16px 36px rgba(15, 23, 42, 0.24);
+}
+
+/* BOTÓN NUEVO SERVICIO */
+
+#newServiceBtn {
+  background: #ffffff;
+  color: #0f172a;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  min-height: 48px;
+  font-weight: 700;
+}
+
+#newServiceBtn:hover {
+  background: #f8fafc;
+}
+
+/* GRID BOTONES RÁPIDOS */
+
+.quick-buttons,
+.quick-grid,
+.frequent-destinations {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-top: 10px;
+}
+
+/* MÓVIL */
+
+@media (max-width: 768px) {
+
+  .quick-btn {
+    font-size: 0.76rem;
+    padding: 9px 10px;
+    min-height: 40px;
+  }
+
+  .primary-btn,
+  #calculateBtn {
+    min-height: 52px;
+    font-size: 0.95rem;
+  }
+}
+/* =========================
+   INPUTS PREMIUM
+========================= */
+
+.input-group,
+.route-block,
+.location-block {
+  margin-bottom: 16px;
+}
+
+.input-group label,
+.route-label,
+.location-label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #64748b;
+}
+
+input[type="text"],
+input[type="search"],
+.route-input,
+.location-input,
+.places-input {
+  width: 100%;
+  min-height: 54px;
+  border-radius: 14px;
+  border: 1px solid rgba(15, 23, 42, 0.10);
+  background: #ffffff;
+  padding:
+    0 16px;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #0f172a;
+  outline: none;
+
+  transition:
+    border-color 0.18s ease,
+    box-shadow 0.18s ease,
+    transform 0.18s ease,
+    background 0.18s ease;
+
+  box-shadow:
+    0 2px 6px rgba(15, 23, 42, 0.03);
+}
+
+input::placeholder {
+  color: #94a3b8;
+  font-weight: 400;
+}
+
+input:focus,
+.route-input:focus,
+.location-input:focus,
+.places-input:focus {
+  border-color: rgba(37, 99, 235, 0.45);
+
+  box-shadow:
+    0 0 0 4px rgba(37, 99, 235, 0.08),
+    0 8px 18px rgba(15, 23, 42, 0.06);
+
+  transform: translateY(-1px);
+}
+
+/* INPUT COMPLETADO */
+
+.input-filled,
+.route-complete,
+.location-complete {
+  border-color: rgba(16, 185, 129, 0.45) !important;
+
+  box-shadow:
+    0 0 0 4px rgba(16, 185, 129, 0.08),
+    0 8px 18px rgba(15, 23, 42, 0.05);
+}
+
+/* BLOQUES RUTA */
+
+.route-section,
+.route-wrapper {
+  background: rgba(248, 250, 252, 0.7);
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  border-radius: 18px;
+  padding: 16px;
+  margin-bottom: 18px;
+}
+
+/* MÓVIL */
+
+@media (max-width: 768px) {
+
+  input[type="text"],
+  input[type="search"],
+  .route-input,
+  .location-input,
+  .places-input {
+    min-height: 52px;
+    font-size: 0.96rem;
+    border-radius: 12px;
+  }
+
+  .route-section,
+  .route-wrapper {
+    padding: 14px;
+    border-radius: 16px;
+  }
+}
+/* =========================
+   HEADER TAXIPRO PREMIUM
+========================= */
+
+.app-header,
+.top-header,
+.header-wrapper {
+  position: relative;
+
+  background:
+    linear-gradient(
+      180deg,
+      #0f172a 0%,
+      #111827 100%
+    );
+
+  border-radius: 0 0 24px 24px;
+
+  padding:
+    22px 18px
+    18px;
+
+  margin-bottom: 18px;
+
+  box-shadow:
+    0 14px 36px rgba(15, 23, 42, 0.20);
+}
+
+/* LOGO / TÍTULO */
+
+.app-title,
+.logo-title,
+#appTitle {
+  color: #ffffff;
+
+  font-size: 2rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+
+  margin: 0;
+  line-height: 1;
+}
+
+/* SUBTÍTULO */
+
+.app-subtitle,
+.logo-subtitle,
+#appSubtitle {
+  margin-top: 8px;
+
+  color: rgba(255,255,255,0.72);
+
+  font-size: 0.82rem;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+}
+
+/* BLOQUE SUPERIOR */
+
+.header-top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+/* SELECTOR MODOS */
+
+.mode-selector,
+.tariff-selector,
+.top-selector {
+  display: flex;
+  gap: 8px;
+  margin-top: 18px;
+  flex-wrap: wrap;
+}
+
+.mode-selector button,
+.tariff-selector button,
+.top-selector button {
+  background: rgba(255,255,255,0.08);
+
+  color: rgba(255,255,255,0.88);
+
+  border: 1px solid rgba(255,255,255,0.08);
+
+  border-radius: 12px;
+
+  min-height: 40px;
+
+  padding:
+    0 14px;
+
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+
+  backdrop-filter: blur(6px);
+
+  transition:
+    background 0.18s ease,
+    transform 0.18s ease,
+    border-color 0.18s ease;
+}
+
+.mode-selector button:hover,
+.tariff-selector button:hover,
+.top-selector button:hover {
+  background: rgba(255,255,255,0.14);
+  transform: translateY(-1px);
+}
+
+.mode-selector .active,
+.tariff-selector .active,
+.top-selector .active {
+  background: #ffffff;
+  color: #0f172a;
+}
+
+/* BOTÓN SETTINGS */
+
+.settings-btn,
+#settingsBtn {
+  width: 42px;
+  height: 42px;
+
+  border-radius: 12px;
+
+  background: rgba(255,255,255,0.08);
+
+  border: 1px solid rgba(255,255,255,0.08);
+
+  color: white;
+}
+
+/* MÓVIL */
+
+@media (max-width: 768px) {
+
+  .app-header,
+  .top-header,
+  .header-wrapper {
+    padding:
+      20px 14px
+      16px;
+
+    border-radius: 0 0 20px 20px;
+  }
+
+  .app-title,
+  .logo-title,
+  #appTitle {
+    font-size: 1.7rem;
+  }
+
+  .mode-selector,
+  .tariff-selector,
+  .top-selector {
+    gap: 6px;
+  }
+
+  .mode-selector button,
+  .tariff-selector button,
+  .top-selector button {
+    font-size: 0.72rem;
+    min-height: 38px;
+    padding: 0 10px;
+  }
+}
+/* =========================
+   SUPLEMENTOS PREMIUM
+========================= */
+
+.supplements-panel,
+.supplements-wrapper,
+#supplementsContainer {
+  background:
+    linear-gradient(
+      180deg,
+      #ffffff 0%,
+      #f8fafc 100%
+    );
+
+  border: 1px solid rgba(15, 23, 42, 0.08);
+
+  border-radius: 18px;
+
+  padding: 16px;
+
+  margin-top: 16px;
+  margin-bottom: 18px;
+
+  box-shadow:
+    0 8px 22px rgba(15, 23, 42, 0.05);
+}
+
+/* TÍTULO */
+
+.supplements-title,
+#supplementsTitle {
+  font-size: 0.8rem;
+  font-weight: 800;
+
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+
+  color: #64748b;
+
+  margin-bottom: 14px;
+}
+
+/* GRID */
+
+.supplements-grid,
+.supplements-list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+/* ITEM */
+
+.supplement-item,
+.supplement-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 10px;
+
+  min-height: 54px;
+
+  background: rgba(248, 250, 252, 0.8);
+
+  border: 1px solid rgba(15, 23, 42, 0.06);
+
+  border-radius: 14px;
+
+  padding:
+    10px 12px;
+
+  transition:
+    transform 0.18s ease,
+    border-color 0.18s ease,
+    box-shadow 0.18s ease,
+    background 0.18s ease;
+}
+
+.supplement-item:hover,
+.supplement-row:hover {
+  transform: translateY(-1px);
+
+  box-shadow:
+    0 8px 18px rgba(15, 23, 42, 0.06);
+}
+
+/* TEXTO */
+
+.supplement-label {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.supplement-name {
+  font-size: 0.86rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.supplement-price {
+  font-size: 0.74rem;
+  color: #64748b;
+  font-weight: 600;
+}
+
+/* SWITCH */
+
+.supplement-item input[type="checkbox"],
+.supplement-row input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  accent-color: #0f172a;
+  cursor: pointer;
+}
+
+/* ACTIVO */
+
+.supplement-active {
+  border-color: rgba(16, 185, 129, 0.30);
+
+  background:
+    rgba(16, 185, 129, 0.05);
+
+  box-shadow:
+    0 0 0 4px rgba(16, 185, 129, 0.05);
+}
+
+/* MÓVIL */
+
+@media (max-width: 768px) {
+
+  .supplements-grid,
+  .supplements-list {
+    grid-template-columns: 1fr;
+  }
+
+  .supplement-item,
+  .supplement-row {
+    min-height: 52px;
+  }
+
+  .supplement-name {
+    font-size: 0.82rem;
+  }
+}
+/* =========================
+   COMPACTACIÓN MÓVIL
+========================= */
+
+@media (max-width: 768px) {
+
+  body {
+    font-size: 15px;
+    overflow-x: hidden;
+  }
+
+  .app-container,
+  .main-container,
+  .content-wrapper {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  /* MENOS ESPACIOS MUERTOS */
+
+  section,
+  .card,
+  .panel,
+  .block {
+    margin-bottom: 14px;
+  }
+
+  /* BOTONES MÁS COMPACTOS */
+
+  button {
+    min-height: 48px;
+  }
+
+  /* INPUTS MÁS RÁPIDOS VISUALMENTE */
+
+  input[type="text"],
+  input[type="search"] {
+    min-height: 50px;
+  }
+
+  /* RESULTADO MÁS CENTRADO */
+
+  .result-card,
+  #resultCard {
+    text-align: center;
+  }
+
+  .result-meta,
+  #routeMeta {
+    justify-content: center;
+  }
+
+  /* MAPA */
+
+  #map,
+  .map-container,
+  .google-map {
+    height: 240px !important;
+
+    border-radius: 18px;
+
+    overflow: hidden;
+
+    box-shadow:
+      0 10px 24px rgba(15, 23, 42, 0.08);
+  }
+
+  /* TARJETA CLIENTE */
+
+  .client-card,
+  #clientMode {
+    border-radius: 20px;
+  }
+
+  /* HISTORIAL MÁS LIMPIO */
+
+  .history-panel,
+  .services-history {
+    max-height: 320px;
+    overflow-y: auto;
+  }
+}
+
+/* =========================
+   MICROANIMACIONES
+========================= */
+
+.card,
+.panel,
+.block,
+.result-card,
+button,
+input {
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease,
+    opacity 0.18s ease,
+    background 0.18s ease;
+}
+
+/* APARICIÓN SUAVE */
+
+.fade-in {
+  animation: fadeInSmooth 0.28s ease;
+}
+
+@keyframes fadeInSmooth {
+
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* SCROLL MÁS LIMPIO */
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* BARRA SCROLL */
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(15, 23, 42, 0.18);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+/* =========================
+   COMPACTACIÓN MÓVIL
+========================= */
+
+@media (max-width: 768px) {
+
+  body {
+    font-size: 15px;
+    overflow-x: hidden;
+  }
+
+  .app-container,
+  .main-container,
+  .content-wrapper {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  /* MENOS ESPACIOS MUERTOS */
+
+  section,
+  .card,
+  .panel,
+  .block {
+    margin-bottom: 14px;
+  }
+
+  /* BOTONES MÁS COMPACTOS */
+
+  button {
+    min-height: 48px;
+  }
+
+  /* INPUTS MÁS RÁPIDOS VISUALMENTE */
+
+  input[type="text"],
+  input[type="search"] {
+    min-height: 50px;
+  }
+
+  /* RESULTADO MÁS CENTRADO */
+
+  .result-card,
+  #resultCard {
+    text-align: center;
+  }
+
+  .result-meta,
+  #routeMeta {
+    justify-content: center;
+  }
+
+  /* MAPA */
+
+  #map,
+  .map-container,
+  .google-map {
+    height: 240px !important;
+
+    border-radius: 18px;
+
+    overflow: hidden;
+
+    box-shadow:
+      0 10px 24px rgba(15, 23, 42, 0.08);
+  }
+
+  /* TARJETA CLIENTE */
+
+  .client-card,
+  #clientMode {
+    border-radius: 20px;
+  }
+
+  /* HISTORIAL MÁS LIMPIO */
+
+  .history-panel,
+  .services-history {
+    max-height: 320px;
+    overflow-y: auto;
+  }
+}
+
+/* =========================
+   MICROANIMACIONES
+========================= */
+
+.card,
+.panel,
+.block,
+.result-card,
+button,
+input {
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease,
+    opacity 0.18s ease,
+    background 0.18s ease;
+}
+
+/* APARICIÓN SUAVE */
+
+.fade-in {
+  animation: fadeInSmooth 0.28s ease;
+}
+
+@keyframes fadeInSmooth {
+
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* SCROLL MÁS LIMPIO */
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* BARRA SCROLL */
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(15, 23, 42, 0.18);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+/* =========================
+   CLIENT MODE PREMIUM
+========================= */
+
+.client-card,
+#clientMode,
+.client-mode-panel {
+  position: fixed;
+
+  inset: 0;
+
+  z-index: 9999;
+
+  background:
+    linear-gradient(
+      180deg,
+      #0f172a 0%,
+      #111827 100%
+    );
+
+  color: white;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  padding: 24px;
+
+  text-align: center;
+}
+
+/* TÍTULO */
+
+.client-title,
+#clientTitle {
+  font-size: 0.9rem;
+  font-weight: 700;
+
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+
+  color: rgba(255,255,255,0.60);
+
+  margin-bottom: 18px;
+}
+
+/* PRECIO */
+
+.client-price,
+#clientPrice {
+  font-size: clamp(3rem, 10vw, 5rem);
+
+  font-weight: 900;
+
+  line-height: 1;
+
+  margin-bottom: 18px;
+
+  color: #ffffff;
+
+  text-shadow:
+    0 10px 30px rgba(0,0,0,0.35);
+}
+
+/* INTERVALO */
+
+.client-range,
+#clientRange {
+  font-size: 1.2rem;
+
+  font-weight: 700;
+
+  color: rgba(255,255,255,0.82);
+
+  margin-bottom: 26px;
+}
+
+/* META */
+
+.client-meta,
+#clientMeta {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  justify-content: center;
+
+  margin-bottom: 30px;
+}
+
+.client-meta span,
+#clientMeta span {
+  background: rgba(255,255,255,0.08);
+
+  border: 1px solid rgba(255,255,255,0.08);
+
+  border-radius: 14px;
+
+  padding:
+    10px 14px;
+
+  font-size: 0.95rem;
+  font-weight: 600;
+
+  backdrop-filter: blur(8px);
+}
+
+/* TEXTO LEGAL */
+
+.client-legal,
+#clientLegal {
+  max-width: 420px;
+
+  font-size: 0.82rem;
+
+  line-height: 1.5;
+
+  color: rgba(255,255,255,0.55);
+}
+
+/* BOTÓN CERRAR */
+
+.close-client-btn,
+#closeClientBtn {
+  position: absolute;
+
+  top: 18px;
+  right: 18px;
+
+  width: 46px;
+  height: 46px;
+
+  border-radius: 14px;
+
+  border: 1px solid rgba(255,255,255,0.10);
+
+  background: rgba(255,255,255,0.08);
+
+  color: white;
+
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+/* ANIMACIÓN */
+
+.client-card,
+#clientMode {
+  animation: clientFade 0.25s ease;
+}
+
+@keyframes clientFade {
+
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* MÓVIL */
+
+@media (max-width: 768px) {
+
+  .client-price,
+  #clientPrice {
+    font-size: 3.2rem;
+  }
+
+  .client-range,
+  #clientRange {
+    font-size: 1rem;
+  }
+
+  .client-meta span,
+  #clientMeta span {
+    font-size: 0.84rem;
+    padding: 8px 12px;
+  }
+
+  .client-legal,
+  #clientLegal {
+    font-size: 0.74rem;
+  }
+}/* =========================
+   SPLASH SCREEN PREMIUM
+========================= */
+
+#splashScreen,
+.splash-screen {
+  position: fixed;
+
+  inset: 0;
+
+  z-index: 10000;
+
+  background:
+    linear-gradient(
+      180deg,
+      #0f172a 0%,
+      #111827 100%
+    );
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  transition:
+    opacity 0.35s ease,
+    visibility 0.35s ease;
+}
+
+/* OCULTAR */
+
+#splashScreen.hidden,
+.splash-screen.hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* LOGO */
+
+.splash-logo,
+#splashLogo {
+  font-size: clamp(2.2rem, 8vw, 3.4rem);
+
+  font-weight: 900;
+
+  letter-spacing: 0.12em;
+
+  color: white;
+
+  margin-bottom: 12px;
+}
+
+/* SUBTÍTULO */
+
+.splash-subtitle,
+#splashSubtitle {
+  color: rgba(255,255,255,0.65);
+
+  font-size: 0.9rem;
+
+  letter-spacing: 0.04em;
+
+  margin-bottom: 36px;
+}
+
+/* SPINNER */
+
+.splash-loader,
+#splashLoader {
+  width: 54px;
+  height: 54px;
+
+  border-radius: 50%;
+
+  border:
+    3px solid rgba(255,255,255,0.10);
+
+  border-top:
+    3px solid rgba(255,255,255,0.85);
+
+  animation:
+    splashSpin 0.9s linear infinite;
+}
+
+@keyframes splashSpin {
+
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* MENSAJE */
+
+.splash-message,
+#splashMessage {
+  margin-top: 24px;
+
+  color: rgba(255,255,255,0.60);
+
+  font-size: 0.82rem;
+
+  text-align: center;
+
+  max-width: 280px;
+
+  line-height: 1.5;
+}
+
+/* ANIMACIÓN ENTRADA */
+
+#splashScreen,
+.splash-screen {
+  animation: splashAppear 0.28s ease;
+}
+
+@keyframes splashAppear {
+
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+/* =====================================================
+   TAXIPRO — AJUSTE VISUAL RÁPIDO 13/05
+   Contraste suplementos + rutas destacadas + compactación
+===================================================== */
+
+
+/* =====================================================
+   1) SUPLEMENTOS: CONTRASTE FUERTE Y LEGIBLE
+===================================================== */
+
+.supplements-section,
+.supplements-details,
+#supplementsPanel {
+  background: #ffffff !important;
+  color: #0f172a !important;
+}
+
+.supplements-details summary {
+  background: #f8fafc !important;
+  color: #0f172a !important;
+  border: 1px solid rgba(15, 23, 42, 0.12) !important;
+  border-radius: 16px !important;
+  padding: 14px 16px !important;
+  font-weight: 900 !important;
+  letter-spacing: 0.04em;
+}
+
+.supplements-details summary span {
+  color: #0f172a !important;
+}
+
+.supplements-details summary small,
+#supplementsSummary {
+  color: #64748b !important;
+  font-weight: 800 !important;
+  opacity: 1 !important;
+}
+
+.supplements-group-title {
+  color: #8a6a1f !important;
+  font-weight: 900 !important;
+  letter-spacing: 0.09em !important;
+  text-transform: uppercase !important;
+  opacity: 1 !important;
+  margin-top: 18px !important;
+  margin-bottom: 10px !important;
+}
+
+.supplement-btn {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border: 1px solid rgba(15, 23, 42, 0.16) !important;
+  border-radius: 14px !important;
+  opacity: 1 !important;
+  filter: none !important;
+  text-align: left !important;
+  font-weight: 900 !important;
+  letter-spacing: 0.04em !important;
+  box-shadow:
+    0 8px 18px rgba(15, 23, 42, 0.08) !important;
+}
+
+.supplement-btn small {
+  display: block !important;
+  margin-top: 7px !important;
+  color: #475569 !important;
+  font-weight: 900 !important;
+  opacity: 1 !important;
+}
+
+/* Estado seleccionado */
+.supplement-btn.active,
+.supplement-btn.selected,
+.supplement-btn.is-active {
+  background: #ecfdf5 !important;
+  color: #064e3b !important;
+  border-color: rgba(22, 163, 74, 0.75) !important;
+  box-shadow:
+    0 0 0 3px rgba(22, 163, 74, 0.16),
+    0 12px 24px rgba(15, 23, 42, 0.10) !important;
+}
+
+.supplement-btn.active small,
+.supplement-btn.selected small,
+.supplement-btn.is-active small {
+  color: #047857 !important;
+}
+
+
+/* =====================================================
+   2) ORIGEN / PARADA / DESTINO: BLOQUES MÁS VISIBLES
+===================================================== */
+
+.app-section {
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.92);
+  padding: 15px;
+  margin-bottom: 14px;
+  box-shadow:
+    0 6px 16px rgba(15, 23, 42, 0.05);
+}
+
+.section-title {
+  color: #8a6a1f !important;
+  font-weight: 900 !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase !important;
+}
+
+/* Inputs normales */
+#originInput,
+#stopInput,
+#destinationInput {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border: 1px solid rgba(15, 23, 42, 0.16) !important;
+  font-weight: 700 !important;
+}
+
+/* Cuando el usuario escribe o el navegador marca válido */
+#originInput:not(:placeholder-shown),
+#stopInput:not(:placeholder-shown),
+#destinationInput:not(:placeholder-shown) {
+  background: #f0fdf4 !important;
+  border-color: rgba(22, 163, 74, 0.70) !important;
+  color: #064e3b !important;
+  box-shadow:
+    0 0 0 4px rgba(22, 163, 74, 0.12),
+    0 8px 18px rgba(15, 23, 42, 0.08) !important;
+}
+
+/* Foco */
+#originInput:focus,
+#stopInput:focus,
+#destinationInput:focus {
+  background: #eff6ff !important;
+  border-color: rgba(37, 99, 235, 0.75) !important;
+  color: #0f172a !important;
+  box-shadow:
+    0 0 0 4px rgba(37, 99, 235, 0.14),
+    0 10px 22px rgba(15, 23, 42, 0.10) !important;
+}
+
+/* Etiquetas */
+label[for="originInput"],
+label[for="stopInput"],
+label[for="destinationInput"] {
+  color: #334155 !important;
+  font-weight: 900 !important;
+}
+
+
+/* =====================================================
+   3) ACCESOS RÁPIDOS MÁS COMPACTOS
+===================================================== */
+
+#quickOrigins,
+#quickDestinations {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 8px !important;
+  margin-top: 8px !important;
+}
+
+#quickOrigins button,
+#quickDestinations button {
+  min-height: 38px !important;
+  padding: 8px 9px !important;
+  border-radius: 11px !important;
+  font-size: 0.72rem !important;
+  font-weight: 900 !important;
+  letter-spacing: 0.04em !important;
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border: 1px solid rgba(15, 23, 42, 0.12) !important;
+  box-shadow:
+    0 4px 10px rgba(15, 23, 42, 0.05) !important;
+}
+
+#quickOrigins button:active,
+#quickDestinations button:active {
+  transform: scale(0.98);
+}
+
+
+/* =====================================================
+   4) MÓVIL: MÁS COMPACTO Y MÁS LEGIBLE
+===================================================== */
+
+@media (max-width: 768px) {
+
+  .app-section {
+    padding: 13px !important;
+    margin-bottom: 12px !important;
+    border-radius: 16px !important;
+  }
+
+  .section-title {
+    font-size: 0.78rem !important;
+    margin-bottom: 10px !important;
+  }
+
+  #originInput,
+  #stopInput,
+  #destinationInput {
+    min-height: 48px !important;
+    font-size: 0.92rem !important;
+    border-radius: 12px !important;
+  }
+
+  #quickOrigins,
+  #quickDestinations {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 7px !important;
+  }
+
+  #quickOrigins button,
+  #quickDestinations button {
+    min-height: 36px !important;
+    font-size: 0.68rem !important;
+    padding: 7px 8px !important;
+  }
+
+  .supplements-details summary {
+    padding: 12px 14px !important;
+  }
+
+  .supplements-grid,
+  .supplements-grid--compact {
+    grid-template-columns: 1fr !important;
+    gap: 9px !important;
+  }
+
+  .supplement-btn {
+    min-height: 58px !important;
+    padding: 12px 14px !important;
+    font-size: 0.82rem !important;
+  }
+
+  .supplement-btn small {
+    font-size: 0.78rem !important;
+  }
+}
+/* =====================================================
+   TAXIPRO — REFINO VISUAL 2
+   Menos blanco, más contraste, más equilibrio desktop/mobile
+===================================================== */
+
+
+/* =====================================================
+   1) CONTENEDOR GENERAL MÁS ELEGANTE
+===================================================== */
+
+.main-container {
+  max-width: 760px !important;
+  margin: 0 auto !important;
+  padding: 28px 16px 42px !important;
+}
+
+.card {
+  background: rgba(15, 23, 42, 0.72) !important;
+  border: 1px solid rgba(214, 179, 106, 0.18) !important;
+  border-radius: 18px !important;
+  padding: 18px !important;
+  box-shadow:
+    0 18px 40px rgba(0, 0, 0, 0.22) !important;
+}
+
+
+/* =====================================================
+   2) TARJETAS INTERNAS MENOS BLANCAS
+===================================================== */
+
+.app-section {
+  background: #f8fafc !important;
+  border: 1px solid rgba(214, 179, 106, 0.22) !important;
+  border-radius: 16px !important;
+  padding: 16px !important;
+  margin-bottom: 16px !important;
+  box-shadow:
+    0 10px 22px rgba(0, 0, 0, 0.12) !important;
+}
+
+.section-title {
+  color: #8a6a1f !important;
+  font-size: 0.74rem !important;
+  font-weight: 900 !important;
+  letter-spacing: 0.11em !important;
+  text-transform: uppercase !important;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.08) !important;
+  padding-bottom: 8px !important;
+  margin-bottom: 12px !important;
+}
+
+
+/* =====================================================
+   3) INPUTS MÁS LIMPIOS
+===================================================== */
+
+.input-group label,
+label[for="originInput"],
+label[for="stopInput"],
+label[for="destinationInput"] {
+  color: #1e293b !important;
+  font-size: 0.72rem !important;
+  font-weight: 900 !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase !important;
+}
+
+#originInput,
+#stopInput,
+#destinationInput,
+#meterPriceInput {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border: 1px solid rgba(15, 23, 42, 0.16) !important;
+  border-radius: 10px !important;
+  min-height: 44px !important;
+  font-size: 0.88rem !important;
+  font-weight: 700 !important;
+  padding: 0 12px !important;
+  box-shadow: none !important;
+}
+
+#originInput::placeholder,
+#stopInput::placeholder,
+#destinationInput::placeholder,
+#meterPriceInput::placeholder {
+  color: #94a3b8 !important;
+  font-weight: 600 !important;
+}
+
+
+/* Campo completado */
+#originInput:not(:placeholder-shown),
+#stopInput:not(:placeholder-shown),
+#destinationInput:not(:placeholder-shown) {
+  background: #ecfdf5 !important;
+  border-color: rgba(22, 163, 74, 0.75) !important;
+  color: #064e3b !important;
+  box-shadow:
+    0 0 0 3px rgba(22, 163, 74, 0.12) !important;
+}
+
+
+/* =====================================================
+   4) BOTONES RÁPIDOS MÁS DISCRETOS Y COMPACTOS
+===================================================== */
+
+#quickOrigins,
+#quickDestinations {
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  gap: 8px !important;
+}
+
+#quickOrigins button,
+#quickDestinations button {
+  min-height: 34px !important;
+  padding: 7px 8px !important;
+  border-radius: 9px !important;
+  background: #ffffff !important;
+  color: #111827 !important;
+  border: 1px solid rgba(15, 23, 42, 0.12) !important;
+  font-size: 0.66rem !important;
+  font-weight: 900 !important;
+  letter-spacing: 0.04em !important;
+  box-shadow: none !important;
+}
+
+#quickOrigins button:hover,
+#quickDestinations button:hover {
+  background: #f1f5f9 !important;
+}
+
+
+/* =====================================================
+   5) BOTONES DESACTIVADOS: QUE SE VEAN, PERO APAGADOS
+===================================================== */
+
+button:disabled,
+#startTripBtn:disabled,
+#addStopBtn:disabled,
+#saveMeterBtn:disabled {
+  background: #e5e7eb !important;
+  color: #64748b !important;
+  border: 1px solid rgba(100, 116, 139, 0.22) !important;
+  opacity: 1 !important;
+  filter: none !important;
+  box-shadow: none !important;
+  cursor: not-allowed !important;
+}
+
+
+/* Botones secundarios normales */
+.btn-secondary,
+.location-btn,
+#clearStopBtn {
+  background: #ffffff !important;
+  color: #1e293b !important;
+  border: 1px solid rgba(15, 23, 42, 0.14) !important;
+  box-shadow: none !important;
+}
+
+
+/* =====================================================
+   6) SUPLEMENTOS MÁS FINOS
+===================================================== */
+
+.supplements-details {
+  background: transparent !important;
+}
+
+.supplements-details summary {
+  background: #f1f5f9 !important;
+  color: #0f172a !important;
+  border-radius: 12px !important;
+  min-height: 42px !important;
+}
+
+#supplementsPanel {
+  background: #ffffff !important;
+  border: 1px solid rgba(15, 23, 42, 0.08) !important;
+  border-radius: 14px !important;
+  padding: 14px !important;
+  box-shadow: none !important;
+}
+
+.supplements-group-title {
+  color: #8a6a1f !important;
+  font-size: 0.74rem !important;
+  margin-top: 16px !important;
+}
+
+.supplements-grid,
+.supplements-grid--compact {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 9px !important;
+}
+
+.supplement-btn {
+  min-height: 50px !important;
+  padding: 10px 12px !important;
+  border-radius: 10px !important;
+  font-size: 0.72rem !important;
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border: 1px solid rgba(15, 23, 42, 0.14) !important;
+  box-shadow:
+    0 4px 10px rgba(15, 23, 42, 0.05) !important;
+}
+
+.supplement-btn small {
+  font-size: 0.72rem !important;
+  color: #475569 !important;
+}
+
+
+/* =====================================================
+   7) ACCIÓN Y RESULTADO MÁS LIMPIO
+===================================================== */
+
+#calculateBtn {
+  min-height: 46px !important;
+  border-radius: 10px !important;
+  background: linear-gradient(135deg, #111827, #1e293b) !important;
+  color: #ffffff !important;
+  font-size: 0.86rem !important;
+  font-weight: 900 !important;
+  letter-spacing: 0.06em !important;
+  box-shadow:
+    0 10px 22px rgba(15, 23, 42, 0.20) !important;
+}
+
+#startTripBtn,
+#saveMeterBtn {
+  min-height: 44px !important;
+  border-radius: 10px !important;
+  font-weight: 900 !important;
+}
+
+
+/* =====================================================
+   8) HISTORIAL Y RESULTADO OCULTO MÁS DISCRETOS
+===================================================== */
+
+.history-section,
+.app-section--result {
+  background: #f8fafc !important;
+}
+
+.history-details summary {
+  color: #0f172a !important;
+  font-weight: 900 !important;
+}
+
+
+/* =====================================================
+   9) AJUSTE MÓVIL
+===================================================== */
+
+@media (max-width: 768px) {
+
+  .main-container {
+    padding: 18px 10px 32px !important;
+  }
+
+  .card {
+    padding: 12px !important;
+    border-radius: 16px !important;
+  }
+
+  .app-section {
+    padding: 13px !important;
+    margin-bottom: 13px !important;
+    border-radius: 14px !important;
+  }
+
+  #quickOrigins,
+  #quickDestinations {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  #quickOrigins button,
+  #quickDestinations button {
+    min-height: 34px !important;
+    font-size: 0.66rem !important;
+  }
+
+  .supplements-grid,
+  .supplements-grid--compact {
+    grid-template-columns: 1fr !important;
+  }
+
+  .supplement-btn {
+    min-height: 50px !important;
+    font-size: 0.76rem !important;
+  }
+}
+/* =====================================================
+   TAXIPRO — FIX HISTORIAL / CONTRASTE SERVICIOS
+===================================================== */
+
+#historyPanel,
+.history-section,
+.history-details,
+#historyList {
+  background: #f8fafc !important;
+  color: #0f172a !important;
+}
+
+.history-details summary {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border: 1px solid rgba(15, 23, 42, 0.12) !important;
+  border-radius: 12px !important;
+  padding: 12px 14px !important;
+  font-weight: 900 !important;
+}
+
+.history-details summary span,
+.history-details summary small {
+  color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+#historyList,
+#historyList * {
+  color: #0f172a !important;
+  opacity: 1 !important;
+}
+
+.history-item,
+.service-item,
+.service-card,
+.history-row {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border: 1px solid rgba(15, 23, 42, 0.10) !important;
+  border-radius: 12px !important;
+  padding: 12px !important;
+  margin-bottom: 10px !important;
+  box-shadow: 0 6px 14px rgba(15, 23, 42, 0.06) !important;
+}
+
+.history-item strong,
+.service-item strong,
+.service-card strong,
+.history-row strong {
+  color: #111827 !important;
+  font-weight: 900 !important;
+}
+
+.history-item small,
+.service-item small,
+.service-card small,
+.history-row small {
+  color: #475569 !important;
+  opacity: 1 !important;
+}
+/* =====================================================
+   TAXIPRO — ORIGEN / DESTINO INTEGRADOS
+   Campo + accesos rápidos como una sola pieza visual
+===================================================== */
+
+.route-choice-section {
+  background: #f8fafc !important;
+  border: 1px solid rgba(214, 179, 106, 0.24) !important;
+  border-radius: 18px !important;
+  padding: 16px !important;
+}
+
+.route-choice-box {
+  background: #ffffff !important;
+  border: 1px solid rgba(15, 23, 42, 0.10) !important;
+  border-radius: 15px !important;
+  padding: 14px !important;
+  box-shadow:
+    0 8px 18px rgba(15, 23, 42, 0.06) !important;
+}
+
+/* Input integrado */
+.route-choice-box input {
+  margin-bottom: 10px !important;
+}
+
+/* Botón ubicación dentro del bloque */
+.route-choice-box .origin-actions {
+  margin-top: 8px !important;
+  margin-bottom: 10px !important;
+}
+
+.route-choice-box .location-btn {
+  width: 100% !important;
+  min-height: 38px !important;
+  border-radius: 10px !important;
+  font-size: 0.76rem !important;
+  font-weight: 900 !important;
+}
+
+/* Etiqueta pequeña de opciones rápidas */
+.quick-choice-label {
+  margin-top: 10px !important;
+  margin-bottom: 8px !important;
+
+  color: #64748b !important;
+  font-size: 0.68rem !important;
+  font-weight: 900 !important;
+  letter-spacing: 0.10em !important;
+  text-transform: uppercase !important;
+}
+
+/* Botones rápidos dentro del mismo bloque */
+.quick-buttons--inside {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 8px !important;
+  margin-top: 0 !important;
+}
+
+.quick-buttons--inside button {
+  min-height: 38px !important;
+  padding: 8px 9px !important;
+  border-radius: 10px !important;
+
+  background: #f8fafc !important;
+  color: #0f172a !important;
+
+  border: 1px solid rgba(15, 23, 42, 0.12) !important;
+
+  font-size: 0.70rem !important;
+  font-weight: 900 !important;
+  letter-spacing: 0.04em !important;
+
+  box-shadow: none !important;
+}
+
+/* Al pulsar, que parezca selección de campo, no suplemento */
+.quick-buttons--inside button:active {
+  transform: scale(0.98);
+  background: #ecfdf5 !important;
+  border-color: rgba(22, 163, 74, 0.55) !important;
+  color: #064e3b !important;
+}
+
+/* Diferenciar visualmente origen/destino sin exagerar */
+.route-choice-section--origin .section-title::after {
+  content: " · recogida";
+  color: #94a3b8;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+.route-choice-section--destination .section-title::after {
+  content: " · llegada";
+  color: #94a3b8;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+/* Campo completado: todo el bloque se percibe como elegido */
+.route-choice-box:has(#originInput:not(:placeholder-shown)),
+.route-choice-box:has(#destinationInput:not(:placeholder-shown)) {
+  border-color: rgba(22, 163, 74, 0.55) !important;
+  background: #f0fdf4 !important;
+  box-shadow:
+    0 0 0 4px rgba(22, 163, 74, 0.10),
+    0 10px 22px rgba(15, 23, 42, 0.08) !important;
+}
+
+/* Dentro de bloque completado, los botones siguen claros */
+.route-choice-box:has(#originInput:not(:placeholder-shown)) .quick-buttons--inside button,
+.route-choice-box:has(#destinationInput:not(:placeholder-shown)) .quick-buttons--inside button {
+  background: #ffffff !important;
+}
+
+/* Móvil */
+@media (max-width: 768px) {
+  .route-choice-section {
+    padding: 13px !important;
+    border-radius: 16px !important;
+  }
+
+  .route-choice-box {
+    padding: 12px !important;
+    border-radius: 14px !important;
+  }
+
+  .quick-buttons--inside {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 7px !important;
+  }
+
+  .quick-buttons--inside button {
+    min-height: 36px !important;
+    font-size: 0.66rem !important;
+  }
+
+  .quick-choice-label {
+    font-size: 0.64rem !important;
+  }
+}
+/* =====================================================
+   TAXIPRO — INDICADOR TARIFA ACTIVA
+===================================================== */
+
+.active-tariff-badge {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  background: #fff7ed;
+  border: 1px solid rgba(234, 88, 12, 0.28);
+  border-radius: 14px;
+
+  padding: 12px 14px;
+  margin-bottom: 12px;
+
+  color: #7c2d12;
+
+  box-shadow:
+    0 8px 18px rgba(15, 23, 42, 0.06);
+}
+
+.tariff-badge-label {
+  font-size: 0.68rem;
+  font-weight: 900;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: #9a3412;
+}
+
+#activeTariffName {
+  font-size: 1rem;
+  font-weight: 900;
+  color: #7c2d12;
+}
+
+#activeTariffDetail {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #9a3412;
+  opacity: 0.92;
+}
+
+@media (max-width: 768px) {
+  .active-tariff-badge {
+    padding: 11px 12px;
+    border-radius: 12px;
+  }
+
+  #activeTariffName {
+    font-size: 0.92rem;
+  }
+
+  #activeTariffDetail {
+    font-size: 0.72rem;
+  }
+}
+/* =====================================================
+   TAXIPRO — FONDO GENERAL MÁS CORPORATIVO
+===================================================== */
+
+html,
+body {
+  background:
+    radial-gradient(circle at top, rgba(214, 179, 106, 0.10), transparent 34%),
+    linear-gradient(180deg, #0b1724 0%, #111827 45%, #0f172a 100%) !important;
+  color: #f8fafc;
+}
+
+/* Contenedor principal sobre fondo oscuro */
+#mainApp {
+  background: transparent !important;
+}
+
+/* Mantiene legibles las tarjetas interiores */
+.main-container {
+  background: transparent !important;
+}
+
+/* Tarjeta madre algo menos negra y más elegante */
+.card {
+  background: rgba(15, 23, 42, 0.78) !important;
+  border: 1px solid rgba(214, 179, 106, 0.20) !important;
+}
+
+/* Secciones interiores siguen claras, pero menos blancas */
+.app-section {
+  background: #eef2f7 !important;
+  border-color: rgba(214, 179, 106, 0.24) !important;
+}
+
+/* Bloques internos blancos suavizados */
+.route-choice-box,
+#supplementsPanel,
+.history-details summary,
+.supplement-btn,
+#quickOrigins button,
+#quickDestinations button {
+  background: #f8fafc !important;
+}
+/* =====================================================
+   TAXIPRO — PESTAÑA SUPLEMENTOS DESTACADA
+===================================================== */
+
+.supplements-details summary {
+  background:
+    linear-gradient(135deg, #111827 0%, #1e293b 100%) !important;
+
+  color: #ffffff !important;
+
+  border: 1px solid rgba(214, 179, 106, 0.45) !important;
+  border-radius: 14px !important;
+
+  padding: 14px 16px !important;
+
+  box-shadow:
+    0 10px 24px rgba(15, 23, 42, 0.22) !important;
+
+  cursor: pointer !important;
+}
+
+.supplements-details summary span {
+  color: #ffffff !important;
+  font-size: 0.86rem !important;
+  font-weight: 900 !important;
+  letter-spacing: 0.12em !important;
+  text-transform: uppercase !important;
+}
+
+.supplements-details summary span::before {
+  content: "＋ ";
+  color: #d6b36a;
+  font-weight: 900;
+}
+
+.supplements-details[open] summary span::before {
+  content: "− ";
+}
+
+.supplements-details summary small,
+#supplementsSummary {
+  color: rgba(255, 255, 255, 0.72) !important;
+  font-size: 0.72rem !important;
+  font-weight: 800 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.06em !important;
+}
+
+/* Al abrir, separa mejor el panel */
+.supplements-details[open] #supplementsPanel {
+  margin-top: 12px !important;
+}
+/* =====================================================
+   TAXIPRO — TARJETA VISUAL TARIFA APLICADA
+===================================================== */
+
+.tariff-applied-card {
+  margin-top: 14px;
+  margin-bottom: 12px;
+
+  background:
+    linear-gradient(180deg, #fff7ed 0%, #fffbeb 100%);
+
+  border: 1px solid rgba(217, 119, 6, 0.28);
+  border-radius: 14px;
+
+  padding: 13px 14px;
+
+  text-align: left;
+
+  box-shadow:
+    0 8px 18px rgba(15, 23, 42, 0.08);
+}
+
+.tariff-applied-label {
+  color: #92400e;
+
+  font-size: 0.66rem;
+  font-weight: 900;
+
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+
+  margin-bottom: 6px;
+}
+
+.tariff-applied-name {
+  color: #78350f;
+
+  font-size: 0.98rem;
+  font-weight: 900;
+
+  margin-bottom: 4px;
+}
+
+.tariff-applied-reason {
+  color: #9a3412;
+
+  font-size: 0.78rem;
+  font-weight: 800;
+
+  line-height: 1.35;
+
+  margin-bottom: 8px;
+}
+
+.tariff-applied-details {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+
+  color: #713f12;
+
+  font-size: 0.72rem;
+  font-weight: 800;
+
+  line-height: 1.35;
+}
+
+@media (max-width: 768px) {
+  .tariff-applied-card {
+    padding: 12px;
+    border-radius: 12px;
+    text-align: center;
+  }
+
+  .tariff-applied-details {
+    justify-content: center;
+    font-size: 0.68rem;
+  }
+}/* =====================================================
+   TAXIPRO — TARJETA ESTIMACIÓN MÁS LEGIBLE
+===================================================== */
+
+.estimation-card {
+  background: linear-gradient(180deg, #fffdf7 0%, #f7f1df 100%) !important;
+  border: 1px solid rgba(214, 179, 106, 0.45) !important;
+  box-shadow:
+    0 14px 34px rgba(15, 23, 42, 0.10),
+    inset 0 1px 0 rgba(255,255,255,0.65) !important;
+}
+
+.estimation-title {
+  color: #a16207 !important;
+  font-weight: 900 !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase !important;
+}
+
+.price {
+  color: #0f172a !important;
+  font-weight: 900 !important;
+  text-shadow: none !important;
+}
+
+.interval {
+  color: #7c2d12 !important;
+  font-weight: 800 !important;
+}
+
+.route-meta {
+  color: #334155 !important;
+  font-weight: 800 !important;
+}
+
+.traffic-status,
+.confidence-indicator {
+  color: #475569 !important;
+  font-weight: 700 !important;
+}
+
+/* =====================================================
+   TAXIPRO — TARIFA APLICADA
+===================================================== */
+
+.tariff-applied-card {
+  margin-top: 14px;
+  margin-bottom: 10px;
+  background: linear-gradient(180deg, #fff7ed 0%, #fffbeb 100%);
+  border: 1px solid rgba(217, 119, 6, 0.26);
+  border-radius: 14px;
+  padding: 12px 14px;
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.06);
+}
+
+.tariff-applied-label {
+  color: #9a3412;
+  font-size: 0.66rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.tariff-applied-name {
+  color: #78350f;
+  font-size: 0.98rem;
+  font-weight: 900;
+  margin-bottom: 4px;
+}
+
+.tariff-applied-reason {
+  color: #9a3412;
+  font-size: 0.78rem;
+  font-weight: 800;
+  line-height: 1.35;
+  margin-bottom: 6px;
+}
+
+.tariff-applied-details {
+  color: #713f12;
+  font-size: 0.72rem;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+/* =====================================================
+   TAXIPRO — TRÁFICO ACTUAL
+===================================================== */
+
+.live-traffic-card {
+  margin-top: 10px;
+  margin-bottom: 10px;
+  background: linear-gradient(180deg, #eff6ff 0%, #f8fbff 100%);
+  border: 1px solid rgba(59, 130, 246, 0.22);
+  border-radius: 14px;
+  padding: 12px 14px;
+}
+
+.live-traffic-label {
+  color: #1d4ed8;
+  font-size: 0.66rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.live-traffic-state {
+  color: #1e3a8a;
+  font-size: 0.94rem;
+  font-weight: 900;
+  margin-bottom: 4px;
+}
+
+.live-traffic-detail {
+  color: #334155;
+  font-size: 0.76rem;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+/* =====================================================
+   TAXIPRO — TARJETA CLIENTE
+===================================================== */
+
+.client-tariff-box,
+.client-traffic-box {
+  margin-top: 14px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(214, 179, 106, 0.22);
+}
+
+.client-tariff-label,
+.client-traffic-label {
+  color: #d6b36a;
+  font-size: 0.66rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.client-tariff-name,
+.client-traffic-state {
+  color: #ffffff;
+  font-size: 0.95rem;
+  font-weight: 900;
+  margin-bottom: 4px;
+}
+
+.client-tariff-reason,
+.client-traffic-detail {
+  color: rgba(255,255,255,0.82);
+  font-size: 0.76rem;
+  font-weight: 700;
+  line-height: 1.35;
+}
+/* ===== TARJETA CLIENTE MÁS COMPACTA ===== */
+
+.client-card {
+  width: min(92vw, 420px);
+  max-width: 420px;
+  padding: 22px 16px 18px;
+}
+
+.client-price {
+  font-size: clamp(2.2rem, 10vw, 4rem);
+  line-height: 1;
+  word-break: keep-all;
+  white-space: nowrap;
+}
+
+.client-route {
+  font-size: 0.88rem;
+  line-height: 1.35;
+  padding: 10px 12px;
+}
+
+.client-meta {
+  gap: 10px;
+}
+
+.client-meta-item {
+  min-width: 0;
+  flex: 1;
+}
+
+.client-legal {
+  font-size: 0.72rem;
+  line-height: 1.35;
+  padding: 12px;
+}
+
+.client-traffic-card,
+.client-tariff-card {
+  padding: 12px;
+  border-radius: 14px;
+  margin-top: 12px;
+}
+
+.client-tariff-card.hidden,
+#tariffAppliedCard.hidden {
+  display: none !important;
+}
+
+#tariffAppliedCard,
+#liveTrafficCard {
+  padding: 12px;
+  border-radius: 14px;
+  margin-top: 12px;
+}
+
+#tariffAppliedName,
+#liveTrafficState,
+#clientTariffName,
+#clientTrafficState {
+  font-size: 0.95rem;
+  font-weight: 800;
+}
+
+#tariffAppliedReason,
+#liveTrafficDetail,
+#clientTariffReason,
+#clientTrafficDetail {
+  font-size: 0.78rem;
+  line-height: 1.35;
+}
+
+@media (max-width: 480px) {
+  .client-card {
+    width: min(94vw, 390px);
+    padding: 18px 14px 16px;
+  }
+
+  .client-price {
+    font-size: clamp(2rem, 12vw, 3.3rem);
+  }
+
+  .client-legal {
+    font-size: 0.68rem;
+  }
+}
