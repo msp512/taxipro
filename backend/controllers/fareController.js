@@ -9,7 +9,7 @@ import logger from "../utils/logger.js";
 
 // Ajuste temporal de calibración piloto TAXIPRO.
 // Incrementa la estimación final un 8% para corregir desviación detectada a la baja.
-const PILOT_PRICE_ADJUSTMENT_FACTOR = 1.02;
+const PILOT_PRICE_ADJUSTMENT_FACTOR = 1.08;
 const CROSS_SPEED = 18;
 
 function isValidServiceData({ deviation, distance, duration, speed }) {
