@@ -10,6 +10,7 @@ import logger from "../utils/logger.js";
 // Ajuste temporal de calibración piloto TAXIPRO.
 // Incrementa la estimación final un 8% para corregir desviación detectada a la baja.
 const PILOT_PRICE_ADJUSTMENT_FACTOR = 1.08;
+const CROSS_SPEED = 18;
 
 function isValidServiceData({ deviation, distance, duration, speed }) {
   if (typeof deviation !== "number") return false;
@@ -253,16 +254,27 @@ function calculateSupplementsTotal(profile, supplements = [], scope = "urban") {
   }, 0);
 }
 
-function calculateBaseEstimatedPrice({ distance, duration, tariff }) {
+function calculateBaseEstimatedPrice({ distance, duration, speed, tariff }) {
   const distancePart = distance * tariff.priceKm;
-  const timePart = (duration / 60) * tariff.waitingHour;
+
+  let timePart = 0;
+  let effectiveTime = 0;
+  let timeWeight = 0;
+
+  if (speed < CROSS_SPEED) {
+    timeWeight = Math.min(1, (CROSS_SPEED - speed) / CROSS_SPEED);
+    effectiveTime = duration * timeWeight;
+    timePart = (effectiveTime / 60) * tariff.waitingHour;
+  }
 
   return {
     basePrice: tariff.flagfall + distancePart + timePart,
     distancePart,
     timePart,
     billableDistance: distance,
-    appliedDistanceFactor: 1
+    appliedDistanceFactor: 1,
+    effectiveTime,
+    timeWeight
   };
 }
 
@@ -382,10 +394,11 @@ export async function estimateFare(req, res) {
     );
 
     const baseCalculation = calculateBaseEstimatedPrice({
-      distance,
-      duration,
-      tariff
-    });
+  distance,
+  duration,
+  speed,
+  tariff
+});
 
     let price = baseCalculation.basePrice;
 
@@ -538,7 +551,7 @@ export async function estimateFare(req, res) {
         correctionFactor,
         pilotAdjustmentFactor: PILOT_PRICE_ADJUSTMENT_FACTOR,
         learningStatus,
-        model: "taximeter_v9_effective_interurban_km"
+        model: "taximeter_v10_intelligent_time_weighted"
       }
     });
   } catch (error) {
