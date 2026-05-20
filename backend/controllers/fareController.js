@@ -12,7 +12,6 @@ const CROSS_SPEED = 18;
 // Ajuste temporal de calibración piloto TAXIPRO.
 // Incrementa la estimación final un 8% para corregir desviación detectada a la baja.
 const PILOT_PRICE_ADJUSTMENT_FACTOR = 1.08;
-const INTERURBAN_RETURN_FACTOR = 1.85;
 
 function isValidServiceData({ deviation, distance, duration, speed }) {
   if (typeof deviation !== "number") return false;
@@ -231,29 +230,6 @@ function resolveTariff({
   };
 }
 
-  const night = isUrbanNight(now, profile);
-
-  if (sunday || night) {
-    const tariff = profile.tariffs.T2;
-
-    return {
-      ...tariff,
-      routeScope: routeScope.scope,
-      routeScopeReason: routeScope.reason,
-      reason: sunday
-        ? "Urbana en domingo o festivo"
-        : "Urbana nocturna entre 21:00 y 07:00"
-    };
-  }
-
-  return {
-    ...profile.tariffs.T1,
-    routeScope: routeScope.scope,
-    routeScopeReason: routeScope.reason,
-    reason: "Urbana laborable entre 07:00 y 21:00"
-  };
-
-
 function resolveSupplementKey(profile, key, scope) {
   const cleanKey = String(key || "").trim();
 
@@ -431,14 +407,13 @@ export async function estimateFare(req, res) {
       tariffScope
     );
 
-    const baseCalculation = calculateBaseEstimatedPrice({
-  distance,
-  duration,
-  tariff
-});
+        const baseCalculation = calculateBaseEstimatedPrice({
+      distance,
+      duration,
+      tariff
+    });
 
-let price = baseCalculation.basePrice;
-
+    let price = baseCalculation.basePrice;
     let correctionFactor = 1;
     let learningStatus = "not_used";
 
@@ -574,7 +549,7 @@ let price = baseCalculation.basePrice;
         learningStatus
       },
 
-      meta: {
+            meta: {
         speed,
         city: city || null,
         origin: origin || null,
@@ -584,9 +559,6 @@ let price = baseCalculation.basePrice;
         routeScope: tariff.routeScope || tariff.scope,
         routeScopeReason: tariff.routeScopeReason || null,
         baseCalculation,
-        interurbanReturnFactor: tariff.scope === "interurban"
-        ? INTERURBAN_RETURN_FACTOR
-        : 1,
         correctionFactor,
         pilotAdjustmentFactor: PILOT_PRICE_ADJUSTMENT_FACTOR,
         learningStatus,
