@@ -7014,4 +7014,71 @@ body {
     min-width: 96px;
     font-size: 0.62rem;
   }
+}/* ===============================
+   FIX FINAL — SUPLEMENTOS DESTACADOS
+=============================== */
+
+section.supplements-section,
+.app-section.supplements-section {
+  background: linear-gradient(180deg, #fff8df 0%, #ffeec2 100%) !important;
+  border: 2px solid #d89a22 !important;
+  box-shadow: 0 12px 28px rgba(120, 79, 10, 0.18) !important;
+}
+
+#supplementsDetails > summary {
+  background: #fff3c4 !important;
+  border: 1px solid #c98312 !important;
+  border-radius: 14px !important;
+  padding: 14px !important;
+}
+
+#supplementsDetails > summary span {
+  color: #5f3900 !important;
+  font-weight: 900 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.08em !important;
+}
+
+#supplementsDetails > summary span::before {
+  content: "＋ ";
+}
+
+#supplementsDetails[open] > summary span::before {
+  content: "− ";
+}
+
+#supplementsSummary {
+  background: #ffffff !important;
+  color: #7a4c00 !important;
+  border: 1px solid rgba(160, 105, 8, 0.35) !important;
+  border-radius: 999px !important;
+  padding: 6px 10px !important;
+  font-weight: 800 !important;
+}
+
+#supplementsPanel {
+  background: rgba(255, 255, 255, 0.75) !important;
+  border: 1px solid rgba(160, 105, 8, 0.25) !important;
+  border-radius: 16px !important;
+  padding: 12px !important;
+  margin-top: 12px !important;
+}
+
+.supplement-btn {
+  background: #fffdf6 !important;
+  border: 1px solid rgba(143, 93, 0, 0.3) !important;
+  color: #1f2933 !important;
+  box-shadow: 0 6px 16px rgba(80, 53, 0, 0.08) !important;
+}
+
+.supplement-btn.active,
+.supplement-btn[aria-pressed="true"] {
+  background: #12324f !important;
+  border-color: #12324f !important;
+  color: #ffffff !important;
+}
+
+.supplement-btn.active small,
+.supplement-btn[aria-pressed="true"] small {
+  color: #ffe2a3 !important;
 }
