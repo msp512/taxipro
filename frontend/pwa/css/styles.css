@@ -6674,4 +6674,344 @@ body {
   .client-legal {
     font-size: 0.68rem;
   }
+}/* ===============================
+   CLIENT MODE — COMPACTO MÓVIL
+=============================== */
+
+.client-mode {
+  padding: 10px;
+  align-items: flex-start;
+  overflow-y: auto;
+}
+
+.client-card {
+  width: min(100%, 420px);
+  max-height: calc(100vh - 20px);
+  padding: 18px 16px;
+  border-radius: 18px;
+  overflow-y: auto;
+}
+
+.client-badge {
+  margin-bottom: 10px;
+  padding: 5px 12px;
+  font-size: 0.68rem;
+}
+
+.client-route {
+  margin: 8px auto 14px;
+  padding: 8px 10px;
+  font-size: 0.78rem;
+  line-height: 1.25;
+}
+
+.client-price {
+  font-size: clamp(2.7rem, 12vw, 4.1rem);
+  line-height: 0.95;
+  margin: 6px 0 8px;
+}
+
+.client-price-label {
+  margin-bottom: 12px;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+}
+
+.client-meta {
+  gap: 8px;
+  margin: 12px 0 14px;
+}
+
+.client-meta-item {
+  padding: 8px 10px;
+  border-radius: 12px;
+}
+
+.client-meta-item .meta-label,
+.meta-label {
+  font-size: 0.65rem;
+}
+
+.client-meta-item .meta-value,
+.meta-value {
+  font-size: 0.82rem;
+}
+
+.client-legal {
+  margin-top: 12px;
+  padding: 12px;
+  border-radius: 14px;
+  text-align: justify;
+  text-align-last: center;
+}
+
+.legal-block {
+  margin-bottom: 8px;
+  font-size: 0.68rem;
+  line-height: 1.28;
+}
+
+.legal-block:last-child {
+  margin-bottom: 0;
+}
+
+.client-close-btn {
+  margin-top: 12px;
+  padding: 10px 14px;
+  font-size: 0.82rem;
+}
+
+/* Tarifa y tráfico dentro de tarjeta cliente, si existen */
+.client-tariff-card,
+.client-traffic-card,
+.client-info-card {
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  font-size: 0.72rem;
+  line-height: 1.25;
+  text-align: justify;
+  text-align-last: center;
+}
+
+#clientTariffName,
+#clientTrafficState {
+  font-size: 0.8rem;
+  margin-bottom: 4px;
+}
+
+#clientTariffReason,
+#clientTrafficDetail {
+  font-size: 0.68rem;
+  line-height: 1.25;
+}
+
+/* Ajuste específico para pantallas bajas */
+@media (max-height: 760px) {
+  .client-card {
+    padding: 14px 14px;
+  }
+
+  .client-price {
+    font-size: clamp(2.4rem, 10vw, 3.5rem);
+  }
+
+  .client-meta {
+    margin: 8px 0 10px;
+  }
+
+  .client-legal {
+    padding: 10px;
+  }
+
+  .legal-block {
+    font-size: 0.64rem;
+    line-height: 1.22;
+    margin-bottom: 6px;
+  }
+
+  .client-close-btn {
+    margin-top: 10px;
+    padding: 9px 12px;
+  }
+}
+
+/* Ajuste específico para móviles estrechos */
+@media (max-width: 420px) {
+  .client-mode {
+    padding: 8px;
+  }
+
+  .client-card {
+    width: 100%;
+    padding: 14px 12px;
+  }
+
+  .client-price {
+    font-size: clamp(2.5rem, 13vw, 3.8rem);
+  }
+
+  .client-route {
+    max-width: 100%;
+    font-size: 0.72rem;
+  }
+
+  .client-legal {
+    text-align: justify;
+    text-align-last: center;
+  }
+
+  .legal-block {
+    font-size: 0.63rem;
+  }
+}/* ===============================
+   SUPLEMENTOS — BLOQUE DESTACADO
+=============================== */
+
+.supplements-section {
+  background: linear-gradient(180deg, #fff8e6 0%, #fff3cf 100%);
+  border: 2px solid rgba(214, 156, 38, 0.85);
+  box-shadow: 0 12px 28px rgba(120, 79, 10, 0.13);
+}
+
+.supplements-details {
+  border: 0;
+  background: transparent;
+}
+
+.supplements-details summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+
+  min-height: 54px;
+  padding: 14px 14px;
+
+  border-radius: 14px;
+  background: #fff7dd;
+  border: 1px solid rgba(189, 130, 18, 0.45);
+
+  cursor: pointer;
+  list-style: none;
+}
+
+.supplements-details summary::-webkit-details-marker {
+  display: none;
+}
+
+.supplements-details summary span {
+  font-size: 0.9rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #6b4200;
+}
+
+.supplements-details summary span::before {
+  content: "＋ ";
+  font-weight: 900;
+}
+
+.supplements-details[open] summary span::before {
+  content: "− ";
+}
+
+#supplementsSummary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-width: 112px;
+  padding: 6px 9px;
+
+  border-radius: 999px;
+  background: #ffffff;
+  border: 1px solid rgba(189, 130, 18, 0.35);
+
+  color: #7a4c00;
+  font-size: 0.68rem;
+  font-weight: 800;
+  text-align: center;
+}
+
+.supplements-panel {
+  margin-top: 12px;
+  padding: 12px;
+
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.68);
+  border: 1px solid rgba(189, 130, 18, 0.28);
+}
+
+.supplements-group-title {
+  margin: 14px 0 8px;
+  padding-left: 2px;
+
+  color: #6b4200;
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.supplements-group-title:first-child {
+  margin-top: 0;
+}
+
+.supplements-grid--compact {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.supplement-btn {
+  min-height: 48px;
+  padding: 10px 9px;
+
+  border-radius: 13px;
+  border: 1px solid rgba(143, 93, 0, 0.26);
+  background: #fffdf7;
+
+  color: #1f2933;
+  font-size: 0.76rem;
+  font-weight: 800;
+  line-height: 1.15;
+  text-align: left;
+
+  box-shadow: 0 6px 16px rgba(80, 53, 0, 0.07);
+}
+
+.supplement-btn small {
+  display: block;
+  margin-top: 4px;
+
+  color: #8a5700;
+  font-size: 0.68rem;
+  font-weight: 900;
+}
+
+.supplement-btn.active,
+.supplement-btn[aria-pressed="true"] {
+  background: #12324f;
+  border-color: #12324f;
+  color: #ffffff;
+  box-shadow: 0 10px 24px rgba(15, 42, 68, 0.25);
+}
+
+.supplement-btn.active small,
+.supplement-btn[aria-pressed="true"] small {
+  color: #ffe2a3;
+}
+
+/* Móvil estrecho */
+@media (max-width: 420px) {
+  .supplements-section {
+    padding: 12px;
+  }
+
+  .supplements-details summary {
+    padding: 12px;
+    min-height: 50px;
+  }
+
+  .supplements-grid--compact {
+    grid-template-columns: 1fr 1fr;
+    gap: 7px;
+  }
+
+  .supplement-btn {
+    min-height: 44px;
+    padding: 9px 8px;
+    font-size: 0.7rem;
+  }
+
+  .supplement-btn small {
+    font-size: 0.62rem;
+  }
+
+  #supplementsSummary {
+    min-width: 96px;
+    font-size: 0.62rem;
+  }
 }
