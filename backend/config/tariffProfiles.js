@@ -7,9 +7,10 @@ export const TARIFF_PROFILES = {
     jurisdiction: "Palma de Mallorca / Mallorca",
     currency: "EUR",
 
-    sourceLabel: "Tarifas urbanas Palma + tarifas interurbanas Mallorca",
+    sourceLabel:
+      "Tarifa referencia Mallorca 2025 + tarifas interurbanas Mallorca 2022",
     sourceNote:
-      "Perfil operativo TAXIPRO. T1/T2: tarifas urbanas Palma/Mallorca vigentes en el proyecto. T3/T4: circular BOIB tarifas interurbanas Mallorca.",
+      "T1/T2 según tarifa de referencia Mallorca 2025. T3/T4 según circular interurbana Mallorca 2022 con parámetros de taxímetro.",
 
     tariffs: {
       T1: {
@@ -18,55 +19,101 @@ export const TARIFF_PROFILES = {
         reason: "Urbana laborable entre 07:00 y 21:00",
         scope: "urban",
         period: "day",
+
         startHour: 7,
         endHour: 21,
+
         flagfall: 2.5,
         priceKm: 1.2,
-        waitingHour: 19.4
+        waitingHour: 19.4,
+
+        // Parámetros derivados desde tarifa oficial:
+        // salto 0,05 € / 1,20 €/km = 41,67 m
+        // salto 0,05 € / 19,40 €/h = 9,28 s
+        jumpValue: 0.05,
+        metersPerJump: 41.67,
+        secondsPerJump: 9.28,
+        speedLimitKmh: 16.17,
+        includedKm: 0
       },
 
       T2: {
         code: "T2",
         name: "Tarifa 2 · Urbana nocturna/festiva",
-        reason: "Urbana nocturna, domingo o festivo",
+        reason: "Urbana nocturna, sábado, domingo o festivo",
         scope: "urban",
         period: "nightHoliday",
+
         startHour: 21,
         endHour: 7,
+
         flagfall: 2.85,
         priceKm: 1.35,
-        waitingHour: 21.4
+        waitingHour: 21.4,
+
+        // Parámetros derivados desde tarifa oficial:
+        // salto 0,05 € / 1,35 €/km = 37,04 m
+        // salto 0,05 € / 21,40 €/h = 8,41 s
+        jumpValue: 0.05,
+        metersPerJump: 37.04,
+        secondsPerJump: 8.41,
+        speedLimitKmh: 15.85,
+        includedKm: 0
       },
 
       T3: {
-  code: "T3",
-  name: "Tarifa 3 · Interurbana diurna",
-  reason: "Interurbana diurna entre 06:00 y 21:00",
-  scope: "interurban",
-  period: "day",
-  startHour: 6,
-  endHour: 21,
-  flagfall: 3.31,
-  priceKm: 1.16,
-  waitingHour: 19.52
-},
+        code: "T3",
+        name: "Tarifa 3 · Interurbana diurna",
+        reason: "Interurbana diurna entre 06:00 y 21:00",
+        scope: "interurban",
+        period: "day",
 
-T4: {
-  code: "T4",
-  name: "Tarifa 4 · Interurbana nocturna/festiva",
-  reason: "Interurbana nocturna, sábado tarde, domingo o festivo",
-  scope: "interurban",
-  period: "nightHoliday",
-  startHour: 21,
-  endHour: 6,
-  flagfall: 4.25,
-  priceKm: 1.32,
-  waitingHour: 18.98
-}
+        startHour: 6,
+        endHour: 21,
+
+        flagfall: 3.31,
+        priceKm: 0.58,
+        waitingHour: 19.52,
+
+        // Parámetros oficiales de programación del taxímetro interurbano.
+        jumpValue: 0.2,
+        metersPerJump: 172.41,
+        secondsPerJump: 36.89,
+        speedLimitKmh: 16.83,
+
+        // La bajada interurbana incluye primer km de ida y vuelta.
+        // Con los saltos oficiales NO duplicamos distancia.
+        includedKm: 1
+      },
+
+      T4: {
+        code: "T4",
+        name: "Tarifa 4 · Interurbana nocturna/festiva",
+        reason: "Interurbana nocturna, sábado tarde, domingo o festivo",
+        scope: "interurban",
+        period: "nightHoliday",
+
+        startHour: 21,
+        endHour: 6,
+
+        flagfall: 4.25,
+        priceKm: 0.66,
+        waitingHour: 18.98,
+
+        // Parámetros oficiales de programación del taxímetro interurbano.
+        jumpValue: 0.2,
+        metersPerJump: 151.52,
+        secondsPerJump: 37.93,
+        speedLimitKmh: 14.35,
+
+        // La bajada interurbana incluye primer km de ida y vuelta.
+        // Con los saltos oficiales NO duplicamos distancia.
+        includedKm: 1
+      }
     },
 
     supplements: {
-      // Urbanos T1/T2
+      // Urbanos / tarifa referencia Mallorca
       airport_t12: {
         label: "Aeropuerto / Puerto · T1/T2",
         amount: 4.65,
@@ -84,7 +131,7 @@ T4: {
       },
       mountain1_t12: {
         label: "Montaña 1 · T1/T2",
-        amount: 4.26,
+        amount: 8.52,
         scope: "urban"
       },
       mountain2_t12: {
@@ -92,8 +139,18 @@ T4: {
         amount: 4.26,
         scope: "urban"
       },
+      passengers_5_6_t12: {
+        label: "5 o 6 pasajeros · T1/T2",
+        amount: 3.0,
+        scope: "urban"
+      },
+      passengers_7_8_t12: {
+        label: "7 u 8 pasajeros · T1/T2",
+        amount: 6.0,
+        scope: "urban"
+      },
 
-      // Interurbanos T3/T4
+      // Interurbanos / circular Mallorca 2022
       airport_t34: {
         label: "Aeropuerto / Puertos · T3/T4",
         amount: 3.08,
@@ -110,12 +167,12 @@ T4: {
         scope: "interurban"
       },
       mountain1_t34: {
-        label: "Montaña · T3/T4",
+        label: "Montaña 1 · T3/T4",
         amount: 4.26,
         scope: "interurban"
       },
       mountain2_t34: {
-        label: "Sa Calobra / Cala Tuent · T3/T4",
+        label: "Montaña 2 · T3/T4",
         amount: 8.52,
         scope: "interurban"
       },
@@ -132,7 +189,7 @@ T4: {
         scope: "urban"
       },
 
-      // Compatibilidad antigua
+      // Compatibilidad antigua frontend
       airport: {
         label: "Aeropuerto / Puerto",
         amount: 4.65,
@@ -155,13 +212,44 @@ T4: {
       },
       mountain1: {
         label: "Montaña 1",
-        amount: 4.26,
+        amount: 8.52,
         scope: "urban"
       },
       mountain2: {
         label: "Montaña 2",
         amount: 4.26,
         scope: "urban"
+      }
+    },
+
+    supplementAliases: {
+      airport: {
+        urban: "airport_t12",
+        interurban: "airport_t34"
+      },
+      port: {
+        urban: "port_t12",
+        interurban: "port_t34"
+      },
+      radio: {
+        urban: "radio_t12",
+        interurban: "radio_t34"
+      },
+      mountain1: {
+        urban: "mountain1_t12",
+        interurban: "mountain1_t34"
+      },
+      mountain2: {
+        urban: "mountain2_t12",
+        interurban: "mountain2_t34"
+      },
+      christmas: {
+        urban: "christmas_special",
+        interurban: null
+      },
+      holiday_special: {
+        urban: "holiday_special",
+        interurban: null
       }
     },
 
@@ -173,6 +261,7 @@ T4: {
       interurbanNightStartHour: 21,
 
       sundayIsHoliday: true,
+      saturdayIsUrbanHoliday: true,
       saturdayAfternoonIsInterurbanHoliday: true,
       saturdayAfternoonStartHour: 14,
 
@@ -237,49 +326,7 @@ T4: {
       "festival park",
       "marratxi",
       "marratxí"
-    ],
-
-    supplementAliases: {
-      airport: {
-        urban: "airport_t12",
-        interurban: "airport_t34"
-      },
-
-      port: {
-        urban: "port_t12",
-        interurban: "port_t34"
-      },
-
-      radio: {
-        urban: "radio_t12",
-        interurban: "radio_t34"
-      },
-
-      mountain1: {
-        urban: null,
-        interurban: "mountain1_t34"
-      },
-
-      mountain2: {
-        urban: null,
-        interurban: "mountain2_t34"
-      },
-
-      christmas: {
-        urban: "christmas_special",
-        interurban: null
-      },
-
-      holiday_special: {
-        urban: "holiday_special",
-        interurban: null
-      },
-
-      christmas_special: {
-        urban: "christmas_special",
-        interurban: null
-      }
-    }
+    ]
   }
 };
 

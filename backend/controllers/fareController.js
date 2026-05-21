@@ -1,29 +1,14 @@
 import { calculateAverageSpeed } from "../core/trafficAnalyzer.js";
 import { calculateConfidence } from "../core/confidenceEngine.js";
-import { calculateCorrectionFactor } from "../core/learningEngine.js";
-import { getRecentServices } from "../services/learningService.js";
 import { classifyService } from "../core/serviceClassifier.js";
+import { calculateTaximeterFare } from "../core/taximeterEngine.js";
 import { fareSchema } from "../validation/fareSchema.js";
 import { getTariffProfileByCity } from "../config/tariffProfiles.js";
 import logger from "../utils/logger.js";
 
-const CROSS_SPEED = 18;
-
-// Motor estabilizado: sin incremento provisional.
-// Si más adelante hiciera falta calibración fina, usar 1.02 / 1.03 como máximo.
-const PILOT_PRICE_ADJUSTMENT_FACTOR = 1.08;
-
-function isValidServiceData({ deviation, distance, duration, speed }) {
-  if (typeof deviation !== "number") return false;
-  if (typeof distance !== "number") return false;
-  if (typeof duration !== "number") return false;
-  if (typeof speed !== "number") return false;
-
-  if (Math.abs(deviation) > 0.35) return false;
-  if (distance < 0.5 || duration < 3) return false;
-  if (speed < 5 || speed > 120) return false;
-
-  return true;
+function toNumber(value, fallback = 0) {
+  const n = Number(value);
+  return Number.isFinite(n) ? n : fallback;
 }
 
 function normalizeSupplementKey(item) {
@@ -43,15 +28,9 @@ function normalizeSupplementKey(item) {
 function normalizeSelectedSupplements(supplements = []) {
   if (!Array.isArray(supplements)) return [];
 
-  return supplements.map(normalizeSupplementKey).filter(Boolean);
-}
-
-function isUrbanNight(date, profile) {
-  const hour = date.getHours();
-  const start = Number(profile.rules?.urbanNightStartHour || 21);
-  const end = Number(profile.rules?.urbanDayStartHour || 7);
-
-  return hour >= start || hour < end;
+  return supplements
+    .map(normalizeSupplementKey)
+    .filter(Boolean);
 }
 
 function normalizePlaceText(value = "") {
@@ -59,7 +38,17 @@ function normalizePlaceText(value = "") {
     .trim()
     .toLowerCase()
     .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "");
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/['’]/g, "")
+    .replace(/\s+/g, " ");
+}
+
+function getMallorcaNow(date = new Date()) {
+  return new Date(
+    date.toLocaleString("en-US", {
+      timeZone: "Europe/Madrid"
+    })
+  );
 }
 
 function getUrbanScopeKeywords(profile) {
@@ -76,6 +65,17 @@ function isInsideUrbanScope(placeText, profile) {
   const keywords = getUrbanScopeKeywords(profile);
 
   return keywords.some((keyword) => keyword && text.includes(keyword));
+}
+
+function isAirportPlace(value = "") {
+  const text = normalizePlaceText(value);
+
+  return (
+    text.includes("aeropuerto") ||
+    text.includes("aeroport") ||
+    text.includes("airport") ||
+    text.includes("pmi")
+  );
 }
 
 function resolveRouteScope({ city, origin, destination, stops = [], profile }) {
@@ -130,6 +130,8 @@ function resolveTariff({
   profile,
   now = new Date()
 }) {
+  const localNow = getMallorcaNow(now);
+
   const routeScope = resolveRouteScope({
     city,
     origin,
@@ -138,17 +140,19 @@ function resolveTariff({
     profile
   });
 
-  const day = now.getDay(); // 0 domingo, 6 sábado
-  const minutes = now.getHours() * 60 + now.getMinutes();
+  const day = localNow.getDay(); // 0 domingo, 6 sábado
+  const minutes = localNow.getHours() * 60 + localNow.getMinutes();
 
   const sixAM = 6 * 60;
+  const sevenAM = 7 * 60;
   const twoPM = 14 * 60;
   const ninePM = 21 * 60;
 
-  const sunday = day === 0;
+  const isSunday = day === 0;
+  const isSaturday = day === 6;
 
   if (routeScope.scope === "interurban") {
-    if (sunday) {
+    if (isSunday) {
       return {
         ...profile.tariffs.T4,
         routeScope: routeScope.scope,
@@ -157,49 +161,53 @@ function resolveTariff({
       };
     }
 
-    if (day === 6) {
-      const isSaturdayT3 = minutes >= sixAM && minutes < twoPM;
+    if (isSaturday) {
+      const saturdayT3 = minutes >= sixAM && minutes < twoPM;
 
       return {
-        ...(isSaturdayT3 ? profile.tariffs.T3 : profile.tariffs.T4),
+        ...(saturdayT3 ? profile.tariffs.T3 : profile.tariffs.T4),
         routeScope: routeScope.scope,
         routeScopeReason: routeScope.reason,
-        reason: isSaturdayT3
+        reason: saturdayT3
           ? "Interurbana sábado entre 06:00 y 14:00"
           : "Interurbana sábado desde las 14:00"
       };
     }
 
-    const isDay = minutes >= sixAM && minutes < ninePM;
+    const interurbanDay = minutes >= sixAM && minutes < ninePM;
 
     return {
-      ...(isDay ? profile.tariffs.T3 : profile.tariffs.T4),
+      ...(interurbanDay ? profile.tariffs.T3 : profile.tariffs.T4),
       routeScope: routeScope.scope,
       routeScopeReason: routeScope.reason,
-      reason: isDay
+      reason: interurbanDay
         ? "Interurbana laborable entre 06:00 y 21:00"
         : "Interurbana nocturna entre 21:00 y 06:00"
     };
   }
 
-  const urbanNight = isUrbanNight(now, profile);
-
-  if (sunday || urbanNight) {
+  // Tarifa de referencia Mallorca 2025:
+  // sábado, domingo y festivo son festivos; laborable solo lunes-viernes 07:00-21:00.
+  if (isSaturday || isSunday) {
     return {
       ...profile.tariffs.T2,
       routeScope: routeScope.scope,
       routeScopeReason: routeScope.reason,
-      reason: sunday
-        ? "Urbana en domingo o festivo"
-        : "Urbana nocturna entre 21:00 y 07:00"
+      reason: isSaturday
+        ? "Urbana en sábado/festivo"
+        : "Urbana en domingo o festivo"
     };
   }
 
+  const urbanDay = minutes >= sevenAM && minutes < ninePM;
+
   return {
-    ...profile.tariffs.T1,
+    ...(urbanDay ? profile.tariffs.T1 : profile.tariffs.T2),
     routeScope: routeScope.scope,
     routeScopeReason: routeScope.reason,
-    reason: "Urbana laborable entre 07:00 y 21:00"
+    reason: urbanDay
+      ? "Urbana laborable entre 07:00 y 21:00"
+      : "Urbana nocturna entre 21:00 y 07:00"
   };
 }
 
@@ -250,31 +258,6 @@ function calculateSupplementsTotal(profile, supplements = [], scope = "urban") {
   );
 }
 
-function calculateBaseEstimatedPrice({ distance, duration, speed, tariff }) {
-  const distancePart = distance * tariff.priceKm;
-
-  let timePart = 0;
-  let effectiveTime = 0;
-  let timeWeight = 0;
-
-  if (speed < CROSS_SPEED) {
-    timeWeight = Math.min(1, (CROSS_SPEED - speed) / CROSS_SPEED);
-    effectiveTime = duration * timeWeight;
-    timePart = (effectiveTime / 60) * tariff.waitingHour;
-  }
-
-  return {
-    basePrice: tariff.flagfall + distancePart + timePart,
-    distancePart,
-    timePart,
-    billableDistance: distance,
-    appliedDistanceFactor: 1,
-    effectiveTime,
-    timeWeight,
-    speedThreshold: CROSS_SPEED
-  };
-}
-
 function calculateMarginBySpeed(speed) {
   if (speed < 15) return 0.1;
   if (speed < 25) return 0.07;
@@ -287,6 +270,41 @@ function normalizeZodError(error) {
     field: issue.path.join("."),
     message: issue.message
   }));
+}
+
+function applyAirportMinimumFare({
+  price,
+  origin,
+  profile,
+  tariffScope
+}) {
+  const minimumFare = profile.rules?.airportMinimumFare;
+
+  if (
+    tariffScope !== "urban" ||
+    !minimumFare?.enabled ||
+    !minimumFare?.appliesWhenOriginIsAirport ||
+    !isAirportPlace(origin)
+  ) {
+    return {
+      price,
+      airportMinimumApplied: false
+    };
+  }
+
+  const minimumAmount = toNumber(minimumFare.amount);
+
+  if (minimumAmount > 0 && price < minimumAmount) {
+    return {
+      price: minimumAmount,
+      airportMinimumApplied: true
+    };
+  }
+
+  return {
+    price,
+    airportMinimumApplied: false
+  };
 }
 
 export async function estimateFare(req, res) {
@@ -335,11 +353,19 @@ export async function estimateFare(req, res) {
       now: new Date()
     });
 
-    const type = classifyService({
-      distance,
-      duration,
-      supplements: selectedSupplements
-    });
+    const tariffScope = tariff.routeScope || tariff.scope || "urban";
+
+    const supplementsApplied = getSupplementsApplied(
+      tariffProfile,
+      selectedSupplements,
+      tariffScope
+    );
+
+    const supplementsTotal = calculateSupplementsTotal(
+      tariffProfile,
+      selectedSupplements,
+      tariffScope
+    );
 
     const speed = calculateAverageSpeed(distance * 1000, duration * 60);
 
@@ -358,72 +384,27 @@ export async function estimateFare(req, res) {
       });
     }
 
-    const tariffScope = tariff.routeScope || tariff.scope || "urban";
-
-    const supplementsApplied = getSupplementsApplied(
-      tariffProfile,
-      selectedSupplements,
-      tariffScope
-    );
-
-    const supplementsTotal = calculateSupplementsTotal(
-      tariffProfile,
-      selectedSupplements,
-      tariffScope
-    );
-
-    const baseCalculation = calculateBaseEstimatedPrice({
+    const type = classifyService({
       distance,
       duration,
-      speed,
-      tariff
+      supplements: selectedSupplements
     });
 
-    let correctionFactor = 1;
-    let learningStatus = "not_used";
+    const taximeterCalculation = calculateTaximeterFare({
+      distanceKm: distance,
+      durationMinutes: duration,
+      tariff,
+      supplementsTotal
+    });
 
-    try {
-      const services = await getRecentServices(req.app.locals.db, type);
-      const safeServices = Array.isArray(services) ? services : [];
+    const minimumResult = applyAirportMinimumFare({
+      price: taximeterCalculation.price,
+      origin,
+      profile: tariffProfile,
+      tariffScope
+    });
 
-      const validServices = safeServices.filter((service) =>
-        isValidServiceData({
-          deviation: service.deviation,
-          distance: service.distance_km,
-          duration: service.duration_min,
-          speed: service.speed
-        })
-      );
-
-      const calculatedFactor = calculateCorrectionFactor(validServices);
-
-      if (typeof calculatedFactor === "number" && Number.isFinite(calculatedFactor)) {
-        correctionFactor = calculatedFactor;
-        learningStatus = "applied";
-      } else {
-        correctionFactor = 1;
-        learningStatus = "fallback";
-      }
-    } catch (learningError) {
-      learningStatus = "fallback";
-
-      logger.warn(
-        {
-          error: learningError.message,
-          type
-        },
-        "Learning system not available"
-      );
-    }
-
-    let price = baseCalculation.basePrice;
-
-    price *= correctionFactor;
-    price += supplementsTotal;
-    price *= PILOT_PRICE_ADJUSTMENT_FACTOR;
-
-    price = Number(price.toFixed(2));
-
+    const price = Number(minimumResult.price.toFixed(2));
     const confidence = calculateConfidence(distance, duration, speed);
     const margin = calculateMarginBySpeed(speed);
 
@@ -447,19 +428,17 @@ export async function estimateFare(req, res) {
         tariffCode: tariff.code,
         tariffName: tariff.name,
         tariffReason: tariff.reason,
-        routeScope: tariff.routeScope || tariff.scope,
+        routeScope: tariffScope,
         routeScopeReason: tariff.routeScopeReason || null,
         supplements: selectedSupplements,
         supplementsApplied,
         supplementsTotal,
-        baseCalculation,
-        correctionFactor,
-        pilotAdjustmentFactor: PILOT_PRICE_ADJUSTMENT_FACTOR,
+        taximeterCalculation,
+        airportMinimumApplied: minimumResult.airportMinimumApplied,
         confidence,
         price,
         minPrice,
-        maxPrice,
-        learningStatus
+        maxPrice
       },
       "Fare calculation completed"
     );
@@ -487,20 +466,24 @@ export async function estimateFare(req, res) {
         name: tariff.name,
         reason: tariff.reason,
         scope: tariff.scope,
-        routeScope: tariff.routeScope || tariff.scope,
+        routeScope: tariffScope,
         routeScopeReason: tariff.routeScopeReason || null,
         period: tariff.period,
         flagfall: tariff.flagfall,
         priceKm: tariff.priceKm,
         waitingHour: tariff.waitingHour,
-        waitingMinute: Number((tariff.waitingHour / 60).toFixed(4))
+        jumpValue: tariff.jumpValue,
+        metersPerJump: tariff.metersPerJump,
+        secondsPerJump: tariff.secondsPerJump,
+        speedLimitKmh: tariff.speedLimitKmh,
+        includedKm: tariff.includedKm
       },
 
       tariffCode: tariff.code,
       tariffName: tariff.name,
       tariffReason: tariff.reason,
 
-      routeScope: tariff.routeScope || tariff.scope,
+      routeScope: tariffScope,
       routeScopeReason: tariff.routeScopeReason || null,
 
       supplements: {
@@ -510,9 +493,9 @@ export async function estimateFare(req, res) {
       },
 
       calibration: {
-        correctionFactor,
-        pilotAdjustmentFactor: PILOT_PRICE_ADJUSTMENT_FACTOR,
-        learningStatus
+        correctionFactor: 1,
+        pilotAdjustmentFactor: 1,
+        learningStatus: "disabled_taximeter_jumps"
       },
 
       meta: {
@@ -522,13 +505,14 @@ export async function estimateFare(req, res) {
         destination: destination || null,
         stops,
         type,
-        routeScope: tariff.routeScope || tariff.scope,
+        routeScope: tariffScope,
         routeScopeReason: tariff.routeScopeReason || null,
-        baseCalculation,
-        correctionFactor,
-        pilotAdjustmentFactor: PILOT_PRICE_ADJUSTMENT_FACTOR,
-        learningStatus,
-        model: "taximeter_v11_stable_weighted_time"
+        baseCalculation: taximeterCalculation,
+        airportMinimumApplied: minimumResult.airportMinimumApplied,
+        correctionFactor: 1,
+        pilotAdjustmentFactor: 1,
+        learningStatus: "disabled_taximeter_jumps",
+        model: "taximeter_jumps_controller_v1"
       }
     });
   } catch (error) {
