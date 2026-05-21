@@ -7152,4 +7152,149 @@ details#supplementsDetails > summary {
     font-size: 0.62rem !important;
     padding: 7px 10px !important;
   }
+}/* =========================================================
+   SUPLEMENTOS — DESTACADO SIN FONDO AMARILLO
+   Solo estética. No modifica lógica.
+========================================================= */
+
+section:has(#supplementsDetails),
+div:has(> #supplementsDetails),
+.card:has(#supplementsDetails),
+.form-card:has(#supplementsDetails),
+.route-block:has(#supplementsDetails),
+.app-section:has(#supplementsDetails) {
+  background: #f4f7fa !important;
+  border: 1.5px solid rgba(199, 143, 37, 0.75) !important;
+  box-shadow:
+    0 10px 24px rgba(15, 42, 68, 0.10),
+    inset 0 1px 0 rgba(255, 255, 255, 0.85) !important;
+  border-radius: 18px !important;
+  padding: 10px !important;
+}
+
+/* Barra superior */
+#supplementsDetails > summary,
+details#supplementsDetails > summary {
+  min-height: 60px !important;
+  padding: 14px 17px !important;
+
+  background: linear-gradient(180deg, #13243a 0%, #0b1624 100%) !important;
+  border: 1px solid rgba(218, 174, 82, 0.55) !important;
+  border-radius: 15px !important;
+
+  box-shadow:
+    0 8px 18px rgba(15, 29, 45, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.10) !important;
+}
+
+/* Texto SUPLEMENTOS */
+#supplementsDetails > summary span,
+#supplementsDetails > summary strong,
+#supplementsDetails > summary .summary-title {
+  color: #f4d58a !important;
+  font-size: 0.94rem !important;
+  font-weight: 950 !important;
+  letter-spacing: 0.12em !important;
+  text-transform: uppercase !important;
+}
+
+/* Icono + / - */
+#supplementsDetails > summary span:first-child::before,
+#supplementsDetails > summary strong:first-child::before {
+  content: "＋ ";
+  color: #f4c35b !important;
+  font-weight: 950 !important;
+}
+
+#supplementsDetails[open] > summary span:first-child::before,
+#supplementsDetails[open] > summary strong:first-child::before {
+  content: "− ";
+}
+
+/* Pastilla derecha */
+#supplementsSummary {
+  min-width: 132px !important;
+  padding: 7px 12px !important;
+
+  background: #ffffff !important;
+  color: #1d2b3a !important;
+  border: 1px solid rgba(218, 174, 82, 0.72) !important;
+  border-radius: 999px !important;
+
+  font-size: 0.66rem !important;
+  font-weight: 950 !important;
+  letter-spacing: 0.04em !important;
+  text-align: center !important;
+
+  box-shadow: 0 5px 12px rgba(15, 42, 68, 0.12) !important;
+}
+
+/* Panel desplegado */
+#supplementsPanel,
+.supplements-panel {
+  margin-top: 12px !important;
+  padding: 14px !important;
+
+  background: #ffffff !important;
+  border: 1px solid rgba(199, 143, 37, 0.38) !important;
+  border-radius: 16px !important;
+
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.9) !important;
+}
+
+/* Botones internos */
+#supplementsPanel .supplement-btn,
+.supplement-btn {
+  min-height: 50px !important;
+  background: #f9fbfd !important;
+  border: 1.4px solid rgba(15, 42, 68, 0.18) !important;
+  border-radius: 13px !important;
+  box-shadow: 0 6px 15px rgba(15, 42, 68, 0.07) !important;
+}
+
+/* Activo */
+#supplementsPanel .supplement-btn.active,
+#supplementsPanel .supplement-btn[aria-pressed="true"],
+.supplement-btn.active,
+.supplement-btn[aria-pressed="true"] {
+  background: linear-gradient(180deg, #173a5b 0%, #10243a 100%) !important;
+  border-color: #173a5b !important;
+  color: #ffffff !important;
+  box-shadow: 0 10px 24px rgba(15, 42, 68, 0.28) !important;
+}
+
+#supplementsPanel .supplement-btn.active small,
+#supplementsPanel .supplement-btn[aria-pressed="true"] small,
+.supplement-btn.active small,
+.supplement-btn[aria-pressed="true"] small {
+  color: #f4d58a !important;
+}
+
+/* Móvil */
+@media (max-width: 420px) {
+  section:has(#supplementsDetails),
+  div:has(> #supplementsDetails),
+  .card:has(#supplementsDetails),
+  .form-card:has(#supplementsDetails),
+  .route-block:has(#supplementsDetails),
+  .app-section:has(#supplementsDetails) {
+    padding: 9px !important;
+  }
+
+  #supplementsDetails > summary {
+    min-height: 56px !important;
+    padding: 12px 14px !important;
+  }
+
+  #supplementsDetails > summary span,
+  #supplementsDetails > summary strong,
+  #supplementsDetails > summary .summary-title {
+    font-size: 0.84rem !important;
+  }
+
+  #supplementsSummary {
+    min-width: 108px !important;
+    font-size: 0.6rem !important;
+    padding: 7px 9px !important;
+  }
 }
