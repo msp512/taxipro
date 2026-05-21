@@ -7014,71 +7014,142 @@ body {
     min-width: 96px;
     font-size: 0.62rem;
   }
-}/* ===============================
-   FIX FINAL — SUPLEMENTOS DESTACADOS
-=============================== */
+}/* =========================================================
+   SUPLEMENTOS — BLOQUE PRINCIPAL DESTACADO
+   Solo estética. No modifica lógica.
+========================================================= */
 
-section.supplements-section,
-.app-section.supplements-section {
-  background: linear-gradient(180deg, #fff8df 0%, #ffeec2 100%) !important;
-  border: 2px solid #d89a22 !important;
-  box-shadow: 0 12px 28px rgba(120, 79, 10, 0.18) !important;
+section:has(#supplementsDetails),
+div:has(> #supplementsDetails),
+.card:has(#supplementsDetails),
+.form-card:has(#supplementsDetails),
+.route-block:has(#supplementsDetails),
+.app-section:has(#supplementsDetails) {
+  background: linear-gradient(180deg, #fff4c7 0%, #ffe29a 100%) !important;
+  border: 2.5px solid #c98710 !important;
+  box-shadow:
+    0 16px 34px rgba(120, 79, 10, 0.24),
+    inset 0 1px 0 rgba(255, 255, 255, 0.75) !important;
+  border-radius: 20px !important;
+  padding: 12px !important;
 }
 
-#supplementsDetails > summary {
-  background: #fff3c4 !important;
-  border: 1px solid #c98312 !important;
-  border-radius: 14px !important;
-  padding: 14px !important;
+/* Barra superior */
+#supplementsDetails > summary,
+details#supplementsDetails > summary {
+  min-height: 64px !important;
+  padding: 15px 18px !important;
+
+  background: linear-gradient(180deg, #19324d 0%, #0f1d2d 100%) !important;
+  border: 1px solid rgba(255, 211, 120, 0.65) !important;
+  border-radius: 16px !important;
+
+  box-shadow:
+    0 10px 22px rgba(15, 29, 45, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12) !important;
 }
 
-#supplementsDetails > summary span {
-  color: #5f3900 !important;
-  font-weight: 900 !important;
+/* Texto SUPLEMENTOS */
+#supplementsDetails > summary span,
+#supplementsDetails > summary strong,
+#supplementsDetails > summary .summary-title {
+  color: #ffe3a3 !important;
+  font-size: 0.96rem !important;
+  font-weight: 950 !important;
+  letter-spacing: 0.12em !important;
   text-transform: uppercase !important;
-  letter-spacing: 0.08em !important;
 }
 
-#supplementsDetails > summary span::before {
+/* Icono + / - */
+#supplementsDetails > summary span:first-child::before,
+#supplementsDetails > summary strong:first-child::before {
   content: "＋ ";
+  color: #f2bf4b !important;
+  font-weight: 950 !important;
+  font-size: 1rem !important;
 }
 
-#supplementsDetails[open] > summary span::before {
+#supplementsDetails[open] > summary span:first-child::before,
+#supplementsDetails[open] > summary strong:first-child::before {
   content: "− ";
 }
 
+/* Pastilla derecha */
 #supplementsSummary {
-  background: #ffffff !important;
-  color: #7a4c00 !important;
-  border: 1px solid rgba(160, 105, 8, 0.35) !important;
+  min-width: 132px !important;
+  padding: 8px 12px !important;
+
+  background: #fff8df !important;
+  color: #5f3900 !important;
+  border: 1px solid #d49a27 !important;
   border-radius: 999px !important;
-  padding: 6px 10px !important;
-  font-weight: 800 !important;
+
+  font-size: 0.68rem !important;
+  font-weight: 950 !important;
+  letter-spacing: 0.04em !important;
+  text-align: center !important;
+
+  box-shadow: 0 5px 12px rgba(70, 43, 0, 0.18) !important;
 }
 
-#supplementsPanel {
-  background: rgba(255, 255, 255, 0.75) !important;
-  border: 1px solid rgba(160, 105, 8, 0.25) !important;
-  border-radius: 16px !important;
-  padding: 12px !important;
-  margin-top: 12px !important;
+/* Panel desplegado */
+#supplementsPanel,
+.supplements-panel {
+  margin-top: 14px !important;
+  padding: 14px !important;
+
+  background: #fff9e8 !important;
+  border: 1px solid rgba(160, 105, 8, 0.38) !important;
+  border-radius: 18px !important;
+
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.8) !important;
 }
 
+/* Botones internos */
+#supplementsPanel .supplement-btn,
 .supplement-btn {
-  background: #fffdf6 !important;
-  border: 1px solid rgba(143, 93, 0, 0.3) !important;
-  color: #1f2933 !important;
-  box-shadow: 0 6px 16px rgba(80, 53, 0, 0.08) !important;
+  min-height: 52px !important;
+  background: #ffffff !important;
+  border: 1.5px solid rgba(143, 93, 0, 0.36) !important;
+  border-radius: 14px !important;
+  box-shadow: 0 7px 17px rgba(80, 53, 0, 0.11) !important;
 }
 
+#supplementsPanel .supplement-btn.active,
+#supplementsPanel .supplement-btn[aria-pressed="true"],
 .supplement-btn.active,
 .supplement-btn[aria-pressed="true"] {
-  background: #12324f !important;
-  border-color: #12324f !important;
+  background: linear-gradient(180deg, #173a5b 0%, #10243a 100%) !important;
+  border-color: #173a5b !important;
   color: #ffffff !important;
+  box-shadow: 0 11px 26px rgba(15, 42, 68, 0.32) !important;
 }
 
-.supplement-btn.active small,
-.supplement-btn[aria-pressed="true"] small {
-  color: #ffe2a3 !important;
+/* Móvil */
+@media (max-width: 420px) {
+  section:has(#supplementsDetails),
+  div:has(> #supplementsDetails),
+  .card:has(#supplementsDetails),
+  .form-card:has(#supplementsDetails),
+  .route-block:has(#supplementsDetails),
+  .app-section:has(#supplementsDetails) {
+    padding: 10px !important;
+  }
+
+  #supplementsDetails > summary {
+    min-height: 58px !important;
+    padding: 13px 14px !important;
+  }
+
+  #supplementsDetails > summary span,
+  #supplementsDetails > summary strong,
+  #supplementsDetails > summary .summary-title {
+    font-size: 0.86rem !important;
+  }
+
+  #supplementsSummary {
+    min-width: 112px !important;
+    font-size: 0.62rem !important;
+    padding: 7px 10px !important;
+  }
 }
