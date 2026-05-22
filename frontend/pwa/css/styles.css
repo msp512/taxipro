@@ -7297,4 +7297,161 @@ details#supplementsDetails > summary {
     font-size: 0.6rem !important;
     padding: 7px 9px !important;
   }
+}/* =========================================================
+   MARCOS DESTACADOS — BLOQUES PRINCIPALES TAXIPRO
+   Solo estética. No modifica lógica.
+========================================================= */
+
+/* Bloques principales de la app */
+.app-section,
+.form-section,
+.route-section,
+.action-section,
+.result-section,
+.history-section,
+.map-section,
+.card,
+.form-card,
+.route-block,
+#originSection,
+#destinationSection,
+#actionSection,
+#meterSection,
+#historyPanel,
+#routeMapSection,
+#resultSection {
+  border: 1.5px solid rgba(15, 42, 68, 0.18) !important;
+  border-radius: 18px !important;
+  background: #f6f8fa !important;
+  box-shadow:
+    0 10px 24px rgba(15, 42, 68, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.85) !important;
+}
+
+/* Separador superior de cada bloque */
+.app-section::before,
+.form-section::before,
+.route-section::before,
+.action-section::before,
+.result-section::before,
+.history-section::before,
+.map-section::before,
+.card::before,
+.form-card::before,
+.route-block::before {
+  content: "";
+  display: block;
+  height: 3px;
+  margin: -1px -1px 12px -1px;
+  border-radius: 18px 18px 0 0;
+  background: linear-gradient(90deg, #d7a33a 0%, rgba(215, 163, 58, 0.2) 100%);
+}
+
+/* Títulos de bloque */
+.section-title,
+.block-title,
+.card-title,
+.app-section h2,
+.app-section h3,
+.form-section h2,
+.form-section h3,
+.route-section h2,
+.route-section h3,
+.action-section h2,
+.action-section h3,
+.result-section h2,
+.result-section h3,
+.map-section h2,
+.map-section h3 {
+  color: #7a4f08 !important;
+  font-weight: 950 !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase !important;
+}
+
+/* Bloques interiores de origen/destino/paradas */
+.input-card,
+.input-group,
+.quick-card,
+.destination-card,
+.origin-card {
+  border: 1px solid rgba(15, 42, 68, 0.15) !important;
+  border-radius: 15px !important;
+  background: #ffffff !important;
+  box-shadow: 0 6px 16px rgba(15, 42, 68, 0.06) !important;
+}
+
+/* Inputs más integrados dentro del marco */
+input,
+select,
+textarea {
+  border-radius: 10px !important;
+}
+
+/* Botones rápidos dentro de bloques */
+.quick-btn,
+#quickOrigins button,
+#quickDestinations button {
+  border: 1px solid rgba(15, 42, 68, 0.16) !important;
+  border-radius: 10px !important;
+  background: #ffffff !important;
+  box-shadow: 0 4px 10px rgba(15, 42, 68, 0.05) !important;
+}
+
+/* Estado activo/relleno si ya lo tienes aplicado por clases */
+.route-block.filled,
+.input-card.filled,
+.origin-filled,
+.destination-filled {
+  border-color: rgba(45, 156, 89, 0.55) !important;
+  background: #f1fbf5 !important;
+}
+
+/* SUPLEMENTOS mantiene estilo propio, pero dentro del sistema */
+section:has(#supplementsDetails),
+div:has(> #supplementsDetails),
+.card:has(#supplementsDetails),
+.form-card:has(#supplementsDetails),
+.route-block:has(#supplementsDetails),
+.app-section:has(#supplementsDetails) {
+  border: 1.5px solid rgba(199, 143, 37, 0.75) !important;
+  background: #f4f7fa !important;
+}
+
+/* Resultado con marco más protagonista */
+#resultSection,
+.result-section {
+  border-color: rgba(199, 143, 37, 0.7) !important;
+  box-shadow:
+    0 14px 32px rgba(15, 42, 68, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.85) !important;
+}
+
+/* Ajuste móvil */
+@media (max-width: 420px) {
+  .app-section,
+  .form-section,
+  .route-section,
+  .action-section,
+  .result-section,
+  .history-section,
+  .map-section,
+  .card,
+  .form-card,
+  .route-block {
+    border-radius: 16px !important;
+  }
+
+  .app-section::before,
+  .form-section::before,
+  .route-section::before,
+  .action-section::before,
+  .result-section::before,
+  .history-section::before,
+  .map-section::before,
+  .card::before,
+  .form-card::before,
+  .route-block::before {
+    margin-bottom: 10px;
+  }
 }
