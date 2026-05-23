@@ -213,7 +213,7 @@ const QUICK_LOCATIONS = {
   playa: "Playa de Palma, Mallorca",
   centro: "Plaça de la Reina, Palma, Mallorca",
   aeropuerto: "Aeropuerto de Palma, Mallorca",
-  puerto: "Puerto de Palma, Estación Marítima, Mallorca"
+  puerto: "Dique del Oeste, Palma, Mallorca"
 };
 
 const QUICK_DESTINATION_CONFIG = {
@@ -223,11 +223,11 @@ const QUICK_DESTINATION_CONFIG = {
   },
   port: {
     displayValue: "Puerto de Palma, Mallorca",
-    routingValue: "Puerto de Palma, Estación Marítima, Mallorca"
+    routingValue: "Dique del Oeste, Palma, Mallorca"
   },
   hospital: {
     displayValue: "Hospital Son Espases, Palma, Mallorca",
-    routingValue: "Hospital Son Espases, Palma, Mallorca"
+    routingValue: "Mallorca Fashion Outlet, Marratxí, Mallorca"
   },
   center: {
     displayValue: "Plaça de la Reina, Palma, Mallorca",
