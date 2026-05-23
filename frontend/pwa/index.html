@@ -26,26 +26,32 @@
       <div class="taxipro-subtitle">Estimación profesional del taxi</div>
     </div>
 
-    <div class="tariff-selector-header">
-      <label for="pricingMode">Modo tarifa</label>
-      <select id="pricingMode">
-        <option value="taxipro">TAXIPRO</option>
-        <option value="stipulated">ESTIPULADOS</option>
-        <option value="agency">AGENCIAS</option>
-        <option value="transfer">TRASLADOS</option>
-      </select>
-    </div>
+    <div class="tariff-selector-header tariff-selector-header--fixed">
+  <label>Modo tarifa</label>
+  <div id="pricingModeLabel" class="pricing-mode-fixed">
+    TAXIPRO
+  </div>
+  <input type="hidden" id="pricingMode" value="taxipro">
+</div>
   </div>
 </header>
-  <div id="splash">
-    <div class="splash-inner">
-      <img src="assets/logo-header.png" alt="TaxiPro" class="splash-logo">
-      <div class="splash-title">TAXIPRO</div>
-      <div class="splash-subtitle">Estimación profesional del taxi</div>
-      <div class="splash-loader"></div>
-      <div class="splash-footnote">Sistema activo</div>
-    </div>
+  <div id="splash" class="splash-screen">
+
+  <div id="splashLogo" class="splash-logo">
+    TAXIPRO
   </div>
+
+  <div id="splashSubtitle" class="splash-subtitle">
+    Estimación profesional para taxi
+  </div>
+
+  <div id="splashLoader" class="splash-loader"></div>
+
+  <div id="splashMessage" class="splash-message">
+    Conectando con el servidor...
+  </div>
+
+</div>
 
   <section id="accessGate" class="access-gate hidden"></section>
 
@@ -92,25 +98,33 @@
     <div class="card">
 
       
-      <section class="app-section">
-        <div class="section-title">Origen</div>
-        <div class="input-group">
-          <label for="originInput">Punto de recogida</label>
-          <input id="originInput" type="text" placeholder="Escribe origen o usa ubicación actual" autocomplete="off">
-          <div class="origin-actions">
-            <button id="useLocationBtn" type="button" class="btn-secondary location-btn">
-              Usar mi ubicación
-            </button>
-          </div>
-        </div>
-</section>
-<section class="app-section">
-  <div class="section-title">Accesos rápidos de origen</div>
-  <div id="quickOrigins" class="quick-buttons quick-origins">
-    <button data-quick-origin="playa" type="button">PLAYA DE PALMA</button>
-    <button data-quick-origin="centro" type="button">CENTRO</button>
-    <button data-quick-origin="aeropuerto" type="button">AEROPUERTO</button>
-    <button data-quick-origin="puerto" type="button">PUERTO</button>
+      <section class="app-section route-choice-section route-choice-section--origin">
+  <div class="section-title">Origen</div>
+
+  <div class="input-group route-choice-box">
+    <label for="originInput">Punto de recogida</label>
+
+    <input
+      id="originInput"
+      type="text"
+      placeholder="Escribe origen o selecciona una opción rápida"
+      autocomplete="off"
+    >
+
+    <div class="origin-actions">
+      <button id="useLocationBtn" type="button" class="btn-secondary location-btn">
+        Usar mi ubicación
+      </button>
+    </div>
+
+    <div class="quick-choice-label">Orígenes frecuentes</div>
+
+    <div id="quickOrigins" class="quick-buttons quick-origins quick-buttons--inside">
+      <button data-quick-origin="playa" type="button">PLAYA DE PALMA</button>
+      <button data-quick-origin="centro" type="button">CENTRO</button>
+      <button data-quick-origin="aeropuerto" type="button">AEROPUERTO</button>
+      <button data-quick-origin="puerto" type="button">PUERTO</button>
+    </div>
   </div>
 </section>
 
@@ -142,25 +156,33 @@
 <section class="app-section">
   <div class="section-title">Destino</div>
   <div class="input-group">
+    <section class="app-section route-choice-section route-choice-section--destination">
+  <div class="section-title">Destino</div>
+
+  <div class="input-group route-choice-box">
     <label for="destinationInput">Punto de llegada</label>
-    <input id="destinationInput" type="text" placeholder="Buscar destino…" autocomplete="off">
+
+    <input
+      id="destinationInput"
+      type="text"
+      placeholder="Escribe destino o selecciona una opción rápida"
+      autocomplete="off"
+    >
+
+    <div class="quick-choice-label">Destinos frecuentes</div>
+
+    <div id="quickDestinations" class="quick-buttons quick-destinations quick-buttons--inside">
+      <button data-quick-key="airport" type="button">AEROPUERTO</button>
+      <button data-quick-key="port" type="button">PUERTO</button>
+      <button data-quick-key="hospital" type="button">SON ESPASES</button>
+      <button data-quick-key="center" type="button">CENTRO</button>
+    </div>
   </div>
 </section>
-
-<section class="app-section">
-  <div class="section-title">Accesos rápidos de destino</div>
-  <div id="quickDestinations" class="quick-buttons quick-destinations">
-    <button data-quick-key="airport" type="button">AEROPUERTO</button>
-    <button data-quick-key="port" type="button">PUERTO</button>
-    <button data-quick-key="hospital" type="button">SON ESPASES</button>
-    <button data-quick-key="center" type="button">CENTRO</button>
-  </div>
-</section>
-
 <section class="app-section supplements-section">
   <details id="supplementsDetails" class="supplements-details">
     <summary>
-      <span>Suplementos</span>
+      <span>SUPLEMENTOS </span>
       <small id="supplementsSummary">Ninguno seleccionado</small>
     </summary>
 
@@ -225,8 +247,15 @@
   </details>
 </section>
       <section class="app-section">
-        <div class="section-title">Acción</div>
-        <button id="calculateBtn" type="button">Calcular estimación</button>
+  <div class="section-title">Acción</div>
+
+  <div id="activeTariffBadge" class="active-tariff-badge">
+    <span class="tariff-badge-label">Tarifa prevista</span>
+    <strong id="activeTariffName">TAXIPRO</strong>
+    <small id="activeTariffDetail">Se confirmará al calcular la ruta</small>
+  </div>
+
+  <button id="calculateBtn" type="button">Calcular estimación</button>
 
         <div class="loading-bar" id="loadingBar">
           <div class="loading-progress"></div>
@@ -252,33 +281,58 @@
 </div>
         <div class="section-title">Resultado</div>
 
-  <div id="resultSection" class="result-container hidden">  
-    <div class="estimation-card">
-      <div id="estimationTitle" class="estimation-title">Estimación TaxiPro</div>
-      <div id="estimatedPrice" class="price">0.00 €</div>
-      <div id="priceRange" class="interval">0.00 – 0.00 €</div>
-      <div class="route-meta">
-        <span id="distanceValue">-- km</span>
-        &nbsp;•&nbsp;
-        <span id="durationValue">-- min</span>
-      </div>
-      <div class="traffic-status">Estimación calculada con distancia, tiempo y tráfico actual</div>
-      <div class="confidence-indicator">Tarifa oficial aplicada sobre ruta estimada</div>
+  <div id="resultSection" class="result-container hidden">
+
+  <div class="estimation-card">
+    <div id="estimationTitle" class="estimation-title">Estimación TaxiPro</div>
+
+    <div id="estimatedPrice" class="price">0.00 €</div>
+
+    <div id="priceRange" class="interval">0.00 – 0.00 €</div>
+
+    <div class="route-meta">
+      <span id="distanceValue">-- km</span>
+      &nbsp;•&nbsp;
+      <span id="durationValue">-- min</span>
     </div>
 
-    <p class="legal-notice">
-      Estimación calculada conforme a tarifa oficial.<br>
-      <strong>El importe final será el del taxímetro.</strong>
-    </p>
+    <div id="tariffAppliedCard" class="tariff-applied-card hidden">
+      <div class="tariff-applied-label">TARIFA APLICADA</div>
+      <div id="tariffAppliedName" class="tariff-applied-name">—</div>
+      <div id="tariffAppliedReason" class="tariff-applied-reason">—</div>
+      <div id="tariffAppliedDetails" class="tariff-applied-details">—</div>
+    </div>
 
-    <!-- 🔥 BOTÓN MEJORADO -->
-    <button id="showClientMode" type="button" class="btn-primary" style="margin-top:10px;">
-      Mostrar al cliente
-    </button>
+    <div id="liveTrafficCard" class="live-traffic-card hidden">
+      <div class="live-traffic-label">TRÁFICO ACTUAL</div>
+      <div id="liveTrafficState" class="live-traffic-state">—</div>
+      <div id="liveTrafficDetail" class="live-traffic-detail">
+        Precios con tráfico actualizado en este momento
+      </div>
+    </div>
 
-    <button id="newServiceBtn" type="button" class="btn-secondary new-service-btn hidden">
-      NUEVO SERVICIO
-</button>
+    <div id="trafficStatusText" class="traffic-status">
+      Precios con tráfico actualizado en este momento
+    </div>
+
+    <div class="confidence-indicator">
+      Tarifa oficial aplicada sobre ruta estimada
+    </div>
+  </div>
+
+  <p class="legal-notice">
+    Estimación calculada conforme a tarifa oficial.<br>
+    <strong>El importe final será el del taxímetro.</strong>
+  </p>
+
+  <button id="showClientMode" type="button" class="btn-primary" style="margin-top:10px;">
+    Mostrar al cliente
+  </button>
+
+  <button id="newServiceBtn" type="button" class="btn-secondary new-service-btn hidden">
+    NUEVO SERVICIO
+  </button>
+
 </div>
 
     </section>
@@ -340,6 +394,19 @@
         <span class="meta-value" id="clientDuration">-- min</span>
       </div>
     </div>
+    <div class="client-tariff-box">
+  <div class="client-tariff-label">TARIFA APLICADA</div>
+  <div id="clientTariffName" class="client-tariff-name">—</div>
+  <div id="clientTariffReason" class="client-tariff-reason">—</div>
+</div>
+
+<div class="client-traffic-box">
+  <div class="client-traffic-label">TRÁFICO ACTUAL</div>
+  <div id="clientTrafficState" class="client-traffic-state">—</div>
+  <div id="clientTrafficDetail" class="client-traffic-detail">
+    Precios con tráfico actualizado en este momento
+  </div>
+</div>
 
     <!-- 🌍 MULTIIDIOMA -->
     <div class="client-legal">

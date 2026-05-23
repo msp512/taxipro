@@ -2,9 +2,23 @@ let map;
 let directionsService;
 let directionsRenderer;
 
-const BABALU_POINT = {
-  lat: 39.54001187908689,
-  lng: 2.7127578235862595
+/*
+  Waypoint Ca'n Pastilla → Aeropuerto
+
+  Uso permitido:
+  - SOLO servicios con origen en la microzona Ca'n Pastilla entre
+    calle Congre y calle Goleta.
+  - SOLO cuando el destino final sea Aeropuerto.
+
+  No se aplica a:
+  - Playa de Palma genérica → Aeropuerto
+  - Iberostar / hoteles Playa de Palma → Hotel Boreal → Aeropuerto
+  - Can Pastilla genérico si no se identifica Congre / Goleta / marcador específico
+  - Rutas con paradas donde el origen real no sea esa microzona
+*/
+const CAN_PASTILLA_AIRPORT_POINT = {
+  lat: 39.5407056,
+  lng: 2.7118119
 };
 
 /* ===============================
@@ -22,34 +36,59 @@ function normalizeText(value) {
 }
 
 /* ===============================
-   REGLA CAN PASTILLA → COLL D'EN RABASSA
+   REGLA MICROZONA CA'N PASTILLA → AEROPUERTO
 =============================== */
 
-function isCanPastillaArea(text) {
-  const t = normalizeText(text);
+function isAirportDestination(value = "") {
+  const text = normalizeText(value);
 
   return (
-    t.includes("can pastilla") ||
-    t.includes("playa de palma") ||
-    t.includes("platja de palma") ||
-    t.includes("hotel las arenas") ||
-    t.includes("aeropuerto de palma") ||
-    t.includes("aeroport de palma")
+    text.includes("aeropuerto") ||
+    text.includes("aeroport") ||
+    text.includes("airport") ||
+    text.includes("pmi") ||
+    text.includes("son sant joan")
   );
 }
 
-function isCollDenRabassaArea(text) {
-  const t = normalizeText(text);
+function isCanPastillaAirportMicroZoneOrigin(value = "") {
+  const text = normalizeText(value);
 
-  return (
-    t.includes("coll den rabassa") ||
-    t.includes("coll d en rabassa") ||
-    t.includes("es coll den rabassa")
-  );
+  /*
+    Marcador exacto aportado:
+    Ca'n Pastilla al Aeropuerto
+    Cerca de Platja de Palma i Pla de Sant Jordi
+    GPR6+7PM Can Pastilla
+    39.5407056, 2.7118119
+  */
+
+  const hasSpecificMarker =
+    text.includes("can pastilla al aeropuerto") ||
+    text.includes("can pastilla al aeroport") ||
+    text.includes("gpr6+7pm") ||
+    text.includes("39.5407056") ||
+    text.includes("2.7118119");
+
+  const hasCongre =
+    text.includes("congre") ||
+    text.includes("carrer del congre") ||
+    text.includes("calle congre") ||
+    text.includes("carrer congre");
+
+  const hasGoleta =
+    text.includes("goleta") ||
+    text.includes("carrer de la goleta") ||
+    text.includes("calle goleta") ||
+    text.includes("carrer goleta");
+
+  return hasSpecificMarker || hasCongre || hasGoleta;
 }
 
-function shouldForceBabaluAccess(origin, destination) {
-  return isCanPastillaArea(origin) && isCollDenRabassaArea(destination);
+function shouldForceCanPastillaAirportWaypoint(origin, destination) {
+  return (
+    isAirportDestination(destination) &&
+    isCanPastillaAirportMicroZoneOrigin(origin)
+  );
 }
 
 /* ===============================
@@ -65,8 +104,7 @@ function isCentroPalma(value = "") {
     text.includes("passeig des born") ||
     text.includes("paseo del borne") ||
     text.includes("jaume iii") ||
-    text.includes("centro") ||
-    text.includes("palma")
+    text.includes("centro")
   );
 }
 
@@ -80,43 +118,14 @@ function isSonEspases(value = "") {
   );
 }
 
-function isPalmaUrbanPoint(value = "") {
-  const text = normalizeText(value);
+/*
+  Waypoints profesionales muy concretos.
 
-  return (
-    text.includes("palma") ||
-    text.includes("son espases") ||
-    text.includes("son llatzer") ||
-    text.includes("aeropuerto de palma") ||
-    text.includes("aeroport de palma") ||
-    text.includes("can pastilla") ||
-    text.includes("playa de palma") ||
-    text.includes("platja de palma") ||
-    text.includes("coll den rabassa") ||
-    text.includes("puerto de palma") ||
-    text.includes("port de palma") ||
-    text.includes("estacion maritima") ||
-    text.includes("uib") ||
-    text.includes("universitat de les illes balears") ||
-    text.includes("universidad de las illes balears") ||
-    text.includes("mallorca fashion outlet") ||
-    text.includes("festival park") ||
-    text.includes("marratxi")
-  );
-}
-
-function shouldUseTaxiUrbanRouting(origin, destination, stops = []) {
-  const points = [
-    origin,
-    destination,
-    ...(Array.isArray(stops) ? stops : [])
-  ].filter(Boolean);
-
-  if (points.length < 2) return false;
-
-  return points.every(isPalmaUrbanPoint);
-}
-
+  Importante:
+  - No aplicamos reglas generales por "Can Pastilla".
+  - No usamos las paradas para decidir el waypoint de Ca'n Pastilla → Aeropuerto.
+  - Solo se fuerzan rutas cuando el criterio operativo está validado.
+*/
 function buildTaxiWaypoints(origin, destination, stops = []) {
   const waypoints = [];
 
@@ -131,13 +140,15 @@ function buildTaxiWaypoints(origin, destination, stops = []) {
     }
   });
 
-  if (shouldForceBabaluAccess(origin, destination)) {
+  if (shouldForceCanPastillaAirportWaypoint(origin, destination)) {
     waypoints.push({
-      location: BABALU_POINT,
+      location: CAN_PASTILLA_AIRPORT_POINT,
       stopover: false
     });
 
-    console.log("TaxiPro routing rule aplicada: acceso Babalu forzado");
+    console.log(
+      "TaxiPro routing rule aplicada: microzona Congre/Goleta Ca'n Pastilla → Aeropuerto"
+    );
   }
 
   if (isCentroPalma(origin) && isSonEspases(destination)) {
@@ -146,7 +157,9 @@ function buildTaxiWaypoints(origin, destination, stops = []) {
       stopover: false
     });
 
-    console.log("TaxiPro routing rule aplicada: Centro → Son Espases por General Riera");
+    console.log(
+      "TaxiPro routing rule aplicada: Centro → Son Espases por General Riera"
+    );
   }
 
   if (isSonEspases(origin) && isCentroPalma(destination)) {
@@ -155,7 +168,9 @@ function buildTaxiWaypoints(origin, destination, stops = []) {
       stopover: false
     });
 
-    console.log("TaxiPro routing rule aplicada: Son Espases → Centro por General Riera");
+    console.log(
+      "TaxiPro routing rule aplicada: Son Espases → Centro por General Riera"
+    );
   }
 
   return waypoints;
@@ -194,17 +209,7 @@ export function computeRoute(origin, destination, stops = []) {
       return;
     }
 
-    const taxiUrbanRouting = shouldUseTaxiUrbanRouting(
-      origin,
-      destination,
-      stops
-    );
-
-    const waypoints = buildTaxiWaypoints(
-      origin,
-      destination,
-      stops
-    );
+    const waypoints = buildTaxiWaypoints(origin, destination, stops);
 
     const request = {
       origin,
@@ -213,9 +218,13 @@ export function computeRoute(origin, destination, stops = []) {
       optimizeWaypoints: false,
       travelMode: google.maps.TravelMode.DRIVING,
 
-      // Para rutas urbanas de Palma evitamos que Google priorice Vía de Cintura
-      // cuando un taxi puede circular por ruta urbana más directa.
-      avoidHighways: taxiUrbanRouting,
+      /*
+        Criterio general TAXIPRO:
+        - Google debe priorizar la ruta funcional y rápida.
+        - No evitamos autopistas de forma global porque puede generar rodeos artificiales.
+        - Solo forzamos waypoints profesionales concretos cuando están validados.
+      */
+      avoidHighways: false,
       avoidTolls: false,
       avoidFerries: true,
 
