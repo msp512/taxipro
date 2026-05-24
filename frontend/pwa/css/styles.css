@@ -7677,3 +7677,67 @@ body {
   border: 1px solid rgba(214, 179, 106, 0.35) !important;
   border-radius: 14px !important;
 }
+/* ===============================
+   PARADAS OFICIALES PLAYA DE PALMA
+=============================== */
+
+.taxi-stands-details {
+  margin-top: 10px;
+  border-radius: 14px;
+  border: 1px solid rgba(15, 42, 68, 0.16);
+  background: #ffffff;
+  overflow: hidden;
+}
+
+.taxi-stands-details summary {
+  min-height: 42px;
+  padding: 10px 12px;
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  color: #0f2a44;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.taxi-stands-details summary::-webkit-details-marker {
+  display: none;
+}
+
+.taxi-stands-details summary span::before {
+  content: "＋ ";
+  color: #d6b36a;
+}
+
+.taxi-stands-details[open] summary span::before {
+  content: "− ";
+}
+
+.taxi-stands-details summary small {
+  color: #6b7e90;
+  font-size: 0.68rem;
+  font-weight: 800;
+}
+
+.taxi-stands-panel {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  padding: 10px;
+  border-top: 1px solid rgba(15, 42, 68, 0.10);
+  background: #f8fafc;
+}
+
+.taxi-stands-panel button {
+  min-height: 38px;
+  border-radius: 10px;
+  border: 1px solid rgba(15, 42, 68, 0.16);
+  background: #ffffff;
+  color: #0f2a44;
+  font-size: 0.72rem;
+  font-weight: 900;
+}
