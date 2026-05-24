@@ -43,6 +43,79 @@ function normalizePlaceText(value = "") {
     .replace(/\s+/g, " ");
 }
 
+function parseCoordinatePair(value = "") {
+  const text = String(value || "").trim();
+
+  const match = text.match(
+    /^\s*(-?\d+(?:[.,]\d+)?)\s*,\s*(-?\d+(?:[.,]\d+)?)\s*$/
+  );
+
+  if (!match) return null;
+
+  const lat = Number(match[1].replace(",", "."));
+  const lng = Number(match[2].replace(",", "."));
+
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+
+  return { lat, lng };
+}
+
+function isCoordinateInsidePalmaUrbanScope(value = "") {
+  const point = parseCoordinatePair(value);
+
+  if (!point) return false;
+
+  const { lat, lng } = point;
+
+  /*
+    Ámbito urbano operativo TAXIPRO Palma:
+    Incluye Palma, Playa de Palma, Can Pastilla, aeropuerto,
+    Coll d'en Rabassa, Port/Dique Oeste y zona urbana ampliada.
+    No pretende definir toda Mallorca: solo evitar que coordenadas
+    urbanas de Palma se clasifiquen como interurbanas.
+  */
+  return (
+    lat >= 39.49 &&
+    lat <= 39.62 &&
+    lng >= 2.58 &&
+    lng <= 2.80
+  );
+}
+
+function isKnownPalmaUrbanCoordinate(value = "") {
+  const point = parseCoordinatePair(value);
+
+  if (!point) return false;
+
+  const { lat, lng } = point;
+
+  const knownPoints = [
+    // Paradas oficiales Playa de Palma
+    { lat: 39.536306, lng: 2.717361 },   // Ca'n Pastilla
+    { lat: 39.5263030, lng: 2.7352832 }, // Pil·larí
+    { lat: 39.5220475, lng: 2.7402520 }, // Sometimes / Marina Plaza
+    { lat: 39.5178809, lng: 2.7446482 }, // RIU
+    { lat: 39.513167, lng: 2.752253 },   // América
+    { lat: 39.505614, lng: 2.751726 },   // Arenal
+
+    // Waypoints profesionales urbanos
+    { lat: 39.5407056, lng: 2.7118119 }, // Ca'n Pastilla aeropuerto
+    { lat: 39.533147, lng: 2.734151 },   // Sometimes acceso autopista
+
+    // Dique Oeste
+    { lat: 39.5519885, lng: 2.6392256 }
+  ];
+
+  const tolerance = 0.003;
+
+  return knownPoints.some((p) => {
+    return (
+      Math.abs(lat - p.lat) <= tolerance &&
+      Math.abs(lng - p.lng) <= tolerance
+    );
+  });
+}
+
 function getMallorcaNow(date = new Date()) {
   return new Date(
     date.toLocaleString("en-US", {
@@ -62,9 +135,19 @@ function isInsideUrbanScope(placeText, profile) {
 
   if (!text) return false;
 
+  if (isKnownPalmaUrbanCoordinate(placeText)) {
+    return true;
+  }
+
+  if (isCoordinateInsidePalmaUrbanScope(placeText)) {
+    return true;
+  }
+
   const keywords = getUrbanScopeKeywords(profile);
 
-  return keywords.some((keyword) => keyword && text.includes(keyword));
+  return keywords.some((keyword) => {
+    return keyword && text.includes(keyword);
+  });
 }
 
 function isAirportPlace(value = "") {
