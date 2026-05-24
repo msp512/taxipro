@@ -216,19 +216,60 @@ const QUICK_LOCATIONS = {
   puerto: "Dique del Oeste, Palma, Mallorca"
 };
 
+const TAXI_STANDS_PLAYA_PALMA = {
+  canPastilla: {
+    label: "CA'N PASTILLA",
+    value: "39.536306,2.717361",
+    display: "Parada Ca'n Pastilla"
+  },
+
+  pillari: {
+    label: "PIL·LARÍ",
+    value: "39.5263030,2.7352832",
+    display: "Parada Pil·larí"
+  },
+
+  sometimes: {
+    label: "SOMETIMES",
+    value: "39.5220475,2.7402520",
+    display: "Parada Marina Plaza / Sometimes"
+  },
+
+  riu: {
+    label: "RIU",
+    value: "39.5178809,2.7446482",
+    display: "Parada RIU"
+  },
+
+  america: {
+    label: "AMÉRICA",
+    value: "39.513167,2.752253",
+    display: "Parada América"
+  },
+
+  arenal: {
+    label: "ARENAL",
+    value: "39.505614,2.751726",
+    display: "Parada Arenal"
+  }
+};
+
 const QUICK_DESTINATION_CONFIG = {
   airport: {
     displayValue: "Aeropuerto de Palma, Mallorca",
     routingValue: "Aeropuerto de Palma Salidas, Mallorca"
   },
+
   port: {
-    displayValue: "Puerto de Palma, Mallorca",
+    displayValue: "Dique del Oeste, Palma, Mallorca",
     routingValue: "Dique del Oeste, Palma, Mallorca"
   },
+
   hospital: {
-    displayValue: "Hospital Son Espases, Palma, Mallorca",
+    displayValue: "Mallorca Fashion Outlet, Marratxí, Mallorca",
     routingValue: "Mallorca Fashion Outlet, Marratxí, Mallorca"
   },
+
   center: {
     displayValue: "Plaça de la Reina, Palma, Mallorca",
     routingValue: "Plaça de la Reina, Palma, Mallorca"
@@ -1486,6 +1527,26 @@ document.querySelectorAll("#quickOrigins button").forEach((btn) => {
   });
 });
 
+document.querySelectorAll("[data-taxi-stand-origin]").forEach((btn) => {
+  btn.addEventListener("click", () => {
+    const key = btn.dataset.taxiStandOrigin;
+    const stand = TAXI_STANDS_PLAYA_PALMA[key];
+
+    if (!stand || !originInput) return;
+
+    originInput.value = stand.value;
+
+    const details = document.getElementById("taxiStandsDetails");
+    if (details) {
+      details.removeAttribute("open");
+    }
+
+    if (typeof updateRouteBlockStates === "function") {
+      updateRouteBlockStates();
+    }
+  });
+});
+
 document.querySelectorAll("#quickDestinations button").forEach((btn) => {
   btn.addEventListener("click", () => {
     const keyMap = {
@@ -1501,6 +1562,8 @@ document.querySelectorAll("#quickDestinations button").forEach((btn) => {
       (btn.textContent.includes("Aeropuerto") ? "airport" : "") ||
       (btn.textContent.includes("Puerto") ? "port" : "") ||
       (btn.textContent.includes("Son Espases") ? "hospital" : "") ||
+      (btn.textContent.includes("Fashion") ? "hospital" : "") ||
+      (btn.textContent.includes("Outlet") ? "hospital" : "") ||
       (btn.textContent.includes("Centro") ? "center" : "");
 
     const mode = pricingMode?.value || "taxipro";

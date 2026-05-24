@@ -7454,4 +7454,226 @@ div:has(> #supplementsDetails),
   .route-block::before {
     margin-bottom: 10px;
   }
+}/* =====================================================
+   TAXIPRO — PALETA CORPORATIVA AZUL + BLOQUES EDITABLES
+   Pegar al final de styles.css
+===================================================== */
+
+:root {
+  --tp-blue-950: #0b1724;
+  --tp-blue-900: #0f2a44;
+  --tp-blue-800: #163a5b;
+  --tp-blue-700: #1e4f78;
+  --tp-blue-100: #eaf2f8;
+  --tp-blue-050: #f6f9fc;
+
+  --tp-accent-700: #2f7f8f;
+  --tp-accent-500: #4ea5b3;
+  --tp-accent-100: #eaf7fa;
+  --tp-accent-050: #f5fbfc;
+
+  --tp-line: #d8e2ec;
+  --tp-text: #163047;
+  --tp-muted: #6b7e90;
+
+  --tp-gold: #d6b36a;
+}
+
+/* Fondo general */
+html,
+body {
+  background:
+    radial-gradient(circle at top, rgba(214, 179, 106, 0.08), transparent 30%),
+    linear-gradient(180deg, #0b1724 0%, #0f1f33 42%, #0c1624 100%) !important;
+}
+
+/* Tarjeta contenedora principal */
+.card {
+  background: rgba(11, 23, 36, 0.84) !important;
+  border: 1px solid rgba(214, 179, 106, 0.18) !important;
+  border-radius: 22px !important;
+  box-shadow:
+    0 18px 40px rgba(0, 0, 0, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.03) !important;
+}
+
+/* Todos los bloques principales */
+.app-section {
+  background: linear-gradient(180deg, #f9fbfd 0%, #f1f5f9 100%) !important;
+  border: 1px solid var(--tp-line) !important;
+  border-radius: 18px !important;
+  box-shadow:
+    0 10px 22px rgba(15, 42, 68, 0.08) !important;
+  padding: 16px !important;
+}
+
+/* Título de cada bloque */
+.section-title {
+  color: var(--tp-blue-800) !important;
+  font-weight: 900 !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase !important;
+  font-size: 0.74rem !important;
+  margin-bottom: 12px !important;
+}
+
+/* =====================================================
+   BLOQUES QUE RELLENA EL TAXISTA
+===================================================== */
+
+.route-choice-section,
+#stopsSection,
+.supplements-section {
+  background: linear-gradient(180deg, var(--tp-accent-050) 0%, var(--tp-blue-050) 100%) !important;
+  border: 1px solid rgba(78, 165, 179, 0.30) !important;
+  border-left: 5px solid var(--tp-accent-700) !important;
+  border-radius: 18px !important;
+  box-shadow:
+    0 12px 26px rgba(47, 127, 143, 0.10) !important;
+}
+
+/* Cajas interiores de origen / destino / parada */
+.route-choice-box,
+.stop-field,
+#supplementsPanel {
+  background: #ffffff !important;
+  border: 1px solid rgba(78, 165, 179, 0.22) !important;
+  border-radius: 14px !important;
+  box-shadow: 0 6px 14px rgba(15, 42, 68, 0.05) !important;
+}
+
+/* Labels */
+.input-group label,
+.quick-choice-label,
+.field-hint,
+.supplements-group-title {
+  color: var(--tp-blue-700) !important;
+}
+
+/* Inputs */
+.input-group input,
+.input-group select {
+  background: #ffffff !important;
+  color: var(--tp-text) !important;
+  border: 1px solid #c7d5e2 !important;
+  border-radius: 12px !important;
+}
+
+.input-group input::placeholder,
+.input-group select::placeholder {
+  color: #8ea0b2 !important;
+}
+
+.input-group input:focus,
+.input-group select:focus {
+  border-color: var(--tp-accent-500) !important;
+  box-shadow: 0 0 0 4px rgba(78, 165, 179, 0.14) !important;
+  outline: none !important;
+}
+
+/* Botones rápidos origen/destino */
+.quick-buttons--inside button {
+  background: #ffffff !important;
+  color: var(--tp-blue-900) !important;
+  border: 1px solid rgba(15, 42, 68, 0.18) !important;
+  border-radius: 10px !important;
+  font-weight: 800 !important;
+  transition: all 0.18s ease !important;
+}
+
+.quick-buttons--inside button:hover,
+.quick-buttons--inside button:focus {
+  background: var(--tp-blue-100) !important;
+  border-color: var(--tp-blue-700) !important;
+  transform: translateY(-1px);
+}
+
+/* =====================================================
+   SUPLEMENTOS
+===================================================== */
+
+.supplements-details {
+  background: transparent !important;
+  border: none !important;
+}
+
+.supplements-details summary {
+  background: linear-gradient(135deg, var(--tp-blue-950) 0%, var(--tp-blue-900) 100%) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(214, 179, 106, 0.34) !important;
+  border-radius: 14px !important;
+  box-shadow:
+    0 10px 20px rgba(15, 42, 68, 0.18) !important;
+}
+
+.supplements-details summary span {
+  color: #ffffff !important;
+  font-weight: 900 !important;
+  letter-spacing: 0.12em !important;
+  text-transform: uppercase !important;
+}
+
+.supplements-details summary span::before {
+  content: "＋ ";
+  color: var(--tp-gold) !important;
+  font-weight: 900 !important;
+}
+
+.supplements-details[open] summary span::before {
+  content: "− ";
+}
+
+.supplements-details summary small,
+#supplementsSummary {
+  background: rgba(255, 255, 255, 0.10) !important;
+  color: #f8fafc !important;
+  border: 1px solid rgba(255, 255, 255, 0.18) !important;
+  border-radius: 999px !important;
+  padding: 6px 10px !important;
+  font-size: 0.70rem !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.04em !important;
+  text-transform: uppercase !important;
+}
+
+/* Botones de suplementos */
+.supplement-btn {
+  background: #ffffff !important;
+  color: var(--tp-blue-900) !important;
+  border: 1px solid rgba(15, 42, 68, 0.15) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 4px 10px rgba(15, 42, 68, 0.04) !important;
+  font-weight: 800 !important;
+}
+
+.supplement-btn small {
+  color: var(--tp-accent-700) !important;
+  font-weight: 800 !important;
+}
+
+.supplement-btn.active,
+.supplement-btn[aria-pressed="true"] {
+  background: linear-gradient(180deg, #ecfbfd 0%, #dff5f8 100%) !important;
+  border-color: var(--tp-accent-500) !important;
+  color: var(--tp-blue-900) !important;
+  box-shadow: 0 0 0 3px rgba(78, 165, 179, 0.12) !important;
+}
+
+/* =====================================================
+   BLOQUES NO EDITABLES: más neutros
+===================================================== */
+
+#mapSection,
+.app-section--result,
+.history-section,
+.route-section,
+.result-card {
+  border-left: 4px solid rgba(15, 42, 68, 0.18) !important;
+}
+
+/* Tarifa prevista */
+#activeTariffBadge {
+  background: linear-gradient(180deg, #fff8ef 0%, #fffdf8 100%) !important;
+  border: 1px solid rgba(214, 179, 106, 0.35) !important;
+  border-radius: 14px !important;
 }
