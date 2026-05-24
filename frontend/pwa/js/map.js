@@ -3,24 +3,39 @@ let directionsService;
 let directionsRenderer;
 
 /*
-  Waypoint Ca'n Pastilla → Aeropuerto
+  TAXIPRO — Reglas profesionales de ruta
+
+  Principio general:
+  - Google Maps calcula la ruta base.
+  - TAXIPRO solo fuerza waypoints cuando existe una regla profesional clara.
+  - Las reglas se aplican sobre origen + destino.
+  - Las paradas intermedias reales del usuario se mantienen como stopover:true.
+*/
+
+/* ===============================
+   PUNTOS PROFESIONALES
+=============================== */
+
+/*
+  Ca'n Pastilla → Aeropuerto
 
   Uso permitido:
-  - SOLO servicios con origen en la microzona Ca'n Pastilla entre
-    calle Congre y calle Goleta.
-  - SOLO cuando el destino final sea Aeropuerto.
-
-  No se aplica a:
-  - Playa de Palma genérica → Aeropuerto
-  - Iberostar / hoteles Playa de Palma → Hotel Boreal → Aeropuerto
-  - Can Pastilla genérico si no se identifica Congre / Goleta / marcador específico
-  - Rutas con paradas donde el origen real no sea esa microzona
+  - SOLO servicios con origen en microzona Ca'n Pastilla entre Congre / Goleta.
+  - SOLO destino Aeropuerto.
 */
 const CAN_PASTILLA_AIRPORT_POINT = {
   lat: 39.5407056,
   lng: 2.7118119
 };
 
+/*
+  Sometimes / Grua / Son Rigo → Aeropuerto o sentido Palma
+
+  Uso permitido:
+  - SOLO servicios con recogida en zona Sometimes comprendida entre
+    Carrer de la Grua y Avinguda de Son Rigo.
+  - Destino Aeropuerto o sentido Palma.
+*/
 const SOMETIMES_MOTORWAY_ACCESS_POINT = {
   lat: 39.533147,
   lng: 2.734151
@@ -28,7 +43,6 @@ const SOMETIMES_MOTORWAY_ACCESS_POINT = {
 
 /*
   Dique del Oeste
-  Sustituye el antiguo acceso rápido PUERTO en origen y destino.
 */
 const DIQUE_OESTE_POINT = {
   lat: 39.5519885,
@@ -36,13 +50,42 @@ const DIQUE_OESTE_POINT = {
 };
 
 /*
-  Waypoint Paseo Marítimo / Palma interior
-  Se usa para intentar evitar que Google saque Playa de Palma → Puerto/Dique
-  por Vía de Cintura cuando al taxi le conviene circular por ciudad/paseo marítimo.
+  Paseo Marítimo / Palma interior
 */
 const PASEO_MARITIMO_POINT = {
   location: "Passeig Marítim, Palma, Mallorca",
   stopover: false
+};
+
+/* ===============================
+   PARADAS OFICIALES PLAYA DE PALMA
+=============================== */
+
+const TAXI_STAND_POINTS = {
+  canPastilla: {
+    lat: 39.536306,
+    lng: 2.717361
+  },
+  pillari: {
+    lat: 39.5263030,
+    lng: 2.7352832
+  },
+  sometimes: {
+    lat: 39.5220475,
+    lng: 2.7402520
+  },
+  riu: {
+    lat: 39.5178809,
+    lng: 2.7446482
+  },
+  america: {
+    lat: 39.513167,
+    lng: 2.752253
+  },
+  arenal: {
+    lat: 39.505614,
+    lng: 2.751726
+  }
 };
 
 /* ===============================
@@ -59,8 +102,40 @@ function normalizeText(value) {
     .trim();
 }
 
+function parseCoordinatePair(value = "") {
+  const text = String(value || "").trim();
+
+  const match = text.match(
+    /^\s*(-?\d+(?:[.,]\d+)?)\s*,\s*(-?\d+(?:[.,]\d+)?)\s*$/
+  );
+
+  if (!match) return null;
+
+  const lat = Number(match[1].replace(",", "."));
+  const lng = Number(match[2].replace(",", "."));
+
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+
+  return { lat, lng };
+}
+
+function isNearPoint(value = "", point, tolerance = 0.0025) {
+  const parsed = parseCoordinatePair(value);
+
+  if (!parsed || !point) return false;
+
+  return (
+    Math.abs(parsed.lat - point.lat) <= tolerance &&
+    Math.abs(parsed.lng - point.lng) <= tolerance
+  );
+}
+
+function isNearAnyPoint(value = "", points = [], tolerance = 0.0025) {
+  return points.some((point) => isNearPoint(value, point, tolerance));
+}
+
 /* ===============================
-   REGLA MICROZONA CA'N PASTILLA → AEROPUERTO
+   DESTINOS
 =============================== */
 
 function isAirportDestination(value = "") {
@@ -75,6 +150,53 @@ function isAirportDestination(value = "") {
   );
 }
 
+function isPalmaDirectionDestination(value = "") {
+  const text = normalizeText(value);
+
+  return (
+    text.includes("palma") ||
+    text.includes("centro") ||
+    text.includes("centre") ||
+    text.includes("plaza de la reina") ||
+    text.includes("placa de la reina") ||
+    text.includes("passeig maritim") ||
+    text.includes("paseo maritimo") ||
+    text.includes("dique del oeste") ||
+    text.includes("dic de l oest") ||
+    text.includes("dic de loest") ||
+    text.includes("puerto de palma") ||
+    text.includes("port de palma") ||
+    text.includes("estacion maritima") ||
+    text.includes("estacio maritima") ||
+    text.includes("muelle") ||
+    text.includes("moll") ||
+    text.includes("son espases")
+  );
+}
+
+function isDiqueOesteOrPuertoDestination(value = "") {
+  const text = normalizeText(value);
+
+  return (
+    text.includes("dique del oeste") ||
+    text.includes("dic de l oest") ||
+    text.includes("dic de loest") ||
+    text.includes("39.5519885") ||
+    text.includes("2.6392256") ||
+    text.includes("puerto de palma") ||
+    text.includes("port de palma") ||
+    text.includes("estacion maritima") ||
+    text.includes("estacio maritima") ||
+    text.includes("muelle") ||
+    text.includes("moll") ||
+    isNearPoint(value, DIQUE_OESTE_POINT)
+  );
+}
+
+/* ===============================
+   ORÍGENES — MICROZONAS
+=============================== */
+
 function isCanPastillaAirportMicroZoneOrigin(value = "") {
   const text = normalizeText(value);
 
@@ -83,7 +205,8 @@ function isCanPastillaAirportMicroZoneOrigin(value = "") {
     text.includes("can pastilla al aeroport") ||
     text.includes("gpr6+7pm") ||
     text.includes("39.5407056") ||
-    text.includes("2.7118119");
+    text.includes("2.7118119") ||
+    isNearPoint(value, CAN_PASTILLA_AIRPORT_POINT);
 
   const hasCongre =
     text.includes("congre") ||
@@ -98,13 +221,6 @@ function isCanPastillaAirportMicroZoneOrigin(value = "") {
     text.includes("carrer goleta");
 
   return hasSpecificMarker || hasCongre || hasGoleta;
-}
-
-function shouldForceCanPastillaAirportWaypoint(origin, destination) {
-  return (
-    isAirportDestination(destination) &&
-    isCanPastillaAirportMicroZoneOrigin(origin)
-  );
 }
 
 function isSometimesMicroZoneOrigin(value = "") {
@@ -123,42 +239,48 @@ function isSometimesMicroZoneOrigin(value = "") {
   const hasSometimes =
     text.includes("sometimes") ||
     text.includes("marina plaza") ||
-    text.includes("les meravelles") ||
-    text.includes("maravelles") ||
     text.includes("39.5220475") ||
-    text.includes("2.7402520");
+    text.includes("2.7402520") ||
+    isNearPoint(value, TAXI_STAND_POINTS.sometimes);
 
+  /*
+    Importante:
+    No usamos "Les Meravelles / Maravelles" porque es demasiado amplio
+    y podría activar esta regla en RIU, América u otras zonas donde no toca.
+  */
   return hasGrua || hasSonRigo || hasSometimes;
 }
 
-function isPalmaDirectionDestination(value = "") {
+function isPlayaDePalmaOrigin(value = "") {
   const text = normalizeText(value);
 
-  return (
-    text.includes("palma") ||
-    text.includes("centro") ||
-    text.includes("centre") ||
-    text.includes("plaza de la reina") ||
-    text.includes("placa de la reina") ||
-    text.includes("passeig maritim") ||
-    text.includes("paseo maritimo") ||
-    text.includes("dique del oeste") ||
-    text.includes("dic de l oest") ||
-    text.includes("puerto de palma") ||
-    text.includes("port de palma") ||
-    text.includes("son espases")
-  );
-}
+  const isKnownTaxiStand = isNearAnyPoint(value, [
+    TAXI_STAND_POINTS.canPastilla,
+    TAXI_STAND_POINTS.pillari,
+    TAXI_STAND_POINTS.sometimes,
+    TAXI_STAND_POINTS.riu,
+    TAXI_STAND_POINTS.america,
+    TAXI_STAND_POINTS.arenal
+  ]);
 
-function shouldForceSometimesMotorwayAccess(origin, destination) {
   return (
-    isSometimesMicroZoneOrigin(origin) &&
-    (isAirportDestination(destination) || isPalmaDirectionDestination(destination))
+    isKnownTaxiStand ||
+    text.includes("playa de palma") ||
+    text.includes("platja de palma") ||
+    text.includes("s arenal") ||
+    text.includes("arenal") ||
+    text.includes("can pastilla") ||
+    text.includes("les meravelles") ||
+    text.includes("maravelles") ||
+    text.includes("hotel riu") ||
+    text.includes("iberostar selection") ||
+    text.includes("riu san francisco") ||
+    text.includes("riu concordia")
   );
 }
 
 /* ===============================
-   REGLAS TAXI URBANO PALMA
+   REGLAS CENTRO / SON ESPASES
 =============================== */
 
 function isCentroPalma(value = "") {
@@ -184,37 +306,21 @@ function isSonEspases(value = "") {
   );
 }
 
-function isPlayaDePalmaOrigin(value = "") {
-  const text = normalizeText(value);
+/* ===============================
+   DECISIONES DE WAYPOINT
+=============================== */
 
+function shouldForceCanPastillaAirportWaypoint(origin, destination) {
   return (
-    text.includes("playa de palma") ||
-    text.includes("platja de palma") ||
-    text.includes("s arenal") ||
-    text.includes("arenal") ||
-    text.includes("can pastilla") ||
-    text.includes("hotel riu") ||
-    text.includes("iberostar selection") ||
-    text.includes("riu san francisco") ||
-    text.includes("riu concordia")
+    isAirportDestination(destination) &&
+    isCanPastillaAirportMicroZoneOrigin(origin)
   );
 }
 
-function isDiqueOesteOrPuertoDestination(value = "") {
-  const text = normalizeText(value);
-
+function shouldForceSometimesMotorwayAccess(origin, destination) {
   return (
-    text.includes("dique del oeste") ||
-    text.includes("dic de l oest") ||
-    text.includes("dic de loest") ||
-    text.includes("39.5519885") ||
-    text.includes("2.6392256") ||
-    text.includes("puerto de palma") ||
-    text.includes("port de palma") ||
-    text.includes("estacion maritima") ||
-    text.includes("estacio maritima") ||
-    text.includes("muelle") ||
-    text.includes("moll")
+    isSometimesMicroZoneOrigin(origin) &&
+    (isAirportDestination(destination) || isPalmaDirectionDestination(destination))
   );
 }
 
@@ -228,10 +334,11 @@ function shouldForcePaseoMaritimo(origin, destination) {
 /*
   Waypoints profesionales concretos.
 
-  Importante:
-  - No aplicamos reglas generales por "Can Pastilla".
-  - No usamos las paradas para decidir el waypoint de Ca'n Pastilla → Aeropuerto.
-  - Solo se fuerzan rutas cuando el criterio operativo está validado.
+  Reglas:
+  - No se aplica una regla general por "Can Pastilla".
+  - No se aplica Sometimes por "Les Meravelles", solo por Grua / Son Rigo /
+    Marina Plaza / coordenada Sometimes.
+  - Las paradas reales del usuario se mantienen como stopover:true.
 */
 function buildTaxiWaypoints(origin, destination, stops = []) {
   const waypoints = [];
@@ -259,15 +366,15 @@ function buildTaxiWaypoints(origin, destination, stops = []) {
   }
 
   if (shouldForceSometimesMotorwayAccess(origin, destination)) {
-  waypoints.push({
-    location: SOMETIMES_MOTORWAY_ACCESS_POINT,
-    stopover: false
-  });
+    waypoints.push({
+      location: SOMETIMES_MOTORWAY_ACCESS_POINT,
+      stopover: false
+    });
 
-  console.log(
-    "TaxiPro routing rule aplicada: Sometimes/Grua/Son Rigo → acceso autopista 39.533147,2.734151"
-  );
-}
+    console.log(
+      "TaxiPro routing rule aplicada: Sometimes/Grua/Son Rigo → acceso autopista 39.533147,2.734151"
+    );
+  }
 
   if (shouldForcePaseoMaritimo(origin, destination)) {
     waypoints.push(PASEO_MARITIMO_POINT);
