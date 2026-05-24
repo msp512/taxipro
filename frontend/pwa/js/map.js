@@ -21,6 +21,11 @@ const CAN_PASTILLA_AIRPORT_POINT = {
   lng: 2.7118119
 };
 
+const SOMETIMES_MOTORWAY_ACCESS_POINT = {
+  lat: 39.533147,
+  lng: 2.734151
+};
+
 /*
   Dique del Oeste
   Sustituye el antiguo acceso rápido PUERTO en origen y destino.
@@ -99,6 +104,56 @@ function shouldForceCanPastillaAirportWaypoint(origin, destination) {
   return (
     isAirportDestination(destination) &&
     isCanPastillaAirportMicroZoneOrigin(origin)
+  );
+}
+
+function isSometimesMicroZoneOrigin(value = "") {
+  const text = normalizeText(value);
+
+  const hasGrua =
+    text.includes("grua") ||
+    text.includes("carrer de la grua") ||
+    text.includes("calle grua");
+
+  const hasSonRigo =
+    text.includes("son rigo") ||
+    text.includes("avinguda de son rigo") ||
+    text.includes("avenida de son rigo");
+
+  const hasSometimes =
+    text.includes("sometimes") ||
+    text.includes("marina plaza") ||
+    text.includes("les meravelles") ||
+    text.includes("maravelles") ||
+    text.includes("39.5220475") ||
+    text.includes("2.7402520");
+
+  return hasGrua || hasSonRigo || hasSometimes;
+}
+
+function isPalmaDirectionDestination(value = "") {
+  const text = normalizeText(value);
+
+  return (
+    text.includes("palma") ||
+    text.includes("centro") ||
+    text.includes("centre") ||
+    text.includes("plaza de la reina") ||
+    text.includes("placa de la reina") ||
+    text.includes("passeig maritim") ||
+    text.includes("paseo maritimo") ||
+    text.includes("dique del oeste") ||
+    text.includes("dic de l oest") ||
+    text.includes("puerto de palma") ||
+    text.includes("port de palma") ||
+    text.includes("son espases")
+  );
+}
+
+function shouldForceSometimesMotorwayAccess(origin, destination) {
+  return (
+    isSometimesMicroZoneOrigin(origin) &&
+    (isAirportDestination(destination) || isPalmaDirectionDestination(destination))
   );
 }
 
@@ -202,6 +257,17 @@ function buildTaxiWaypoints(origin, destination, stops = []) {
       "TaxiPro routing rule aplicada: microzona Congre/Goleta Ca'n Pastilla → Aeropuerto"
     );
   }
+
+  if (shouldForceSometimesMotorwayAccess(origin, destination)) {
+  waypoints.push({
+    location: SOMETIMES_MOTORWAY_ACCESS_POINT,
+    stopover: false
+  });
+
+  console.log(
+    "TaxiPro routing rule aplicada: Sometimes/Grua/Son Rigo → acceso autopista 39.533147,2.734151"
+  );
+}
 
   if (shouldForcePaseoMaritimo(origin, destination)) {
     waypoints.push(PASEO_MARITIMO_POINT);
