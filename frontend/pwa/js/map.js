@@ -21,6 +21,25 @@ const CAN_PASTILLA_AIRPORT_POINT = {
   lng: 2.7118119
 };
 
+/*
+  Dique del Oeste
+  Sustituye el antiguo acceso rápido PUERTO en origen y destino.
+*/
+const DIQUE_OESTE_POINT = {
+  lat: 39.5519885,
+  lng: 2.6392256
+};
+
+/*
+  Waypoint Paseo Marítimo / Palma interior
+  Se usa para intentar evitar que Google saque Playa de Palma → Puerto/Dique
+  por Vía de Cintura cuando al taxi le conviene circular por ciudad/paseo marítimo.
+*/
+const PASEO_MARITIMO_POINT = {
+  location: "Passeig Marítim, Palma, Mallorca",
+  stopover: false
+};
+
 /* ===============================
    NORMALIZACIÓN
 =============================== */
@@ -53,14 +72,6 @@ function isAirportDestination(value = "") {
 
 function isCanPastillaAirportMicroZoneOrigin(value = "") {
   const text = normalizeText(value);
-
-  /*
-    Marcador exacto aportado:
-    Ca'n Pastilla al Aeropuerto
-    Cerca de Platja de Palma i Pla de Sant Jordi
-    GPR6+7PM Can Pastilla
-    39.5407056, 2.7118119
-  */
 
   const hasSpecificMarker =
     text.includes("can pastilla al aeropuerto") ||
@@ -118,8 +129,49 @@ function isSonEspases(value = "") {
   );
 }
 
+function isPlayaDePalmaOrigin(value = "") {
+  const text = normalizeText(value);
+
+  return (
+    text.includes("playa de palma") ||
+    text.includes("platja de palma") ||
+    text.includes("s arenal") ||
+    text.includes("arenal") ||
+    text.includes("can pastilla") ||
+    text.includes("hotel riu") ||
+    text.includes("iberostar selection") ||
+    text.includes("riu san francisco") ||
+    text.includes("riu concordia")
+  );
+}
+
+function isDiqueOesteOrPuertoDestination(value = "") {
+  const text = normalizeText(value);
+
+  return (
+    text.includes("dique del oeste") ||
+    text.includes("dic de l oest") ||
+    text.includes("dic de loest") ||
+    text.includes("39.5519885") ||
+    text.includes("2.6392256") ||
+    text.includes("puerto de palma") ||
+    text.includes("port de palma") ||
+    text.includes("estacion maritima") ||
+    text.includes("estacio maritima") ||
+    text.includes("muelle") ||
+    text.includes("moll")
+  );
+}
+
+function shouldForcePaseoMaritimo(origin, destination) {
+  return (
+    isPlayaDePalmaOrigin(origin) &&
+    isDiqueOesteOrPuertoDestination(destination)
+  );
+}
+
 /*
-  Waypoints profesionales muy concretos.
+  Waypoints profesionales concretos.
 
   Importante:
   - No aplicamos reglas generales por "Can Pastilla".
@@ -148,6 +200,14 @@ function buildTaxiWaypoints(origin, destination, stops = []) {
 
     console.log(
       "TaxiPro routing rule aplicada: microzona Congre/Goleta Ca'n Pastilla → Aeropuerto"
+    );
+  }
+
+  if (shouldForcePaseoMaritimo(origin, destination)) {
+    waypoints.push(PASEO_MARITIMO_POINT);
+
+    console.log(
+      "TaxiPro routing rule aplicada: Playa de Palma → Puerto/Dique por Paseo Marítimo"
     );
   }
 
@@ -220,9 +280,9 @@ export function computeRoute(origin, destination, stops = []) {
 
       /*
         Criterio general TAXIPRO:
-        - Google debe priorizar la ruta funcional y rápida.
-        - No evitamos autopistas de forma global porque puede generar rodeos artificiales.
-        - Solo forzamos waypoints profesionales concretos cuando están validados.
+        - Google debe priorizar ruta funcional y rápida.
+        - No evitamos autopistas de forma global.
+        - Solo forzamos waypoints profesionales concretos.
       */
       avoidHighways: false,
       avoidTolls: false,
