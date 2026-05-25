@@ -702,6 +702,89 @@ function renderDevices(devices) {
   });
 }
 
+const LAST_ADMIN_INVITE_KEY = "taxipro_last_admin_invite";
+
+function buildInviteWhatsappMessage(inviteCode) {
+  const inviteUrl = "https://taxipro-app.com/?v=beta-invite";
+
+  return [
+    "Hola. Te envío el acceso beta de TAXIPRO.",
+    "",
+    "Abre este enlace:",
+    inviteUrl,
+    "",
+    "Introduce este código:",
+    inviteCode,
+    "",
+    "Pon tu nombre y pulsa “Activar dispositivo”.",
+    "",
+    "Después yo aprobaré el acceso desde el panel."
+  ].join("\n");
+}
+
+function renderAdminInviteCard(inviteCode, associatedTaxiCode) {
+  const output = document.getElementById("adminInviteResult");
+  if (!output || !inviteCode) return;
+
+  const whatsappMessage = buildInviteWhatsappMessage(inviteCode);
+
+  output.innerHTML = `
+    <div class="invite-code-card">
+      <div class="invite-label">INVITACIÓN 72H</div>
+      <div class="invite-code-value">${inviteCode}</div>
+      <div class="invite-hint">Taxi asociado: ${associatedTaxiCode || "TX001"}</div>
+
+      <button id="copyInviteMessageBtn" type="button" class="mini-copy-btn">
+        COPIAR MENSAJE WHATSAPP
+      </button>
+    </div>
+  `;
+
+  document.getElementById("copyInviteMessageBtn")?.addEventListener("click", async () => {
+    try {
+      await navigator.clipboard.writeText(whatsappMessage);
+      const btn = document.getElementById("copyInviteMessageBtn");
+      if (btn) {
+        btn.textContent = "MENSAJE COPIADO";
+        setTimeout(() => {
+          btn.textContent = "COPIAR MENSAJE WHATSAPP";
+        }, 1600);
+      }
+    } catch {
+      alert("No se pudo copiar el mensaje. Copia manualmente el código visible.");
+    }
+  });
+}
+
+function saveLastAdminInvite(inviteCode, associatedTaxiCode) {
+  try {
+    localStorage.setItem(
+      LAST_ADMIN_INVITE_KEY,
+      JSON.stringify({
+        inviteCode,
+        associatedTaxiCode,
+        savedAt: new Date().toISOString()
+      })
+    );
+  } catch {
+    // Si falla localStorage, simplemente no se conserva al recargar.
+  }
+}
+
+function restoreLastAdminInvite() {
+  try {
+    const raw = localStorage.getItem(LAST_ADMIN_INVITE_KEY);
+    if (!raw) return;
+
+    const data = JSON.parse(raw);
+    if (!data?.inviteCode) return;
+
+    renderAdminInviteCard(data.inviteCode, data.associatedTaxiCode || getTaxiId());
+  } catch {
+    localStorage.removeItem(LAST_ADMIN_INVITE_KEY);
+  }
+}
+
 async function createAdminInvite() {
   const btn = document.getElementById("createInviteBtn");
   const output = document.getElementById("adminInviteResult");
@@ -731,53 +814,8 @@ async function createAdminInvite() {
       throw new Error("No se recibió código de invitación");
     }
 
-    const inviteUrl = "https://taxipro-app.com/?v=beta-invite";
-
-    const whatsappMessage = [
-      "Hola. Te envío el acceso beta de TAXIPRO.",
-      "",
-      "Abre este enlace:",
-      inviteUrl,
-      "",
-      "Introduce este código:",
-      inviteCode,
-      "",
-      "Pon tu nombre y pulsa “Activar dispositivo”.",
-      "",
-      "Después yo aprobaré el acceso desde el panel."
-    ].join("\n");
-
-    output.innerHTML = `
-      <div class="invite-code-card">
-        <div class="invite-label">INVITACIÓN 72H</div>
-        <div class="invite-code-value">${inviteCode}</div>
-        <div class="invite-hint">Taxi asociado: ${associatedTaxiCode}</div>
-
-        <button id="copyInviteCodeBtn" type="button" class="mini-copy-btn">
-          COPIAR CÓDIGO
-        </button>
-
-        <button id="copyInviteMessageBtn" type="button" class="mini-copy-btn">
-          COPIAR MENSAJE WHATSAPP
-        </button>
-      </div>
-    `;
-
-    document.getElementById("copyInviteCodeBtn")?.addEventListener("click", async () => {
-      try {
-        await navigator.clipboard.writeText(inviteCode);
-      } catch {
-        alert("No se pudo copiar el código. Puedes copiarlo manualmente.");
-      }
-    });
-
-    document.getElementById("copyInviteMessageBtn")?.addEventListener("click", async () => {
-      try {
-        await navigator.clipboard.writeText(whatsappMessage);
-      } catch {
-        alert("No se pudo copiar el mensaje. Puedes copiar el código manualmente.");
-      }
-    });
+    saveLastAdminInvite(inviteCode, associatedTaxiCode);
+    renderAdminInviteCard(inviteCode, associatedTaxiCode);
   } catch (error) {
     output.innerHTML = `
       <div class="admin-error">
@@ -795,6 +833,7 @@ function setupAdminInviteControls() {
   if (!btn) return;
 
   btn.onclick = createAdminInvite;
+  restoreLastAdminInvite();
 }
 
 async function initAdminPanel() {
@@ -1157,24 +1196,65 @@ function getMallorcaBounds() {
   );
 }
 
+function getPlaceRoutingValue(place) {
+  const location = place?.geometry?.location;
+
+  if (!location) return "";
+
+  const lat =
+    typeof location.lat === "function"
+      ? location.lat()
+      : location.lat;
+
+  const lng =
+    typeof location.lng === "function"
+      ? location.lng()
+      : location.lng;
+
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return "";
+
+  return `${lat.toFixed(6)},${lng.toFixed(6)}`;
+}
+
+function setInputRoutingValue(input, value = "") {
+  if (!input) return;
+
+  if (value) {
+    input.dataset.routingValue = value;
+  } else {
+    delete input.dataset.routingValue;
+  }
+}
+
+function getInputRoutingValue(input) {
+  return input?.dataset?.routingValue || input?.value?.trim() || "";
+}
+
 function applyPlaceToInput(input, place) {
-  if (!place) return;
+  if (!place || !input) return;
 
   const cleanValue = formatShortPlace(
     place.name || "",
     place.formatted_address || ""
   );
 
+  const routingValue =
+    getPlaceRoutingValue(place) ||
+    place.formatted_address ||
+    cleanValue;
+
   if (cleanValue) {
     input.value = cleanValue;
+  } else if (place.formatted_address) {
+    input.value = place.formatted_address;
+  } else if (routingValue) {
+    input.value = routingValue;
+  }
 
-    if (input === destinationInput) {
-      currentDestinationRoutingValue = cleanValue;
-    }
+  setInputRoutingValue(input, routingValue);
 
-    if (input === stopInput) {
-      // La parada intermedia se guarda por el valor visible del input.
-    }
+  if (input === destinationInput) {
+    currentDestinationRoutingValue = routingValue || input.value.trim();
   }
 }
 
@@ -1227,19 +1307,27 @@ function initAutocomplete() {
 }
 
 function getRouteRequest() {
-  const origin = originInput?.value.trim() || "";
-  const destination = destinationInput?.value.trim() || "";
+  const originLabel = originInput?.value.trim() || "";
+  const destinationLabel = destinationInput?.value.trim() || "";
+
+  const origin = getInputRoutingValue(originInput);
+  const destination = getInputRoutingValue(destinationInput);
 
   const stops = [];
+  const stopLabels = [];
 
   if (stopInput?.value.trim()) {
-    stops.push(stopInput.value.trim());
+    stops.push(getInputRoutingValue(stopInput));
+    stopLabels.push(stopInput.value.trim());
   }
 
   return {
     origin,
+    originLabel,
     stops,
-    destination
+    stopLabels,
+    destination,
+    destinationLabel
   };
 }
 function clearStops() {
@@ -1562,10 +1650,10 @@ document.querySelectorAll("#quickOrigins button").forEach((btn) => {
   btn.addEventListener("click", () => {
     const key = btn.dataset.quickOrigin;
     if (originInput) {
-      originInput.value = QUICK_LOCATIONS[key] || btn.dataset.origin || "";
-    }
-  });
-});
+  const value = QUICK_LOCATIONS[key] || btn.dataset.origin || "";
+  originInput.value = value;
+  setInputRoutingValue(originInput, value);
+}
 
 document.querySelectorAll("[data-taxi-stand-origin]").forEach((btn) => {
   btn.addEventListener("click", () => {
@@ -1575,6 +1663,7 @@ document.querySelectorAll("[data-taxi-stand-origin]").forEach((btn) => {
     if (!stand || !originInput) return;
 
     originInput.value = stand.value;
+    setInputRoutingValue(originInput, stand.value);
 
     const details = document.getElementById("taxiStandsDetails");
     if (details) {
@@ -1613,10 +1702,12 @@ document.querySelectorAll("#quickDestinations button").forEach((btn) => {
     if (destinationInput) {
       if (mode === "taxipro" && config) {
         destinationInput.value = config.displayValue;
-        currentDestinationRoutingValue = config.routingValue;
+currentDestinationRoutingValue = config.routingValue;
+setInputRoutingValue(destinationInput, config.routingValue);
       } else {
         destinationInput.value = tariffValue || btn.dataset.destination || "";
-        currentDestinationRoutingValue = destinationInput.value;
+currentDestinationRoutingValue = destinationInput.value;
+setInputRoutingValue(destinationInput, destinationInput.value);
       }
     }
   });
@@ -1635,7 +1726,16 @@ document.querySelectorAll(".supplement-btn").forEach((btn) => {
 
 newServiceBtn?.addEventListener("click", resetCurrentService);
 
+originInput?.addEventListener("input", () => {
+  setInputRoutingValue(originInput, "");
+});
+
+stopInput?.addEventListener("input", () => {
+  setInputRoutingValue(stopInput, "");
+});
+
 destinationInput?.addEventListener("input", () => {
+  setInputRoutingValue(destinationInput, "");
   currentDestinationRoutingValue = destinationInput.value.trim();
 });
 
@@ -1647,8 +1747,14 @@ calculateBtn?.addEventListener("click", async () => {
   const routeRequest = getRouteRequest();
 
   const origin = routeRequest.origin;
+  const originLabel = routeRequest.originLabel || origin;
+
   const destination = routeRequest.destination;
-  const destinationForRoute = currentDestinationRoutingValue || destination;
+  const destinationLabel = routeRequest.destinationLabel || destination;
+
+  const destinationForRoute =
+  currentDestinationRoutingValue ||
+  destination;
   const mode = pricingMode?.value || "taxipro";
 
   if (!destination) {
@@ -1694,9 +1800,9 @@ calculateBtn?.addEventListener("click", async () => {
     }
 
     lastRoute = {
-      origin,
-      stops: routeRequest.stops,
-      destination,
+      origin: originLabel,
+      stops: routeRequest.stopLabels?.length ? routeRequest.stopLabels : routeRequest.stops,
+      destination: destinationLabel,
       distanceKm: route.distanceKm,
       durationMinutes: route.durationMinutes
     };
