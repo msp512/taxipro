@@ -120,12 +120,13 @@ export async function activateWithInvite(inviteCode, displayName = "") {
 }
 
 export async function createInviteAPI(expiresHours = 72, targetTaxiCode = "") {
-  return apiRequest("/pilot/invites", {
+  return apiRequest("/pilot/invite/create", {
     method: "POST",
     body: JSON.stringify({
       expires_hours: expiresHours,
       target_taxi_code: normalizeTaxiCode(targetTaxiCode || getStoredTaxiCode()),
-      target_role: "operator"
+      target_role: "operator",
+      requires_approval: true
     })
   });
 }
