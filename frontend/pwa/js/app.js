@@ -1649,11 +1649,14 @@ useLocationBtn?.addEventListener("click", setCurrentOriginFromGPS);
 document.querySelectorAll("#quickOrigins button").forEach((btn) => {
   btn.addEventListener("click", () => {
     const key = btn.dataset.quickOrigin;
+
     if (originInput) {
-  const value = QUICK_LOCATIONS[key] || btn.dataset.origin || "";
-  originInput.value = value;
-  setInputRoutingValue(originInput, value);
-}
+      const value = QUICK_LOCATIONS[key] || btn.dataset.origin || "";
+      originInput.value = value;
+      setInputRoutingValue(originInput, value);
+    }
+  });
+});
 
 document.querySelectorAll("[data-taxi-stand-origin]").forEach((btn) => {
   btn.addEventListener("click", () => {
