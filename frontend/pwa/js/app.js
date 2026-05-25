@@ -716,18 +716,50 @@ async function createAdminInvite() {
     const taxiCode = getTaxiId();
     const result = await createInviteAPI(72, taxiCode);
 
-    const inviteCode = result?.invite_code || "";
+    const inviteCode =
+      result?.invite_code ||
+      result?.code ||
+      result?.invite?.invite_code ||
+      "";
+
+    const associatedTaxiCode =
+      result?.target_taxi_code ||
+      result?.invite?.target_taxi_code ||
+      taxiCode;
 
     if (!inviteCode) {
       throw new Error("No se recibió código de invitación");
     }
 
+    const inviteUrl = "https://taxipro-app.com/?v=beta-invite";
+
+    const whatsappMessage = [
+      "Hola. Te envío el acceso beta de TAXIPRO.",
+      "",
+      "Abre este enlace:",
+      inviteUrl,
+      "",
+      "Introduce este código:",
+      inviteCode,
+      "",
+      "Pon tu nombre y pulsa “Activar dispositivo”.",
+      "",
+      "Después yo aprobaré el acceso desde el panel."
+    ].join("\n");
+
     output.innerHTML = `
       <div class="invite-code-card">
         <div class="invite-label">INVITACIÓN 72H</div>
         <div class="invite-code-value">${inviteCode}</div>
-        <div class="invite-hint">Taxi asociado: ${result?.target_taxi_code || taxiCode}</div>
-        <button id="copyInviteCodeBtn" type="button" class="mini-copy-btn">COPIAR CÓDIGO</button>
+        <div class="invite-hint">Taxi asociado: ${associatedTaxiCode}</div>
+
+        <button id="copyInviteCodeBtn" type="button" class="mini-copy-btn">
+          COPIAR CÓDIGO
+        </button>
+
+        <button id="copyInviteMessageBtn" type="button" class="mini-copy-btn">
+          COPIAR MENSAJE WHATSAPP
+        </button>
       </div>
     `;
 
@@ -735,7 +767,15 @@ async function createAdminInvite() {
       try {
         await navigator.clipboard.writeText(inviteCode);
       } catch {
-        // Si falla el portapapeles, el código queda visible.
+        alert("No se pudo copiar el código. Puedes copiarlo manualmente.");
+      }
+    });
+
+    document.getElementById("copyInviteMessageBtn")?.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(whatsappMessage);
+      } catch {
+        alert("No se pudo copiar el mensaje. Puedes copiar el código manualmente.");
       }
     });
   } catch (error) {
