@@ -102,7 +102,7 @@ export async function activatePilotDevice(req, res) {
         taxi_code = excluded.taxi_code,
         device_name = excluded.device_name,
         role = excluded.role,
-        status = 'active',
+        AND is_active = true,
         last_used_at = now(),
         updated_at = now()
       returning taxi_code, device_id, device_name, role, status

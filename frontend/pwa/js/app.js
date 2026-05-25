@@ -210,7 +210,7 @@ function forceHideSplash() {
 =============================== */
 
 const QUICK_LOCATIONS = {
-  playa: "Playa de Palma, Mallorca",
+  playa: "39.520840,2.741548",
   centro: "Plaça de la Reina, Palma, Mallorca",
   aeropuerto: "Aeropuerto de Palma, Mallorca",
   puerto: "Dique del Oeste, Palma, Mallorca"

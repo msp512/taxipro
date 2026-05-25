@@ -14,12 +14,15 @@ export async function getPilotMe(req, res) {
       });
     }
 
-    // Determinar pantalla que debe ver
-    let screen = "blocked";
+    // Determinar pantalla que debe ver según B3.1
+    const role = String(device.role || "").toLowerCase();
+    const status = String(device.status || "").toLowerCase();
 
-    if (device.role === "pending") {
+    let screen = "denied";
+
+    if (role === "pending") {
       screen = "pending";
-    } else if (device.status === "active" && device.taxi_code) {
+    } else if (status === "active" && device.taxi_code) {
       screen = "app";
     }
 
@@ -99,31 +102,32 @@ export async function activateWithInvite(req, res) {
       : "active";
 
     const result = await pool.query(
-  `
-  INSERT INTO authorized_devices (
-    device_id,
-    display_name,
-    role,
-    status,
-    taxi_code,
-    created_at,
-    updated_at
-  )
-  VALUES ($1, $2, $3, $4, $5, NOW(), NOW())
-  ON CONFLICT (device_id)
-  DO UPDATE SET
-    display_name = EXCLUDED.display_name,
-    updated_at = NOW()
-  RETURNING *
-  `,
-  [
-    deviceId,
-    displayName,
-    role,
-    status,
-    invite.target_taxi_code || null
-  ]
-);
+      `
+      INSERT INTO authorized_devices (
+        device_id,
+        display_name,
+        role,
+        status,
+        taxi_code,
+        created_at,
+        updated_at
+      )
+      VALUES ($1, $2, $3, $4, $5, NOW(), NOW())
+      ON CONFLICT (device_id)
+      DO UPDATE SET
+        display_name = EXCLUDED.display_name,
+        updated_at = NOW()
+      RETURNING *
+      `,
+      [
+        deviceId,
+        displayName,
+        role,
+        status,
+        invite.target_taxi_code || null
+      ]
+    );
+
     await pool.query(
       `
       UPDATE pilot_invites
@@ -148,6 +152,7 @@ export async function activateWithInvite(req, res) {
     });
   }
 }
+
 /**
  * Asignar taxi a un dispositivo
  */
@@ -162,16 +167,15 @@ export async function assignTaxiToDevice(req, res) {
       });
     }
 
-    // 🔥 CORRECCIÓN IMPORTANTE AQUÍ
     const taxiResult = await pool.query(
-      `
-      SELECT *
-      FROM authorized_taxis
-      WHERE taxi_code = $1
-      AND status = 'active'
-      `,
-      [taxi_code]
-    );
+  `
+  SELECT *
+  FROM authorized_taxis
+  WHERE taxi_code = $1
+  AND is_active = true
+  `,
+  [taxi_code]
+);
 
     if (taxiResult.rows.length === 0) {
       return res.status(403).json({
@@ -201,6 +205,7 @@ export async function assignTaxiToDevice(req, res) {
     });
   }
 }
+
 export async function getPilotDevices(req, res) {
   try {
     const result = await pool.query(`
@@ -300,55 +305,122 @@ export async function updateDeviceStatus(req, res) {
     });
   }
 }
+
 export async function createInvite(req, res) {
   try {
-    const {
-      target_role = "operator",
-      target_taxi_code = null,
-      requires_approval = true
-    } = req.body;
+    const allowedRoles = ["operator", "manager"];
 
-    const code =
-      "TAXI-" +
-      Math.random().toString(36).substring(2, 6).toUpperCase() +
-      "-" +
-      Math.random().toString(36).substring(2, 6).toUpperCase();
+    const targetRole = String(req.body?.target_role || "operator")
+      .trim()
+      .toLowerCase();
 
-    const expiresAt = new Date();
-    expiresAt.setHours(expiresAt.getHours() + 48);
+    if (!allowedRoles.includes(targetRole)) {
+      return res.status(400).json({
+        ok: false,
+        error: "target_role no permitido",
+      });
+    }
 
-    const result = await pool.query(
+    const targetTaxiCode = String(
+      req.body?.target_taxi_code || req.device?.taxi_code || "TX001"
+    )
+      .trim()
+      .toUpperCase();
+
+    const taxiColumnsResult = await db.query(
       `
-      INSERT INTO pilot_invites (
-        invite_code,
-        created_by_device_id,
-        target_role,
-        target_taxi_code,
-        requires_approval,
-        is_active,
-        expires_at,
-        created_at
-      )
-      VALUES ($1,$2,$3,$4,$5,true,$6,NOW())
-      RETURNING invite_code
-      `,
-      [
-        code,
-        req.device.device_id,
-        target_role,
-        target_taxi_code,
-        requires_approval,
-        expiresAt
-      ]
+      SELECT column_name
+      FROM information_schema.columns
+      WHERE table_name = 'authorized_taxis'
+      `
     );
 
-    res.json({
-      ok: true,
-      invite_code: result.rows[0].invite_code
-    });
+    const taxiColumns = taxiColumnsResult.rows.map((r) => r.column_name);
 
+    let taxiWhere = "taxi_code = $1";
+    if (taxiColumns.includes("is_active")) {
+      taxiWhere += " AND is_active = true";
+    } else if (taxiColumns.includes("status")) {
+      taxiWhere += " AND status = 'active'";
+    }
+
+    const taxiResult = await db.query(
+      `
+      SELECT *
+      FROM authorized_taxis
+      WHERE ${taxiWhere}
+      LIMIT 1
+      `,
+      [targetTaxiCode]
+    );
+
+    if (taxiResult.rows.length === 0) {
+      return res.status(400).json({
+        ok: false,
+        error: "taxi_code no autorizado o inactivo",
+        target_taxi_code: targetTaxiCode,
+      });
+    }
+
+    const inviteColumnsResult = await db.query(
+      `
+      SELECT column_name
+      FROM information_schema.columns
+      WHERE table_name = 'pilot_invites'
+      `
+    );
+
+    const inviteColumns = inviteColumnsResult.rows.map((r) => r.column_name);
+
+    const inviteCode = `TAXI-${Math.random()
+      .toString(36)
+      .slice(2, 6)
+      .toUpperCase()}-${Math.random()
+      .toString(36)
+      .slice(2, 6)
+      .toUpperCase()}`;
+
+    const insertData = {
+      invite_code: inviteCode,
+      target_role: targetRole,
+      target_taxi_code: targetTaxiCode,
+      is_active: true,
+      requires_approval: true,
+      created_by_device_id: req.device?.device_id || null,
+      expires_at: new Date(Date.now() + 72 * 60 * 60 * 1000).toISOString(),
+      created_at: new Date().toISOString(),
+    };
+
+    const filteredEntries = Object.entries(insertData).filter(([key]) =>
+      inviteColumns.includes(key)
+    );
+
+    const columns = filteredEntries.map(([key]) => key);
+    const values = filteredEntries.map(([, value]) => value);
+    const placeholders = values.map((_, index) => `$${index + 1}`);
+
+    const insertResult = await db.query(
+      `
+      INSERT INTO pilot_invites (${columns.join(", ")})
+      VALUES (${placeholders.join(", ")})
+      RETURNING *
+      `,
+      values
+    );
+
+    return res.json({
+      ok: true,
+      invite: insertResult.rows[0],
+      invite_code: inviteCode,
+      expires_hours: 72,
+    });
   } catch (error) {
     console.error("createInvite error:", error);
-    res.status(500).json({ ok: false, error: "Error creando invitación" });
+
+    return res.status(500).json({
+      ok: false,
+      error: "Error de servidor",
+      detail: error.message,
+    });
   }
 }

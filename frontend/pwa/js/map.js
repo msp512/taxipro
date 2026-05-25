@@ -177,6 +177,10 @@ function isPalmaDirectionDestination(value = "") {
 function isDiqueOesteOrPuertoDestination(value = "") {
   const text = normalizeText(value);
 
+  if (isAirportDestination(value)) {
+    return false;
+  }
+
   return (
     text.includes("dique del oeste") ||
     text.includes("dic de l oest") ||
@@ -325,6 +329,16 @@ function shouldForceSometimesMotorwayAccess(origin, destination) {
 }
 
 function shouldForcePaseoMaritimo(origin, destination) {
+  /*
+    Regla Paseo Marítimo:
+    SOLO Playa de Palma / paradas Playa de Palma → Dique Oeste / Puerto.
+    NUNCA debe aplicarse si el destino es Aeropuerto.
+  */
+
+  if (isAirportDestination(destination)) {
+    return false;
+  }
+
   return (
     isPlayaDePalmaOrigin(origin) &&
     isDiqueOesteOrPuertoDestination(destination)

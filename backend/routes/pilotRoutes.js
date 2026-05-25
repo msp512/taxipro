@@ -2,7 +2,8 @@ import express from "express";
 
 import {
   attachDevice,
-  requireManagerRole
+  requireManagerRole,
+  requireSuperadminRole
 } from "../middleware/requireAuthorizedDevice.js";
 
 import {
@@ -11,10 +12,9 @@ import {
   getPilotDevices,
   updateDeviceRole,
   updateDeviceStatus,
-  assignTaxiToDevice
+  assignTaxiToDevice,
+  createInvite
 } from "../controllers/pilotAccessController.js";
-
-import { createInvite } from "../controllers/pilotAccessController.js";
 
 const router = express.Router();
 
@@ -30,11 +30,12 @@ router.post("/device/status", attachDevice, requireManagerRole, updateDeviceStat
 
 router.post("/device/assign-taxi", attachDevice, requireManagerRole, assignTaxiToDevice);
 
-router.post(
-  "/invite/create",
-  attachDevice,
-  requireManagerRole,
-  createInvite
-);
+/*
+  TAXIPRO — piloto inicial
+  Solo superadmin crea invitaciones. Dejamos dos rutas para compatibilidad
+  con frontend existente y con el nombre nuevo aprobado en B3.2.
+*/
+router.post("/invites", attachDevice, requireSuperadminRole, createInvite);
+router.post("/invite/create", attachDevice, requireSuperadminRole, createInvite);
 
 export default router;

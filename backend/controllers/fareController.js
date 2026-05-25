@@ -161,38 +161,138 @@ function isAirportPlace(value = "") {
   );
 }
 
-function resolveRouteScope({ city, origin, destination, stops = [], profile }) {
-  const normalizedCity = normalizePlaceText(city);
+function parseCoordinatePair(value = "") {
+  const text = String(value || "").trim();
 
-  if (
-    normalizedCity.includes("interurb") ||
-    normalizedCity.includes("t3") ||
-    normalizedCity.includes("t4")
-  ) {
-    return {
-      scope: "interurban",
-      reason: "Servicio marcado como interurbano"
-    };
-  }
+  const match = text.match(
+    /^\s*(-?\d+(?:[.,]\d+)?)\s*,\s*(-?\d+(?:[.,]\d+)?)\s*$/
+  );
 
-  const points = [
+  if (!match) return null;
+
+  const lat = Number(match[1].replace(",", "."));
+  const lng = Number(match[2].replace(",", "."));
+
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+
+  return { lat, lng };
+}
+
+function isPalmaUrbanCoordinate(value = "") {
+  const point = parseCoordinatePair(value);
+
+  if (!point) return false;
+
+  const { lat, lng } = point;
+
+  /*
+    Ámbito urbano operativo Palma / TAXIPRO.
+
+    Incluye:
+    - Palma ciudad
+    - Playa de Palma
+    - Can Pastilla
+    - Arenal zona Palma
+    - Aeropuerto PMI
+    - Dique Oeste / Puerto
+    - Coll d'en Rabassa
+    - Son Espases
+
+    Objetivo:
+    Evitar que coordenadas puras de paradas urbanas se clasifiquen como interurbanas.
+  */
+  return (
+    lat >= 39.49 &&
+    lat <= 39.62 &&
+    lng >= 2.58 &&
+    lng <= 2.80
+  );
+}
+
+function isPalmaUrbanText(value = "") {
+  const text = normalizePlaceText(value);
+
+  if (!text) return false;
+
+  return (
+    text.includes("palma") ||
+    text.includes("platja de palma") ||
+    text.includes("playa de palma") ||
+    text.includes("can pastilla") ||
+    text.includes("arenal") ||
+    text.includes("s arenal") ||
+    text.includes("les meravelles") ||
+    text.includes("maravelles") ||
+    text.includes("sometimes") ||
+    text.includes("riu") ||
+    text.includes("pillari") ||
+    text.includes("pil lari") ||
+    text.includes("aeropuerto") ||
+    text.includes("aeroport") ||
+    text.includes("airport") ||
+    text.includes("pmi") ||
+    text.includes("son sant joan") ||
+    text.includes("dique del oeste") ||
+    text.includes("dic de l oest") ||
+    text.includes("puerto de palma") ||
+    text.includes("port de palma") ||
+    text.includes("coll den rabassa") ||
+    text.includes("coll d en rabassa") ||
+    text.includes("son espases") ||
+    text.includes("mallorca fashion outlet")
+  );
+}
+
+function isInsidePalmaUrbanOperationalScope(value = "") {
+  return isPalmaUrbanCoordinate(value) || isPalmaUrbanText(value);
+}
+
+function resolveRouteScope({
+  city,
+  origin,
+  destination,
+  stops = [],
+  profile
+}) {
+  const routePoints = [
     origin,
     ...(Array.isArray(stops) ? stops : []),
     destination
   ].filter(Boolean);
 
-  if (points.length < 2) {
-    return {
-      scope: "urban",
-      reason: "Ruta incompleta; se aplica ámbito urbano por defecto"
-    };
+  const cityText = normalizePlaceText(city);
+
+  const isPalmaCity =
+    cityText.includes("palma") ||
+    profile?.id === "PALMA_MALLORCA_2026";
+
+  /*
+    Regla prioritaria TAXIPRO Palma:
+    Si todos los puntos de la ruta están dentro del ámbito urbano operativo
+    de Palma, la ruta es urbana aunque origen/destino sean coordenadas puras.
+  */
+  if (isPalmaCity && routePoints.length >= 2) {
+    const allInsidePalmaUrbanScope = routePoints.every((point) =>
+      isInsidePalmaUrbanOperationalScope(point)
+    );
+
+    if (allInsidePalmaUrbanScope) {
+      return {
+        scope: "urban",
+        reason: "Origen, destino y paradas dentro del ámbito urbano operativo de Palma"
+      };
+    }
   }
 
-  const allInsideUrbanScope = points.every((point) =>
+  /*
+    Fallback anterior basado en keywords del perfil.
+    Se mantiene para no romper otros municipios/perfiles.
+  */
+  const allInsideProfileUrbanScope = routePoints.every((point) =>
     isInsideUrbanScope(point, profile)
   );
 
-  if (allInsideUrbanScope) {
+  if (allInsideProfileUrbanScope) {
     return {
       scope: "urban",
       reason: "Origen y destino dentro del ámbito urbano ampliado de Palma"
