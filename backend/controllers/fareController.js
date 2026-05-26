@@ -161,23 +161,6 @@ function isAirportPlace(value = "") {
   );
 }
 
-function parseCoordinatePair(value = "") {
-  const text = String(value || "").trim();
-
-  const match = text.match(
-    /^\s*(-?\d+(?:[.,]\d+)?)\s*,\s*(-?\d+(?:[.,]\d+)?)\s*$/
-  );
-
-  if (!match) return null;
-
-  const lat = Number(match[1].replace(",", "."));
-  const lng = Number(match[2].replace(",", "."));
-
-  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
-
-  return { lat, lng };
-}
-
 function isPalmaUrbanCoordinate(value = "") {
   const point = parseCoordinatePair(value);
 
