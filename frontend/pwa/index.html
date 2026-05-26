@@ -488,6 +488,53 @@
     <div id="adminInviteResult"></div>
   </div>
 
+<div id="pilotEditPanel" class="hidden admin-edit-panel">
+  <h3>Editar compañero</h3>
+
+  <label>
+    Nombre visible
+    <input id="editDisplayName" type="text" autocomplete="off" />
+  </label>
+
+  <label>
+    Taxi asignado
+    <input id="editTaxiCode" type="text" autocomplete="off" placeholder="TX001" />
+  </label>
+
+  <label>
+    Rol
+    <select id="editRole">
+      <option value="operator">Operator</option>
+      <option value="manager">Manager</option>
+      <option value="superadmin">Superadmin</option>
+    </select>
+  </label>
+
+  <label>
+    Estado
+    <select id="editStatus">
+      <option value="active">Activo</option>
+      <option value="inactive">Inactivo</option>
+      <option value="blocked">Bloqueado</option>
+    </select>
+  </label>
+
+  <label>
+    Nota interna
+    <textarea id="editInternalNote" rows="3"></textarea>
+  </label>
+
+  <div class="admin-device-actions">
+    <button id="savePilotDeviceBtn" type="button" class="device-action-btn success">
+      Guardar cambios
+    </button>
+
+    <button id="cancelPilotDeviceEditBtn" type="button" class="device-action-btn">
+      Cancelar
+    </button>
+  </div>
+</div>
+
   <div id="adminDevicesList"></div>
 </div>
 

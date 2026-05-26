@@ -3,6 +3,7 @@ import {
   activateWithInvite,
   fetchPilotMe,
   getPilotDevicesAPI,
+  updatePilotDeviceAPI,
   updatePilotDeviceRoleAPI,
   updatePilotDeviceStatusAPI,
   createInviteAPI,
@@ -623,6 +624,10 @@ async function fetchPilotDevices() {
   return Array.isArray(response?.devices) ? response.devices : [];
 }
 
+async function updatePilotDeviceDetails(deviceId, payload) {
+  return updatePilotDeviceAPI(deviceId, payload);
+}
+
 async function updateDeviceRole(deviceId, role) {
   return updatePilotDeviceRoleAPI(deviceId, role);
 }
@@ -634,6 +639,34 @@ async function updateDeviceStatus(deviceId, status) {
 async function approvePendingDevice(deviceId) {
   await updateDeviceRole(deviceId, "operator");
   await updateDeviceStatus(deviceId, "active");
+}
+
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function formatDateTime(value) {
+  if (!value) return "—";
+
+  try {
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return "—";
+
+    return date.toLocaleString("es-ES", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit"
+    });
+  } catch {
+    return "—";
+  }
 }
 
 function renderDevices(devices) {
@@ -656,19 +689,30 @@ function renderDevices(devices) {
 
     return `
       <div class="admin-device-card">
-        <div><strong>${d.display_name || "DISPOSITIVO"}</strong>${isCurrent ? " · ACTUAL" : ""}</div>
-        <div>${d.device_id}</div>
-        <div>ROL: ${String(d.role || "").toUpperCase()}</div>
-        <div>ESTADO: ${String(d.status || "").toUpperCase()}</div>
-        <div>TAXI: ${d.taxi_code || "—"}</div>
+        <div><strong>${escapeHtml(d.display_name || "DISPOSITIVO")}</strong>${isCurrent ? " · ACTUAL" : ""}</div>
+        <div class="device-id-line">${escapeHtml(d.device_id)}</div>
+        <div>ROL: ${escapeHtml(String(d.role || "").toUpperCase())}</div>
+        <div>ESTADO: ${escapeHtml(String(d.status || "").toUpperCase())}</div>
+        <div>TAXI: ${escapeHtml(d.taxi_code || "—")}</div>
+        <div>ÚLTIMO USO: ${escapeHtml(formatDateTime(d.last_seen_at))}</div>
+        <div>NOTA: ${escapeHtml(d.internal_note || "—")}</div>
 
         <div class="admin-device-actions">
-          ${!isCurrent && isPending ? `<button type="button" class="device-action-btn success" data-action="approve" data-id="${d.device_id}">APROBAR</button>` : ""}
-          ${canActivate ? `<button type="button" class="device-action-btn success" data-action="activate" data-id="${d.device_id}">ACTIVAR</button>` : ""}
-          ${canDeactivate ? `<button type="button" class="device-action-btn" data-action="inactive" data-id="${d.device_id}">DESACTIVAR</button>` : ""}
-          ${canBlock ? `<button type="button" class="device-action-btn danger" data-action="block" data-id="${d.device_id}">BLOQUEAR</button>` : ""}
-          ${canSetOperator ? `<button type="button" class="device-action-btn" data-action="operator" data-id="${d.device_id}">OPERATOR</button>` : ""}
-          ${canSetManager ? `<button type="button" class="device-action-btn" data-action="manager" data-id="${d.device_id}">MANAGER</button>` : ""}
+          <button
+            type="button"
+            class="device-action-btn"
+            data-action="edit"
+            data-id="${escapeHtml(d.device_id)}"
+          >
+            EDITAR
+          </button>
+
+          ${!isCurrent && isPending ? `<button type="button" class="device-action-btn success" data-action="approve" data-id="${escapeHtml(d.device_id)}">APROBAR</button>` : ""}
+          ${canActivate ? `<button type="button" class="device-action-btn success" data-action="activate" data-id="${escapeHtml(d.device_id)}">ACTIVAR</button>` : ""}
+          ${canDeactivate ? `<button type="button" class="device-action-btn" data-action="inactive" data-id="${escapeHtml(d.device_id)}">DESACTIVAR</button>` : ""}
+          ${canBlock ? `<button type="button" class="device-action-btn danger" data-action="block" data-id="${escapeHtml(d.device_id)}">BLOQUEAR</button>` : ""}
+          ${canSetOperator ? `<button type="button" class="device-action-btn" data-action="operator" data-id="${escapeHtml(d.device_id)}">OPERATOR</button>` : ""}
+          ${canSetManager ? `<button type="button" class="device-action-btn" data-action="manager" data-id="${escapeHtml(d.device_id)}">MANAGER</button>` : ""}
         </div>
       </div>
     `;
@@ -680,6 +724,12 @@ function renderDevices(devices) {
       const action = btn.dataset.action;
 
       if (!id || !action) return;
+
+      if (action === "edit") {
+        const device = devices.find((item) => item.device_id === id);
+        openPilotDeviceEditor(device);
+        return;
+      }
 
       try {
         btn.disabled = true;
@@ -700,6 +750,83 @@ function renderDevices(devices) {
       }
     });
   });
+}
+
+let editingPilotDeviceId = null;
+
+function openPilotDeviceEditor(device) {
+  if (!device) {
+    alert("No se pudo cargar el dispositivo.");
+    return;
+  }
+
+  editingPilotDeviceId = device.device_id;
+
+  const panel = document.getElementById("pilotEditPanel");
+  const displayNameInput = document.getElementById("editDisplayName");
+  const taxiCodeInput = document.getElementById("editTaxiCode");
+  const roleSelect = document.getElementById("editRole");
+  const statusSelect = document.getElementById("editStatus");
+  const internalNoteInput = document.getElementById("editInternalNote");
+
+  if (!panel) {
+    alert("No existe el panel de edición en el HTML.");
+    return;
+  }
+
+  if (displayNameInput) displayNameInput.value = device.display_name || "";
+  if (taxiCodeInput) taxiCodeInput.value = device.taxi_code || "";
+  if (roleSelect) roleSelect.value = String(device.role || "operator").toLowerCase();
+  if (statusSelect) statusSelect.value = String(device.status || "active").toLowerCase();
+  if (internalNoteInput) internalNoteInput.value = device.internal_note || "";
+
+  panel.classList.remove("hidden");
+  panel.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function closePilotDeviceEditor() {
+  editingPilotDeviceId = null;
+
+  const panel = document.getElementById("pilotEditPanel");
+  if (panel) panel.classList.add("hidden");
+}
+
+async function savePilotDeviceEditor() {
+  if (!editingPilotDeviceId) {
+    alert("No hay ningún dispositivo seleccionado.");
+    return;
+  }
+
+  const saveBtn = document.getElementById("savePilotDeviceBtn");
+
+  const payload = {
+    display_name: document.getElementById("editDisplayName")?.value || "",
+    taxi_code: document.getElementById("editTaxiCode")?.value || "",
+    role: document.getElementById("editRole")?.value || "operator",
+    status: document.getElementById("editStatus")?.value || "active",
+    internal_note: document.getElementById("editInternalNote")?.value || ""
+  };
+
+  try {
+    if (saveBtn) {
+      saveBtn.disabled = true;
+      saveBtn.textContent = "Guardando...";
+    }
+
+    await updatePilotDeviceDetails(editingPilotDeviceId, payload);
+
+    const refreshedDevices = await fetchPilotDevices();
+    renderDevices(refreshedDevices);
+    closePilotDeviceEditor();
+    await syncCurrentPilotDevice();
+  } catch (error) {
+    alert(error.message || "No se pudo guardar el dispositivo.");
+  } finally {
+    if (saveBtn) {
+      saveBtn.disabled = false;
+      saveBtn.textContent = "Guardar cambios";
+    }
+  }
 }
 
 const LAST_ADMIN_INVITE_KEY = "taxipro_last_admin_invite";
@@ -1803,12 +1930,19 @@ calculateBtn?.addEventListener("click", async () => {
     }
 
     lastRoute = {
-      origin: originLabel,
-      stops: routeRequest.stopLabels?.length ? routeRequest.stopLabels : routeRequest.stops,
-      destination: destinationLabel,
-      distanceKm: route.distanceKm,
-      durationMinutes: route.durationMinutes
-    };
+  origin: originLabel,
+  stops: routeRequest.stopLabels?.length ? routeRequest.stopLabels : routeRequest.stops,
+  destination: destinationLabel,
+  distanceKm: route.distanceKm,
+  durationMinutes: route.durationMinutes,
+  durationBaseMinutes: route.durationBaseMinutes,
+  durationTrafficMinutes: route.durationTrafficMinutes,
+  trafficDelayMinutes: route.trafficDelayMinutes,
+  trafficDelayPercent: route.trafficDelayPercent,
+  hasTrafficData: route.hasTrafficData
+};
+
+window.__lastRoute = lastRoute;
 
     let fixedFare = null;
 
@@ -2324,6 +2458,10 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 });
+
+document.getElementById("savePilotDeviceBtn")?.addEventListener("click", savePilotDeviceEditor);
+
+document.getElementById("cancelPilotDeviceEditBtn")?.addEventListener("click", closePilotDeviceEditor);
 
 window.addEventListener("load", () => {
   initApp();

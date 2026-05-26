@@ -13,7 +13,8 @@ import {
   updateDeviceRole,
   updateDeviceStatus,
   assignTaxiToDevice,
-  createInvite
+  createInvite,
+  updatePilotDevice
 } from "../controllers/pilotAccessController.js";
 
 const router = express.Router();
@@ -23,6 +24,8 @@ router.get("/me", attachDevice, getPilotMe);
 router.post("/activate-invite", activateWithInvite);
 
 router.get("/devices", attachDevice, requireManagerRole, getPilotDevices);
+
+router.patch("/device/:deviceId", attachDevice, requireManagerRole, updatePilotDevice);
 
 router.post("/device/role", attachDevice, requireManagerRole, updateDeviceRole);
 

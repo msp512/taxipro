@@ -26,6 +26,15 @@ export async function getPilotMe(req, res) {
       screen = "app";
     }
 
+    await pool.query(
+      `
+      UPDATE authorized_devices
+      SET last_seen_at = NOW(), updated_at = NOW()
+      WHERE device_id = $1
+      `,
+      [device.device_id]
+    );
+
     res.json({
       ok: true,
       device: {
@@ -209,14 +218,16 @@ export async function assignTaxiToDevice(req, res) {
 export async function getPilotDevices(req, res) {
   try {
     const result = await pool.query(`
-      SELECT 
+            SELECT 
         device_id,
         display_name,
+        internal_note,
         role,
         status,
         taxi_code,
         created_at,
-        updated_at
+        updated_at,
+        last_seen_at
       FROM authorized_devices
       ORDER BY created_at DESC
     `);
@@ -327,7 +338,7 @@ export async function createInvite(req, res) {
       .trim()
       .toUpperCase();
 
-    const taxiColumnsResult = await db.query(
+    const taxiColumnsResult = await pool.query(
       `
       SELECT column_name
       FROM information_schema.columns
@@ -344,7 +355,7 @@ export async function createInvite(req, res) {
       taxiWhere += " AND status = 'active'";
     }
 
-    const taxiResult = await db.query(
+    const taxiResult = await pool.query(
       `
       SELECT *
       FROM authorized_taxis
@@ -362,7 +373,7 @@ export async function createInvite(req, res) {
       });
     }
 
-    const inviteColumnsResult = await db.query(
+    const inviteColumnsResult = await pool.query(
       `
       SELECT column_name
       FROM information_schema.columns
@@ -399,7 +410,7 @@ export async function createInvite(req, res) {
     const values = filteredEntries.map(([, value]) => value);
     const placeholders = values.map((_, index) => `$${index + 1}`);
 
-    const insertResult = await db.query(
+    const insertResult = await pool.query(
       `
       INSERT INTO pilot_invites (${columns.join(", ")})
       VALUES (${placeholders.join(", ")})
@@ -420,6 +431,139 @@ export async function createInvite(req, res) {
     return res.status(500).json({
       ok: false,
       error: "Error de servidor",
+      detail: error.message,
+    });
+  }
+}
+export async function updatePilotDevice(req, res) {
+  try {
+    const { deviceId } = req.params;
+
+    const displayName = req.body?.display_name
+      ? String(req.body.display_name).trim()
+      : null;
+
+    const internalNote = req.body?.internal_note
+      ? String(req.body.internal_note).trim()
+      : null;
+
+    const taxiCode = req.body?.taxi_code
+      ? String(req.body.taxi_code).trim().toUpperCase()
+      : null;
+
+    const role = req.body?.role
+      ? String(req.body.role).trim().toLowerCase()
+      : null;
+
+    const status = req.body?.status
+      ? String(req.body.status).trim().toLowerCase()
+      : null;
+
+    const allowedRoles = ["pending", "operator", "manager", "superadmin"];
+    const allowedStatuses = ["active", "inactive", "blocked"];
+
+    if (!deviceId) {
+      return res.status(400).json({
+        ok: false,
+        error: "DEVICE_ID_REQUIRED",
+        message: "Falta device_id.",
+      });
+    }
+
+    if (role && !allowedRoles.includes(role)) {
+      return res.status(400).json({
+        ok: false,
+        error: "INVALID_ROLE",
+        message: "Rol no válido.",
+      });
+    }
+
+    if (status && !allowedStatuses.includes(status)) {
+      return res.status(400).json({
+        ok: false,
+        error: "INVALID_STATUS",
+        message: "Estado no válido.",
+      });
+    }
+
+    const fields = [];
+    const values = [];
+    let index = 1;
+
+    if (displayName !== null) {
+      fields.push(`display_name = $${index++}`);
+      values.push(displayName);
+    }
+
+    if (internalNote !== null) {
+      fields.push(`internal_note = $${index++}`);
+      values.push(internalNote);
+    }
+
+    if (taxiCode !== null) {
+      fields.push(`taxi_code = $${index++}`);
+      values.push(taxiCode);
+    }
+
+    if (role !== null) {
+      fields.push(`role = $${index++}`);
+      values.push(role);
+    }
+
+    if (status !== null) {
+      fields.push(`status = $${index++}`);
+      values.push(status);
+    }
+
+    if (fields.length === 0) {
+      return res.status(400).json({
+        ok: false,
+        error: "NO_FIELDS_TO_UPDATE",
+        message: "No hay campos para actualizar.",
+      });
+    }
+
+    fields.push(`updated_at = NOW()`);
+
+    values.push(deviceId);
+
+    const query = `
+      UPDATE authorized_devices
+      SET ${fields.join(", ")}
+      WHERE device_id = $${index}
+      RETURNING
+        device_id,
+        display_name,
+        internal_note,
+        taxi_code,
+        role,
+        status,
+        created_at,
+        updated_at,
+        last_seen_at
+    `;
+
+    const result = await pool.query(query, values);
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({
+        ok: false,
+        error: "DEVICE_NOT_FOUND",
+        message: "Dispositivo no encontrado.",
+      });
+    }
+
+    return res.json({
+      ok: true,
+      device: result.rows[0],
+    });
+  } catch (error) {
+    console.error("updatePilotDevice error:", error);
+
+    return res.status(500).json({
+      ok: false,
+      error: "UPDATE_DEVICE_ERROR",
+      message: "No se pudo actualizar el dispositivo.",
       detail: error.message,
     });
   }

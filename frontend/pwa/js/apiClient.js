@@ -137,6 +137,13 @@ export async function getPilotDevicesAPI() {
   });
 }
 
+export async function updatePilotDeviceAPI(deviceId, payload) {
+  return apiRequest(`/pilot/device/${deviceId}`, {
+    method: "PATCH",
+    body: JSON.stringify(payload),
+  });
+}
+
 export async function updatePilotDeviceRoleAPI(deviceId, role) {
   return apiRequest("/pilot/device/role", {
     method: "POST",

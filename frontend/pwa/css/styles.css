@@ -1822,3 +1822,36 @@ button:disabled,
     scroll-behavior: auto !important;
   }
 }
+.admin-edit-panel {
+  margin: 14px 0;
+  padding: 14px;
+  border: 1px solid rgba(15, 23, 42, 0.16);
+  background: rgba(255, 255, 255, 0.96);
+}
+
+.admin-edit-panel h3 {
+  margin: 0 0 12px;
+}
+
+.admin-edit-panel label {
+  display: block;
+  margin-bottom: 10px;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.admin-edit-panel input,
+.admin-edit-panel select,
+.admin-edit-panel textarea {
+  width: 100%;
+  margin-top: 5px;
+  padding: 9px 10px;
+  border: 1px solid rgba(15, 23, 42, 0.18);
+  font: inherit;
+}
+
+.device-id-line {
+  font-size: 0.78rem;
+  opacity: 0.72;
+  word-break: break-all;
+}
