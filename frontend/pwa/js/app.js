@@ -1634,8 +1634,8 @@ function clearCurrentEstimate() {
   hideMeterReminder();
 
   if (newServiceBtn) {
-  newServiceBtn.classList.add("hidden");
-}
+    newServiceBtn.classList.add("hidden");
+  }
 
   const estimated = document.getElementById("estimatedPrice");
   const range = document.getElementById("priceRange");
@@ -1653,26 +1653,26 @@ function clearCurrentEstimate() {
   if (range) range.textContent = "0.00 – 0.00 €";
   if (distance) distance.textContent = "-- km";
   if (duration) duration.textContent = "-- min";
-  if (confidence) confidence.textContent = "Tarifa oficial aplicada sobre ruta estimada";
-  
+
+  if (confidence) {
+    confidence.textContent = "Tarifa oficial aplicada sobre ruta estimada";
+  }
+
   if (trafficStatus) {
     trafficStatus.textContent = "Estimación calculada con distancia, tiempo y tráfico actual";
-  
-    if (tariffAppliedCard) {
-  tariffAppliedCard.classList.add("hidden");
-}
   }
-}
-if (tariffAppliedCard) {
-  tariffAppliedCard.classList.add("hidden");
-}
 
-if (liveTrafficCard) {
-  liveTrafficCard.classList.add("hidden");
-}
+  if (tariffAppliedCard) {
+    tariffAppliedCard.classList.add("hidden");
+  }
 
-if (trafficStatusText) {
-  trafficStatusText.textContent = "Precios con tráfico actualizado en este momento";
+  if (liveTrafficCard) {
+    liveTrafficCard.classList.add("hidden");
+  }
+
+  if (trafficStatusText) {
+    trafficStatusText.textContent = "Precios con tráfico actualizado en este momento";
+  }
 }
 
 function showMeterReminder() {
@@ -2457,11 +2457,11 @@ document.addEventListener("DOMContentLoaded", () => {
       alert(error.message || "No se pudieron actualizar los dispositivos");
     }
   });
+
+  document.getElementById("savePilotDeviceBtn")?.addEventListener("click", savePilotDeviceEditor);
+
+  document.getElementById("cancelPilotDeviceEditBtn")?.addEventListener("click", closePilotDeviceEditor);
 });
-
-document.getElementById("savePilotDeviceBtn")?.addEventListener("click", savePilotDeviceEditor);
-
-document.getElementById("cancelPilotDeviceEditBtn")?.addEventListener("click", closePilotDeviceEditor);
 
 window.addEventListener("load", () => {
   initApp();
