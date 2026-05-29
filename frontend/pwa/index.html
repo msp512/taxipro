@@ -75,6 +75,62 @@
     </div>
   </div>
 
+  <div id="instructionsModal" class="modal-overlay hidden">
+  <div class="modal-card instructions-card">
+    <div class="modal-title">Guía rápida TAXIPRO</div>
+
+    <div class="instructions-content">
+      <h3>Uso básico</h3>
+
+      <ol>
+        <li>
+          <strong>Origen:</strong> introduce el punto real donde empieza el servicio
+          o donde se pone en marcha el taxímetro.
+        </li>
+
+        <li>
+          <strong>Punto intermedio:</strong> úsalo solo si hay una parada,
+          recogida previa o paso necesario antes del destino final.
+          Si no existe, déjalo vacío.
+        </li>
+
+        <li>
+          <strong>Destino final:</strong> introduce el destino solicitado por el cliente.
+        </li>
+
+        <li>
+          <strong>Suplementos:</strong> marca solo los que correspondan
+          según el servicio.
+        </li>
+
+        <li>
+          <strong>Calcular estimación:</strong> obtiene precio orientativo,
+          distancia, duración y tarifa aplicada.
+        </li>
+
+        <li>
+          <strong>Mostrar al cliente:</strong> usa la pantalla de cliente
+          para informar con claridad, sin entrar en detalles técnicos.
+        </li>
+
+        <li>
+          <strong>Registrar servicio:</strong> al finalizar, introduce el precio
+          real del taxímetro cuando puedas. Esto ayuda a mejorar la calibración.
+        </li>
+      </ol>
+
+      <div class="instructions-warning">
+        TAXIPRO ofrece una estimación profesional. El precio final válido siempre
+        será el marcado por el taxímetro.
+      </div>
+    </div>
+
+    <div class="modal-actions">
+      <button id="closeInstructionsBtn" class="btn-primary" type="button">Entendido</button>
+    </div>
+  </div>
+</div>
+
   <div id="meterReminder" class="meter-reminder hidden">
     <div class="reminder-content">
       <span class="reminder-icon">⏱</span>
@@ -86,10 +142,10 @@
 <header class="app-header">
 <div class="logo logo-text" id="logo" title="Mantén pulsado para ver estadísticas">
   <span>TAXIPRO</span>
-</div>
-  <div class="header-right">
+<div class="header-right">
   <div class="status-indicator" title="Sistema activo">●</div>
   <button id="pilotAccessBtn" class="pilot-access-btn pilot-access-btn--header" type="button">PILOTO</button>
+  <button id="instructionsBtn" class="instructions-btn" type="button">GUÍA</button>
   <button id="settingsBtn" class="settings-btn" title="Configuración" type="button">⚙</button>
 </div>
 </header>

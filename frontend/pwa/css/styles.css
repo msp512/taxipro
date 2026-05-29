@@ -1855,3 +1855,71 @@ button:disabled,
   opacity: 0.72;
   word-break: break-all;
 }
+.instructions-btn {
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid rgba(214, 179, 106, 0.55);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.04);
+  color: #f3d28b;
+  font-weight: 900;
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+}
+
+.instructions-card {
+  max-width: 560px;
+}
+
+.instructions-card {
+  max-width: 560px;
+  background: #0f1f31;
+  color: #f4f7fb;
+}
+
+.instructions-card .modal-title {
+  color: #f3d28b;
+}
+
+.instructions-content {
+  margin-top: 12px;
+  color: #f4f7fb;
+}
+
+.instructions-content h3 {
+  margin: 0 0 10px;
+  font-size: 1rem;
+  color: #f3d28b;
+}
+
+.instructions-content ol {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.instructions-content li {
+  margin-bottom: 10px;
+  line-height: 1.45;
+  color: rgba(244, 247, 251, 0.9);
+}
+
+.instructions-content strong {
+  color: #ffffff;
+}
+
+.instructions-warning {
+  margin-top: 14px;
+  padding: 12px;
+  border: 1px solid rgba(214, 179, 106, 0.55);
+  background: rgba(255, 248, 226, 0.96);
+  color: #7a3b18;
+  font-weight: 800;
+  line-height: 1.45;
+}
+
+@media (max-width: 420px) {
+  .instructions-btn {
+    padding: 0 10px;
+    font-size: 0.72rem;
+  }
+}

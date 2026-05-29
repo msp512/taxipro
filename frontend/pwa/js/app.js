@@ -48,6 +48,9 @@ const clientMode = document.getElementById("clientMode");
 const logo = document.getElementById("logo");
 const settingsBtn = document.getElementById("settingsBtn");
 const settingsModal = document.getElementById("settingsModal");
+const instructionsBtn = document.getElementById("instructionsBtn");
+const instructionsModal = document.getElementById("instructionsModal");
+const closeInstructionsBtn = document.getElementById("closeInstructionsBtn");
 const taxiIdInput = document.getElementById("taxiIdInput");
 const saveSettingsBtn = document.getElementById("saveSettingsBtn");
 const closeSettingsBtn = document.getElementById("closeSettingsBtn");
@@ -156,6 +159,12 @@ function enableAppExitGuard() {
       history.pushState({ taxipro: "root" }, "", location.href);
       return;
     }
+
+    if (instructionsModal && !instructionsModal.classList.contains("hidden")) {
+  instructionsModal.classList.add("hidden");
+  history.pushState({ taxipro: "root" }, "", location.href);
+  return;
+}
 
     if (!exitArmed) {
       exitArmed = true;
@@ -1767,6 +1776,20 @@ settingsBtn?.addEventListener("click", () => {
   if (taxiIdInput) taxiIdInput.value = getTaxiId();
   settingsModal?.classList.remove("hidden");
   taxiIdInput?.focus();
+});
+
+instructionsBtn?.addEventListener("click", () => {
+  instructionsModal?.classList.remove("hidden");
+});
+
+closeInstructionsBtn?.addEventListener("click", () => {
+  instructionsModal?.classList.add("hidden");
+});
+
+instructionsModal?.addEventListener("click", (event) => {
+  if (event.target === instructionsModal) {
+    instructionsModal.classList.add("hidden");
+  }
 });
 
 saveSettingsBtn?.addEventListener("click", saveTaxiIdFromSettings);
