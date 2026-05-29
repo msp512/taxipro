@@ -197,6 +197,7 @@ function isDiqueOesteOrPuertoDestination(value = "") {
   );
 }
 
+
 /* ===============================
    ORÍGENES — MICROZONAS
 =============================== */
@@ -328,20 +329,84 @@ function shouldForceSometimesMotorwayAccess(origin, destination) {
   );
 }
 
+function isPalmaPaseoMaritimoDestination(value = "") {
+  const text = normalizeText(value);
+  const point = parseCoordinatePair(value);
+
+  if (isAirportDestination(value)) {
+    return false;
+  }
+
+  if (isSonEspases(value)) {
+    return false;
+  }
+
+  if (isDiqueOesteOrPuertoDestination(value)) {
+    return true;
+  }
+
+  if (point) {
+    const { lat, lng } = point;
+
+    const isPalmaMaritimeArea =
+      lat >= 39.545 &&
+      lat <= 39.575 &&
+      lng >= 2.615 &&
+      lng <= 2.665;
+
+    if (isPalmaMaritimeArea) {
+      return true;
+    }
+  }
+
+  return (
+    text.includes("barca samba") ||
+    text.includes("passeig maritim") ||
+    text.includes("paseo maritimo") ||
+    text.includes("avenida gabriel roca") ||
+    text.includes("avinguda gabriel roca") ||
+    text.includes("auditorium") ||
+    text.includes("auditorio") ||
+    text.includes("portopi") ||
+    text.includes("porto pi") ||
+    text.includes("palma") ||
+    text.includes("centro") ||
+    text.includes("centre") ||
+    text.includes("la lonja") ||
+    text.includes("llotja") ||
+    text.includes("catedral") ||
+    text.includes("parc de la mar") ||
+    text.includes("plaza de la reina") ||
+    text.includes("placa de la reina") ||
+    text.includes("passeig des born") ||
+    text.includes("paseo del borne") ||
+    text.includes("jaume iii") ||
+    text.includes("santa catalina")
+  );
+}
+
 function shouldForcePaseoMaritimo(origin, destination) {
   /*
-    Regla Paseo Marítimo:
-    SOLO Playa de Palma / paradas Playa de Palma → Dique Oeste / Puerto.
-    NUNCA debe aplicarse si el destino es Aeropuerto.
+    Regla Paseo Maritimo:
+    Playa de Palma / Can Pastilla / Arenal hacia Palma centro,
+    Puerto, Dique Oeste, Barca Samba o frente maritimo.
+
+    Objetivo:
+    Evitar vueltas por Via de Cintura / Ma-20 cuando el criterio profesional
+    razonable es entrar por el frente maritimo.
   */
 
   if (isAirportDestination(destination)) {
     return false;
   }
 
+  if (isSonEspases(destination)) {
+    return false;
+  }
+
   return (
     isPlayaDePalmaOrigin(origin) &&
-    isDiqueOesteOrPuertoDestination(destination)
+    isPalmaPaseoMaritimoDestination(destination)
   );
 }
 
@@ -391,12 +456,12 @@ function buildTaxiWaypoints(origin, destination, stops = []) {
   }
 
   if (shouldForcePaseoMaritimo(origin, destination)) {
-    waypoints.push(PASEO_MARITIMO_POINT);
+  waypoints.push(PASEO_MARITIMO_POINT);
 
-    console.log(
-      "TaxiPro routing rule aplicada: Playa de Palma → Puerto/Dique por Paseo Marítimo"
-    );
-  }
+  console.log(
+    "TaxiPro routing rule aplicada: Playa de Palma / Can Pastilla hacia Palma por Paseo Maritimo"
+  );
+}
 
   if (isCentroPalma(origin) && isSonEspases(destination)) {
     waypoints.push({
@@ -496,15 +561,40 @@ export function computeRoute(origin, destination, stops = []) {
         0
       );
 
-      const totalDurationSeconds = route.legs.reduce(
-        (sum, leg) => sum + (leg.duration?.value || 0),
-        0
-      );
+      const totalDurationBaseSeconds = route.legs.reduce(
+  (sum, leg) => sum + (leg.duration?.value || 0),
+  0
+);
 
-      resolve({
-        distanceKm: totalDistanceMeters / 1000,
-        durationMinutes: totalDurationSeconds / 60
-      });
+const totalDurationTrafficSeconds = route.legs.reduce(
+  (sum, leg) =>
+    sum + (leg.duration_in_traffic?.value || leg.duration?.value || 0),
+  0
+);
+
+const trafficDelaySeconds = Math.max(
+  0,
+  totalDurationTrafficSeconds - totalDurationBaseSeconds
+);
+
+const trafficDelayPercent =
+  totalDurationBaseSeconds > 0
+    ? trafficDelaySeconds / totalDurationBaseSeconds
+    : 0;
+
+resolve({
+  distanceKm: totalDistanceMeters / 1000,
+
+  // Duración que usará TAXIPRO para calcular precio.
+  durationMinutes: totalDurationTrafficSeconds / 60,
+
+  // Datos adicionales para diagnóstico y visualización.
+  durationBaseMinutes: totalDurationBaseSeconds / 60,
+  durationTrafficMinutes: totalDurationTrafficSeconds / 60,
+  trafficDelayMinutes: trafficDelaySeconds / 60,
+  trafficDelayPercent,
+  hasTrafficData: route.legs.some((leg) => Boolean(leg.duration_in_traffic))
+});
     });
   });
 }
