@@ -192,6 +192,42 @@ function isPalmaUrbanCoordinate(value = "") {
   );
 }
 
+function isMallorcaFashionOutletPlace(value = "") {
+  const text = normalizePlaceText(value);
+  const point = parseCoordinatePair(value);
+
+  const matchesText =
+    text.includes("mallorca fashion outlet") ||
+    text.includes("fashion outlet") ||
+    text.includes("festival park") ||
+    text.includes("marratxi") ||
+    text.includes("marratxi outlet") ||
+    text.includes("marratxí");
+
+  if (matchesText) {
+    return true;
+  }
+
+  if (!point) {
+    return false;
+  }
+
+  const { lat, lng } = point;
+
+  /*
+    Mallorca Fashion Outlet / Marratxi.
+    Regla específica TAXIPRO/APC 2026:
+    Marratxi queda equiparado a Palma y el Outlet debe tratarse como
+    ámbito urbano ampliado para aplicar Tarifa 1 / Tarifa 2.
+  */
+  return (
+    lat >= 39.625 &&
+    lat <= 39.645 &&
+    lng >= 2.705 &&
+    lng <= 2.735
+  );
+}
+
 function isPalmaUrbanText(value = "") {
   const text = normalizePlaceText(value);
 
@@ -222,12 +258,16 @@ function isPalmaUrbanText(value = "") {
     text.includes("coll den rabassa") ||
     text.includes("coll d en rabassa") ||
     text.includes("son espases") ||
-    text.includes("mallorca fashion outlet")
+    isMallorcaFashionOutletPlace(value)
   );
 }
 
 function isInsidePalmaUrbanOperationalScope(value = "") {
-  return isPalmaUrbanCoordinate(value) || isPalmaUrbanText(value);
+  return (
+    isPalmaUrbanCoordinate(value) ||
+    isPalmaUrbanText(value) ||
+    isMallorcaFashionOutletPlace(value)
+  );
 }
 
 function resolveRouteScope({
