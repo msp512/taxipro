@@ -693,6 +693,7 @@ function renderDevices(devices) {
     const canActivate = !isCurrent && status !== "active";
     const canDeactivate = !isCurrent && status !== "inactive";
     const canBlock = !isCurrent && status !== "blocked";
+    const canRetire = !isCurrent && status !== "blocked";
     const canSetOperator = !isCurrent && role !== "operator";
     const canSetManager = !isCurrent && role !== "manager" && role !== "superadmin";
 
@@ -719,9 +720,10 @@ function renderDevices(devices) {
           ${!isCurrent && isPending ? `<button type="button" class="device-action-btn success" data-action="approve" data-id="${escapeHtml(d.device_id)}">APROBAR</button>` : ""}
           ${canActivate ? `<button type="button" class="device-action-btn success" data-action="activate" data-id="${escapeHtml(d.device_id)}">ACTIVAR</button>` : ""}
           ${canDeactivate ? `<button type="button" class="device-action-btn" data-action="inactive" data-id="${escapeHtml(d.device_id)}">DESACTIVAR</button>` : ""}
-          ${canBlock ? `<button type="button" class="device-action-btn danger" data-action="block" data-id="${escapeHtml(d.device_id)}">BLOQUEAR</button>` : ""}
-          ${canSetOperator ? `<button type="button" class="device-action-btn" data-action="operator" data-id="${escapeHtml(d.device_id)}">OPERATOR</button>` : ""}
-          ${canSetManager ? `<button type="button" class="device-action-btn" data-action="manager" data-id="${escapeHtml(d.device_id)}">MANAGER</button>` : ""}
+         ${canBlock ? `<button type="button" class="device-action-btn danger" data-action="block" data-id="${escapeHtml(d.device_id)}">BLOQUEAR</button>` : ""}
+${canRetire ? `<button type="button" class="device-action-btn danger" data-action="retire" data-id="${escapeHtml(d.device_id)}">RETIRAR</button>` : ""}
+${canSetOperator ? `<button type="button" class="device-action-btn" data-action="operator" data-id="${escapeHtml(d.device_id)}">OPERATOR</button>` : ""}
+${canSetManager ? `<button type="button" class="device-action-btn" data-action="manager" data-id="${escapeHtml(d.device_id)}">MANAGER</button>` : ""}
         </div>
       </div>
     `;
@@ -743,12 +745,29 @@ function renderDevices(devices) {
       try {
         btn.disabled = true;
 
-        if (action === "approve") await approvePendingDevice(id);
-        if (action === "activate") await updateDeviceStatus(id, "active");
-        if (action === "inactive") await updateDeviceStatus(id, "inactive");
-        if (action === "block") await updateDeviceStatus(id, "blocked");
-        if (action === "operator") await updateDeviceRole(id, "operator");
-        if (action === "manager") await updateDeviceRole(id, "manager");
+       if (action === "approve") await approvePendingDevice(id);
+if (action === "activate") await updateDeviceStatus(id, "active");
+if (action === "inactive") await updateDeviceStatus(id, "inactive");
+if (action === "block") await updateDeviceStatus(id, "blocked");
+
+if (action === "retire") {
+  const confirmed = confirm(
+    "¿Seguro que quieres retirar este dispositivo del piloto?\n\nNo podrá acceder a TAXIPRO, pero se conservará el historial."
+  );
+
+  if (!confirmed) {
+    btn.disabled = false;
+    return;
+  }
+
+  await updatePilotDeviceDetails(id, {
+    status: "blocked",
+    internal_note: "Retirado del piloto"
+  });
+}
+
+if (action === "operator") await updateDeviceRole(id, "operator");
+if (action === "manager") await updateDeviceRole(id, "manager");
 
         const refreshedDevices = await fetchPilotDevices();
         renderDevices(refreshedDevices);
