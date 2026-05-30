@@ -57,25 +57,7 @@
 
 <div id="mainApp" class="hidden">
 
-  <div id="settingsModal" class="modal-overlay hidden">
-    <div class="modal-card">
-      <div class="modal-title">⚙ Configuración</div>
-      <div class="modal-field">
-        <label for="taxiIdInput">Identificador del taxi</label>
-        <input id="taxiIdInput" type="text" placeholder="Ej: TX001" maxlength="10">
-        <div class="modal-hint">
-          Introduce tu código de taxi autorizado para el piloto.<br>
-          Este identificador se usa para estadísticas y registro interno.
-        </div>
-      </div>
-      <div class="modal-actions">
-        <button id="saveSettingsBtn" class="btn-primary" type="button">Guardar</button>
-        <button id="closeSettingsBtn" class="btn-secondary" type="button">Cancelar</button>
-      </div>
-    </div>
-  </div>
-
-  <div id="instructionsModal" class="modal-overlay hidden">
+<div id="instructionsModal" class="modal-overlay hidden">
   <div class="modal-card instructions-card">
     <div class="modal-title">Guía rápida TAXIPRO</div>
 
@@ -121,45 +103,32 @@
 
       <h3>Normas APC 2026</h3>
 
-<div class="apc-guide-box">
-  <p>
-    <strong>Vigencia:</strong> del 1 de junio de 2026 al 30 de septiembre de 2026.
-  </p>
+      <div class="apc-guide-box">
+        <p>
+          <strong>Vigencia:</strong> del 1 de junio de 2026 al 30 de septiembre de 2026.
+        </p>
 
-  <p>
-    <strong>Municipios:</strong> Palma, Marratxí, Calvià, Llucmajor,
-    Esporles, Puigpunyent, Valldemossa, Bunyola y Deià.
-  </p>
+        <p>
+          <strong>Municipios:</strong> Palma, Marratxí, Calvià, Llucmajor,
+          Esporles, Puigpunyent, Valldemossa, Bunyola y Deià.
+        </p>
 
-  <p>
-    <h3>Normas APC 2026</h3>
+        <p>
+          <strong>Tarifas:</strong> según normas APC 2026, en el área de recogida
+          se aplican Tarifa 1 y Tarifa 2.
+        </p>
 
-<div class="apc-guide-box">
-  <p>
-    <strong>Vigencia:</strong> del 1 de junio de 2026 al 30 de septiembre de 2026.
-  </p>
+        <p>
+          <strong>Marratxí:</strong> queda equiparado a Palma a efectos operativos.
+        </p>
 
-  <p>
-    <strong>Municipios:</strong> Palma, Marratxí, Calvià, Llucmajor,
-    Esporles, Puigpunyent, Valldemossa, Bunyola y Deià.
-  </p>
-
-  <p>
-    <strong>Tarifas:</strong> según normas APC 2026, en el área de recogida
-    se aplican Tarifa 1 y Tarifa 2.
-  </p>
-
-  <p>
-    <strong>Marratxí:</strong> queda equiparado a Palma a efectos operativos.
-  </p>
-
-  <ul>
-    <li>No recoger en puerta de hoteles salvo servicio procedente de app.</li>
-    <li>No cargar a menos de 100 m de una parada si hay clientes o taxis.</li>
-    <li>Las licencias temporales no pueden prestar este tipo de servicios.</li>
-    <li>Las recogidas se realizarán en paradas habilitadas cuando proceda.</li>
-  </ul>
-</div>
+        <ul>
+          <li>No recoger en puerta de hoteles salvo servicio procedente de app.</li>
+          <li>No cargar a menos de 100 m de una parada si hay clientes o taxis.</li>
+          <li>Las licencias temporales no pueden prestar este tipo de servicios.</li>
+          <li>Las recogidas se realizarán en paradas habilitadas cuando proceda.</li>
+        </ul>
+      </div>
 
       <div class="instructions-warning">
         TAXIPRO ofrece una estimación profesional. El precio final válido siempre
@@ -172,7 +141,6 @@
     </div>
   </div>
 </div>
-
   <div id="meterReminder" class="meter-reminder hidden">
     <div class="reminder-content">
       <span class="reminder-icon">⏱</span>
