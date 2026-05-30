@@ -1960,3 +1960,19 @@ button:disabled,
 .apc-guide-box strong {
   color: #f3d28b;
 }
+.instructions-card {
+  max-height: calc(100vh - 80px);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.instructions-content {
+  padding-bottom: 22px;
+}
+
+.instructions-card .modal-actions {
+  position: sticky;
+  bottom: 0;
+  background: #0f1f31;
+  padding: 12px 0 0;
+}
