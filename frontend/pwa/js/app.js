@@ -1184,6 +1184,39 @@ function ensureFareInfoCards() {
   }
 }
 
+function isApc2026Context(data) {
+  const text = [
+    data?.meta?.origin,
+    data?.meta?.destination,
+    ...(Array.isArray(data?.meta?.stops) ? data.meta.stops : []),
+    data?.routeScopeReason,
+    data?.tariff?.routeScopeReason,
+    data?.tariffReason,
+    data?.tariffName
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+
+  const isUrban =
+    data?.routeScope === "urban" ||
+    data?.tariff?.routeScope === "urban" ||
+    data?.meta?.routeScope === "urban";
+
+  const mentionsApcArea =
+    text.includes("mallorca fashion outlet") ||
+    text.includes("fashion outlet") ||
+    text.includes("marratxi") ||
+    text.includes("marratxi") ||
+    text.includes("festival park") ||
+    text.includes("ambito urbano ampliado") ||
+    text.includes("ambito urbano operativo");
+
+  return isUrban && mentionsApcArea;
+}
+
 function updateTariffAppliedCard(data) {
   ensureFareInfoCards();
 
@@ -1217,12 +1250,21 @@ function updateTariffAppliedCard(data) {
         ? "Servicio urbano"
         : "";
 
+  const apcNotice = isApc2026Context(data)
+    ? "Área APC 2026 · Tarifa 1/2 · Marratxí equiparado a Palma"
+    : "";
+
   nameEl.textContent = code;
   reasonEl.textContent = name || reason || "Tarifa aplicada";
-  detailsEl.textContent =
+
+  const baseDetails =
     scopeLabel && routeScopeReason
       ? `${scopeLabel} · ${routeScopeReason}`
       : scopeLabel || routeScopeReason || reason || "";
+
+  detailsEl.innerHTML = apcNotice
+    ? `${baseDetails}<br><span class="apc-2026-notice">${apcNotice}</span>`
+    : baseDetails;
 
   card.classList.remove("hidden");
 }

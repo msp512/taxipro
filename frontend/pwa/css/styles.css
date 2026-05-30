@@ -1923,3 +1923,14 @@ button:disabled,
     font-size: 0.72rem;
   }
 }
+.apc-2026-notice {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 7px 9px;
+  border: 1px solid rgba(214, 179, 106, 0.55);
+  background: rgba(255, 248, 226, 0.95);
+  color: #7a3b18;
+  font-weight: 900;
+  font-size: 0.82rem;
+  line-height: 1.35;
+}
