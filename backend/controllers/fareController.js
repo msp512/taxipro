@@ -82,6 +82,202 @@ function isCoordinateInsidePalmaUrbanScope(value = "") {
   );
 }
 
+function isInsideBox(lat, lng, box) {
+  return (
+    lat >= box.minLat &&
+    lat <= box.maxLat &&
+    lng >= box.minLng &&
+    lng <= box.maxLng
+  );
+}
+
+const APC_2026_BOXES = {
+  palma: {
+    minLat: 39.49,
+    maxLat: 39.67,
+    minLng: 2.55,
+    maxLng: 2.82
+  },
+
+  marratxi: {
+    minLat: 39.59,
+    maxLat: 39.68,
+    minLng: 2.66,
+    maxLng: 2.78
+  },
+
+  calvia: {
+    minLat: 39.48,
+    maxLat: 39.61,
+    minLng: 2.34,
+    maxLng: 2.62
+  },
+
+  llucmajor: {
+    minLat: 39.33,
+    maxLat: 39.57,
+    minLng: 2.66,
+    maxLng: 2.93
+  },
+
+  esporles: {
+    minLat: 39.63,
+    maxLat: 39.72,
+    minLng: 2.54,
+    maxLng: 2.66
+  },
+
+  puigpunyent: {
+    minLat: 39.57,
+    maxLat: 39.68,
+    minLng: 2.45,
+    maxLng: 2.58
+  },
+
+  valldemossa: {
+    minLat: 39.66,
+    maxLat: 39.76,
+    minLng: 2.55,
+    maxLng: 2.68
+  },
+
+  bunyola: {
+    minLat: 39.62,
+    maxLat: 39.75,
+    minLng: 2.66,
+    maxLng: 2.82
+  },
+
+  deia: {
+    minLat: 39.70,
+    maxLat: 39.78,
+    minLng: 2.60,
+    maxLng: 2.68
+  }
+};
+
+function isApc2026Active(now = new Date()) {
+  const localNow = getMallorcaNow(now);
+
+  const start = new Date("2026-06-01T00:00:00+02:00");
+  const end = new Date("2026-10-01T00:00:00+02:00");
+
+  return localNow >= start && localNow < end;
+}
+
+function isApc2026Text(value = "") {
+  const text = normalizePlaceText(value);
+
+  if (!text) return false;
+
+  return (
+    // Municipios APC
+    text.includes("palma") ||
+    text.includes("marratxi") ||
+    text.includes("calvia") ||
+    text.includes("llucmajor") ||
+    text.includes("esporles") ||
+    text.includes("puigpunyent") ||
+    text.includes("valldemossa") ||
+    text.includes("bunyola") ||
+    text.includes("deia") ||
+
+    // Palma
+    text.includes("playa de palma") ||
+    text.includes("platja de palma") ||
+    text.includes("can pastilla") ||
+    text.includes("coll den rabassa") ||
+    text.includes("coll d en rabassa") ||
+    text.includes("cala major") ||
+    text.includes("san agustin") ||
+    text.includes("sant agusti") ||
+    text.includes("porto pi") ||
+    text.includes("portopi") ||
+
+    // Marratxí
+    text.includes("pont d inca") ||
+    text.includes("pla de na tesa") ||
+    text.includes("sa cabana") ||
+    text.includes("portol") ||
+    text.includes("mallorca fashion outlet") ||
+    text.includes("fashion outlet") ||
+    text.includes("festival park") ||
+
+    // Calvià
+    text.includes("cas catala") ||
+    text.includes("illetes") ||
+    text.includes("ses illetes") ||
+    text.includes("bendinat") ||
+    text.includes("portals") ||
+    text.includes("portals nous") ||
+    text.includes("palmanova") ||
+    text.includes("magalluf") ||
+    text.includes("santa ponsa") ||
+    text.includes("paguera") ||
+    text.includes("peguera") ||
+    text.includes("son ferrer") ||
+    text.includes("el toro") ||
+    text.includes("cala vinyes") ||
+    text.includes("sol de mallorca") ||
+
+    // Llucmajor
+    text.includes("s arenal") ||
+    text.includes("el arenal") ||
+    text.includes("badia gran") ||
+    text.includes("bahia grande") ||
+    text.includes("badia blava") ||
+    text.includes("bahia azul") ||
+    text.includes("tolleric") ||
+    text.includes("cala pi") ||
+    text.includes("s estanyol") ||
+    text.includes("estanyol") ||
+    text.includes("son veri") ||
+    text.includes("sa torre") ||
+    text.includes("maioris") ||
+    text.includes("maioris decima") ||
+
+    // Esporles
+    text.includes("s esgleieta") ||
+    text.includes("ses rotgetes") ||
+
+    // Puigpunyent
+    text.includes("galilea") ||
+    text.includes("son serralta") ||
+
+    // Valldemossa
+    text.includes("port de valldemossa") ||
+
+    // Bunyola
+    text.includes("palmanyola") ||
+    text.includes("sa coma") ||
+    text.includes("orient") ||
+
+    // Deià
+    text.includes("cala deia") ||
+    text.includes("llucalcari")
+  );
+}
+
+function isApc2026Coordinate(value = "") {
+  const point = parseCoordinatePair(value);
+
+  if (!point) return false;
+
+  const { lat, lng } = point;
+
+  return Object.values(APC_2026_BOXES).some((box) =>
+    isInsideBox(lat, lng, box)
+  );
+}
+
+function isApc2026Place(value = "") {
+  return (
+    isInsidePalmaUrbanOperationalScope(value) ||
+    isApc2026Text(value) ||
+    isApc2026Coordinate(value)
+  );
+}
+
 function isKnownPalmaUrbanCoordinate(value = "") {
   const point = parseCoordinatePair(value);
 
@@ -303,6 +499,25 @@ function resolveRouteScope({
       return {
         scope: "urban",
         reason: "Origen, destino y paradas dentro del ámbito urbano operativo de Palma"
+      };
+    }
+  }
+
+  /*
+    Regla APC 2026:
+    Durante la vigencia del acuerdo de recogida conjunta,
+    si todos los puntos del servicio están dentro del ámbito APC 2026,
+    TAXIPRO debe tratar el servicio como urbano y aplicar Tarifa 1 / Tarifa 2.
+  */
+  if (isApc2026Active() && routePoints.length >= 2) {
+    const allInsideApc2026 = routePoints.every((point) =>
+      isApc2026Place(point)
+    );
+
+    if (allInsideApc2026) {
+      return {
+        scope: "urban",
+        reason: "Servicio dentro del área APC 2026 · Tarifa 1/2"
       };
     }
   }
