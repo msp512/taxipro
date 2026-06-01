@@ -1114,44 +1114,44 @@ function getTrafficStateFromSpeed(speed) {
 
   if (numericSpeed < 14) {
     return {
-      es: "Mucho tráfico",
-      en: "Heavy traffic",
-      de: "Starker Verkehr",
-      detailEs: "Circulación lenta, más densa de lo habitual",
-      detailEn: "Slow traffic, heavier than usual",
-      detailDe: "Langsamer Verkehr, dichter als üblich"
+      es: "Circulación lenta",
+      en: "Slow traffic",
+      de: "Langsamer Verkehr",
+      detailEs: "Duración estimada elevada para la distancia de la ruta",
+      detailEn: "Estimated duration is high for the route distance",
+      detailDe: "Die geschätzte Dauer ist für die Streckenlänge hoch"
     };
   }
 
   if (numericSpeed < 22) {
     return {
-      es: "Tráfico moderado",
-      en: "Moderate traffic",
-      de: "Mäßiger Verkehr",
-      detailEs: "Circulación relativamente densa",
-      detailEn: "Moderately dense traffic",
-      detailDe: "Relativ dichter Verkehr"
+      es: "Circulación densa",
+      en: "Dense traffic",
+      de: "Dichter Verkehr",
+      detailEs: "Velocidad media reducida en la ruta estimada",
+      detailEn: "Reduced average speed on the estimated route",
+      detailDe: "Reduzierte Durchschnittsgeschwindigkeit auf der geschätzten Route"
     };
   }
 
   if (numericSpeed < 32) {
     return {
-      es: "Tráfico fluido",
-      en: "Smooth traffic",
-      de: "Fließender Verkehr",
-      detailEs: "Condiciones normales de circulación",
-      detailEn: "Normal traffic conditions",
-      detailDe: "Normale Verkehrsbedingungen"
+      es: "Tráfico sin incidencia relevante",
+      en: "No relevant traffic impact",
+      de: "Keine relevante Verkehrsbeeinträchtigung",
+      detailEs: "Estimación basada en la duración actual de la ruta",
+      detailEn: "Estimate based on current route duration",
+      detailDe: "Schätzung basiert auf der aktuellen Routendauer"
     };
   }
 
   return {
-    es: "Poco tráfico",
-    en: "Light traffic",
-    de: "Wenig Verkehr",
-    detailEs: "Circulación más fluida de lo habitual",
-    detailEn: "Traffic is lighter than usual",
-    detailDe: "Der Verkehr ist flüssiger als üblich"
+    es: "Tráfico sin incidencia relevante",
+    en: "No relevant traffic impact",
+    de: "Keine relevante Verkehrsbeeinträchtigung",
+    detailEs: "Estimación basada en la duración actual de la ruta",
+    detailEn: "Estimate based on current route duration",
+    detailDe: "Schätzung basiert auf der aktuellen Routendauer"
   };
 }
 
