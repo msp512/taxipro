@@ -9,16 +9,16 @@ import {
   createInviteAPI,
   calculateFareAPI,
   registerServiceAPI,
-  getServicesAPI
+  getServicesAPI,
+  exportServicesCSVAPI
 } from "./apiClient.js";
 import {
   findFixedAgencyTariff,
   findFixedHotelTariff,
   findFixedStipulatedTariff,
   findTransferMatrixPrice,
-  getQuickDestinationByMode,
-  exportServicesCSVAPI
-} from "./fixedTariffs.js";
+  getQuickDestinationByMode
+  } from "./fixedTariffs.js";
 import { showPriceResult, updatePilotStats, renderHistory } from "./ui.js";
 import {
   saveService,
@@ -2594,15 +2594,24 @@ document.addEventListener("DOMContentLoaded", () => {
     } catch (error) {
       alert(error.message || "No se pudieron actualizar los dispositivos");
     }
-    document
-  .getElementById("exportServicesCsvBtn")
-  ?.addEventListener("click", exportServicesCSV);
   });
+
+  document
+    .getElementById("exportServicesCsvBtn")
+    ?.addEventListener("click", exportServicesCSV);
+
+  document
+    .getElementById("savePilotDeviceBtn")
+    ?.addEventListener("click", savePilotDeviceEditor);
+
+  document
+    .getElementById("cancelPilotDeviceEditBtn")
+    ?.addEventListener("click", closePilotDeviceEditor);
+});
 
   document.getElementById("savePilotDeviceBtn")?.addEventListener("click", savePilotDeviceEditor);
 
   document.getElementById("cancelPilotDeviceEditBtn")?.addEventListener("click", closePilotDeviceEditor);
-});
 
 window.addEventListener("load", () => {
   initApp();
