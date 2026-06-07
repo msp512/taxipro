@@ -353,3 +353,20 @@ export async function getServicesAPI(taxiId, limit = 20) {
     throw error;
   }
 }
+export async function exportServicesCSVAPI() {
+  const response = await fetch(`${API_BASE}/services/export/csv`, {
+    method: "GET",
+    headers: {
+      ...buildPilotHeaders()
+    }
+  });
+
+  if (!response.ok) {
+    const data = await response.json().catch(() => null);
+    throw new Error(
+      data?.message || data?.error || "No se pudo exportar el CSV"
+    );
+  }
+
+  return response.blob();
+}

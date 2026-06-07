@@ -16,7 +16,8 @@ import {
   findFixedHotelTariff,
   findFixedStipulatedTariff,
   findTransferMatrixPrice,
-  getQuickDestinationByMode
+  getQuickDestinationByMode,
+  exportServicesCSVAPI
 } from "./fixedTariffs.js";
 import { showPriceResult, updatePilotStats, renderHistory } from "./ui.js";
 import {
@@ -1031,6 +1032,37 @@ setupAdminInviteControls();
 const devices = await fetchPilotDevices();
 renderDevices(devices);
 }
+async function exportServicesCSV() {
+  const button = document.getElementById("exportServicesCsvBtn");
+
+  try {
+    if (button) {
+      button.disabled = true;
+      button.textContent = "Exportando...";
+    }
+
+    const blob = await exportServicesCSVAPI();
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    const date = new Date().toISOString().slice(0, 10);
+
+    link.href = url;
+    link.download = `taxipro-servicios-${date}.csv`;
+    document.body.appendChild(link);
+    link.click();
+
+    link.remove();
+    URL.revokeObjectURL(url);
+  } catch (error) {
+    alert(error.message || "No se pudo exportar el CSV.");
+  } finally {
+    if (button) {
+      button.disabled = false;
+      button.textContent = "Exportar servicios CSV";
+    }
+  }
+}
 
 /* ===============================
    AUTOCOMPLETE / MAP HELPERS
@@ -1272,8 +1304,8 @@ function updateTariffAppliedCard(data) {
         : "";
 
   const apcNotice = isApc2026Context(data)
-    ? "Área APC 2026 · Tarifa 1/2 · Marratxí equiparado a Palma"
-    : "";
+  ? "Área APC 2026 · Tarifa 1/2 · Servicio dentro del área de recogida conjunta"
+  : "";
 
   nameEl.textContent = code;
   reasonEl.textContent = name || reason || "Tarifa aplicada";
@@ -2562,6 +2594,9 @@ document.addEventListener("DOMContentLoaded", () => {
     } catch (error) {
       alert(error.message || "No se pudieron actualizar los dispositivos");
     }
+    document
+  .getElementById("exportServicesCsvBtn")
+  ?.addEventListener("click", exportServicesCSV);
   });
 
   document.getElementById("savePilotDeviceBtn")?.addEventListener("click", savePilotDeviceEditor);

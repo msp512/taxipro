@@ -296,3 +296,106 @@ export async function getServicesByTaxi(req, res) {
     });
   }
 }
+export async function exportServicesCSV(req, res) {
+  try {
+    const result = await db.query(`
+      SELECT
+        created_at,
+        taxi_code,
+        taxi_id,
+        origin,
+        destination,
+        destination_initial,
+        destination_final,
+        distance_km,
+        duration_min,
+        estimated_price,
+        estimated_price_initial,
+        estimated_price_final,
+        meter_price,
+        deviation,
+        city,
+        route_mode,
+        type,
+        stops_json
+      FROM services
+      ORDER BY created_at DESC
+      LIMIT 2000
+    `);
+
+    const headers = [
+      "fecha",
+      "taxi_code",
+      "taxi_id",
+      "origen",
+      "destino",
+      "destino_inicial",
+      "destino_final",
+      "km",
+      "minutos",
+      "precio_estimado",
+      "precio_estimado_inicial",
+      "precio_estimado_final",
+      "precio_taximetro",
+      "desviacion",
+      "ciudad",
+      "modo_ruta",
+      "tipo",
+      "paradas_json"
+    ];
+
+    const escapeCSV = (value) => {
+      if (value === null || value === undefined) return "";
+
+      const stringValue =
+        typeof value === "object" ? JSON.stringify(value) : String(value);
+
+      return `"${stringValue.replace(/"/g, '""')}"`;
+    };
+
+    const csv = [
+      headers.join(","),
+      ...result.rows.map((row) =>
+        [
+          row.created_at,
+          row.taxi_code,
+          row.taxi_id,
+          row.origin,
+          row.destination,
+          row.destination_initial,
+          row.destination_final,
+          row.distance_km,
+          row.duration_min,
+          row.estimated_price,
+          row.estimated_price_initial,
+          row.estimated_price_final,
+          row.meter_price,
+          row.deviation,
+          row.city,
+          row.route_mode,
+          row.type,
+          row.stops_json
+        ]
+          .map(escapeCSV)
+          .join(",")
+      )
+    ].join("\n");
+
+    res.setHeader("Content-Type", "text/csv; charset=utf-8");
+    res.setHeader(
+      "Content-Disposition",
+      "attachment; filename=taxipro-servicios.csv"
+    );
+
+    return res.send(`\uFEFF${csv}`);
+  } catch (error) {
+    console.error("exportServicesCSV error:", error);
+
+    return res.status(500).json({
+      ok: false,
+      error: "EXPORT_SERVICES_ERROR",
+      message: "No se pudieron exportar los servicios.",
+      detail: error.message
+    });
+  }
+}
