@@ -1981,3 +1981,34 @@ button:disabled,
   display: flex;
   justify-content: flex-start;
 }
+#pilotStats {
+  color: #f4f7fb;
+}
+
+#pilotStats,
+#pilotStats p,
+#pilotStats div,
+#pilotStats span {
+  color: #f4f7fb;
+}
+
+#pilotStats .pilot-muted,
+#pilotStats small {
+  color: rgba(244, 247, 251, 0.82);
+}
+
+#pilotStats h2,
+#pilotStats h3,
+#pilotStats strong {
+  color: #f3d28b;
+}
+
+#pilotStats .device-id-line {
+  color: rgba(244, 247, 251, 0.75);
+}
+#pilotStats {
+  background: rgba(15, 31, 49, 0.96);
+  border: 1px solid rgba(214, 179, 106, 0.35);
+  border-radius: 14px;
+  padding: 12px;
+}
