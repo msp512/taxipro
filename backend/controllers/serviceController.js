@@ -353,33 +353,36 @@ export async function exportServicesCSV(req, res) {
       return `"${stringValue.replace(/"/g, '""')}"`;
     };
 
-    const csv = [
-      headers.join(","),
-      ...result.rows.map((row) =>
-        [
-          row.created_at,
-          row.taxi_code,
-          row.taxi_id,
-          row.origin,
-          row.destination,
-          row.destination_initial,
-          row.destination_final,
-          row.distance_km,
-          row.duration_min,
-          row.estimated_price,
-          row.estimated_price_initial,
-          row.estimated_price_final,
-          row.meter_price,
-          row.deviation,
-          row.city,
-          row.route_mode,
-          row.type,
-          row.stops_json
-        ]
-          .map(escapeCSV)
-          .join(",")
-      )
-    ].join("\n");
+const separator = ";";
+
+const csv = [
+  "sep=;",
+  headers.join(separator),
+  ...result.rows.map((row) =>
+    [
+      row.created_at,
+      row.taxi_code,
+      row.taxi_id,
+      row.origin,
+      row.destination,
+      row.destination_initial,
+      row.destination_final,
+      row.distance_km,
+      row.duration_min,
+      row.estimated_price,
+      row.estimated_price_initial,
+      row.estimated_price_final,
+      row.meter_price,
+      row.deviation,
+      row.city,
+      row.route_mode,
+      row.type,
+      row.stops_json
+    ]
+      .map(escapeCSV)
+      .join(separator)
+  )
+].join("\n");
 
     res.setHeader("Content-Type", "text/csv; charset=utf-8");
     res.setHeader(
