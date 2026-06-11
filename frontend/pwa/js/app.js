@@ -52,6 +52,7 @@ const settingsModal = document.getElementById("settingsModal");
 const instructionsBtn = document.getElementById("instructionsBtn");
 const instructionsModal = document.getElementById("instructionsModal");
 const closeInstructionsBtn = document.getElementById("closeInstructionsBtn");
+const installAppBtn = document.getElementById("installAppBtn");
 const taxiIdInput = document.getElementById("taxiIdInput");
 const saveSettingsBtn = document.getElementById("saveSettingsBtn");
 const closeSettingsBtn = document.getElementById("closeSettingsBtn");
@@ -73,6 +74,42 @@ let isSavingService = false;
 let exitArmed = false;
 let currentPilotDevice = null;
 let currentDestinationRoutingValue = null;
+
+let deferredInstallPrompt = null;
+
+window.addEventListener("beforeinstallprompt", (event) => {
+  event.preventDefault();
+  deferredInstallPrompt = event;
+
+  if (installAppBtn) {
+    installAppBtn.classList.add("install-available");
+  }
+});
+
+installAppBtn?.addEventListener("click", async () => {
+  if (deferredInstallPrompt) {
+    deferredInstallPrompt.prompt();
+
+    try {
+      await deferredInstallPrompt.userChoice;
+    } finally {
+      deferredInstallPrompt = null;
+      installAppBtn.classList.remove("install-available");
+    }
+
+    return;
+  }
+
+  alert(
+    "Para instalar TAXIPRO:\n\n" +
+    "Android / Chrome:\n" +
+    "Menú ⋮ → Añadir a pantalla de inicio o Instalar app.\n\n" +
+    "iPhone / Safari:\n" +
+    "Botón Compartir → Añadir a pantalla de inicio.\n\n" +
+    "Ordenador / Chrome:\n" +
+    "Usa el icono de instalación de la barra de direcciones."
+  );
+});
 
 /* ===============================
    DEVICE / TAXI ID

@@ -2012,3 +2012,6 @@ button:disabled,
   border-radius: 14px;
   padding: 12px;
 }
+.install-available {
+  box-shadow: 0 0 0 2px rgba(214, 179, 106, 0.28);
+}
