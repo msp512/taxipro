@@ -2015,3 +2015,68 @@ button:disabled,
 .install-available {
   box-shadow: 0 0 0 2px rgba(214, 179, 106, 0.28);
 }
+/* CABECERA PRINCIPAL TAXIPRO — mantener botones arriba */
+.app-header {
+  position: sticky;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  max-width: 100%;
+  z-index: 900;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 16px;
+  background: rgba(7, 20, 33, 0.96);
+  border-bottom: 1px solid rgba(214, 179, 106, 0.22);
+  box-sizing: border-box;
+}
+
+.app-header .logo {
+  flex: 0 0 auto;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-wrap: nowrap;
+  margin-left: auto;
+}
+
+.pilot-access-btn--header,
+.instructions-btn,
+.settings-btn {
+  flex: 0 0 auto;
+}
+
+/* Ajuste móvil para que quepan PILOTO, GUÍA, APP y ⚙ */
+@media (max-width: 480px) {
+  .app-header {
+    padding: 8px 10px;
+    gap: 6px;
+  }
+
+  .header-right {
+    gap: 5px;
+  }
+
+  .pilot-access-btn--header,
+  .instructions-btn {
+    min-height: 36px;
+    padding: 0 9px;
+    font-size: 0.68rem;
+  }
+
+  .settings-btn {
+    min-width: 36px;
+    min-height: 36px;
+  }
+
+  .logo.logo-text {
+    font-size: 0.82rem;
+  }
+}
